@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hacker Terminal Simulator — ToolHavoc</title>
+<meta name="description" content="Type anything and look like you're hacking the mainframe. Matrix rain background, multiple modes, fullscreen support.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#00ff41;font-family:'Fira Code',monospace;overflow:hidden;height:100vh;width:100vw;user-select:none;-webkit-user-select:none}
+canvas#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0.15}
+
+.top-bar{
+  position:fixed;top:0;left:0;right:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 16px;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(0,255,65,0.15);
+}
+.top-bar a{color:#00ff41;text-decoration:none;font-size:14px;opacity:0.7;transition:opacity 0.2s}
+.top-bar a:hover{opacity:1}
+.top-bar .brand{font-weight:700;font-family:'Inter',sans-serif;font-size:15px;letter-spacing:-0.5px}
+
+.mode-bar{
+  position:fixed;top:44px;left:0;right:0;z-index:15;
+  display:flex;gap:6px;padding:8px 16px;background:rgba(0,0,0,0.7);
+  border-bottom:1px solid rgba(0,255,65,0.1);flex-wrap:wrap;
+}
+.mode-btn{
+  padding:5px 14px;border-radius:4px;font-size:12px;font-family:'Fira Code',monospace;
+  background:rgba(0,255,65,0.05);border:1px solid rgba(0,255,65,0.2);color:#00ff41;
+  cursor:pointer;transition:all 0.2s;
+}
+.mode-btn:hover,.mode-btn.active{background:rgba(0,255,65,0.15);border-color:#00ff41}
+
+.terminal{
+  position:fixed;top:88px;left:0;right:0;bottom:50px;z-index:10;
+  overflow-y:auto;padding:16px;font-size:14px;line-height:1.7;
+  scrollbar-width:thin;scrollbar-color:#00ff41 transparent;
+}
+.terminal::-webkit-scrollbar{width:4px}
+.terminal::-webkit-scrollbar-thumb{background:#00ff41;border-radius:2px}
+.line{white-space:pre-wrap;word-break:break-all;animation:typeIn 0.05s ease-out}
+@keyframes typeIn{from{opacity:0}to{opacity:1}}
+.line.success{color:#00ff41;font-weight:700;text-shadow:0 0 10px rgba(0,255,65,0.5)}
+.line.warning{color:#ffaa00;font-weight:700;text-shadow:0 0 10px rgba(255,170,0,0.5)}
+.line.error{color:#ff3333;font-weight:700;text-shadow:0 0 10px rgba(255,51,51,0.5)}
+.line.info{color:#00aaff;text-shadow:0 0 8px rgba(0,170,255,0.3)}
+.cursor{display:inline-block;width:8px;height:16px;background:#00ff41;animation:blink 1s infinite}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+
+.bottom-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 16px;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);
+  border-top:1px solid rgba(0,255,65,0.15);gap:8px;flex-wrap:wrap;
+}
+.action-btn{
+  padding:5px 12px;border-radius:4px;font-size:12px;font-family:'Fira Code',monospace;
+  background:rgba(0,255,65,0.05);border:1px solid rgba(0,255,65,0.2);color:#00ff41;
+  cursor:pointer;transition:all 0.2s;
+}
+.action-btn:hover{background:rgba(0,255,65,0.15)}
+.keystroke-count{font-size:12px;color:rgba(0,255,65,0.5)}
+
+/* Fullscreen mode */
+.fullscreen .top-bar,.fullscreen .mode-bar,.fullscreen .bottom-bar{display:none}
+.fullscreen .terminal{top:0;bottom:0}
+
+@media(max-width:600px){
+  .terminal{font-size:12px;top:80px}
+  .mode-bar{top:40px;padding:6px 12px}
+  .top-bar{padding:6px 12px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="top-bar">
+  <a href="../index.html" class="brand">⚡ ToolHavoc</a>
+  <span style="font-size:12px;opacity:0.5">Press any key to hack</span>
+</div>
+
+<div class="mode-bar">
+  <button class="mode-btn active" onclick="setMode('hack')">🖥️ Hack</button>
+  <button class="mode-btn" onclick="setMode('decrypt')">🔐 Decrypt</button>
+  <button class="mode-btn" onclick="setMode('download')">📥 Download</button>
+  <button class="mode-btn" onclick="setMode('trace')">🌐 Trace IP</button>
+</div>
+
+<div class="terminal" id="terminal">
+  <div class="line info">[SYSTEM] ToolHavoc Hacker Terminal v3.0 initialized</div>
+  <div class="line info">[SYSTEM] Select a mode and start typing. Every key triggers a command.</div>
+  <div class="line"><span class="cursor"></span></div>
+</div>
+
+<div class="bottom-bar">
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <button class="action-btn" onclick="clearTerminal()">Clear</button>
+    <button class="action-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    <button class="action-btn" onclick="shareResult()">📤 Share</button>
+  </div>
+  <div class="keystroke-count">Keystrokes: <span id="keyCount">0</span></div>
+</div>
+
+<script>
+// Matrix rain
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+let cols, drops;
+function initMatrix() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const s = 14;
+  cols = Math.floor(canvas.width / s);
+  drops = Array(cols).fill(1);
+}
+initMatrix();
+window.addEventListener('resize', initMatrix);
+const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF';
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(0,0,0,0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#00ff41';
+  ctx.font = '14px monospace';
+  for (let i = 0; i < cols; i++) {
+    const t = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(t, i * 14, drops[i] * 14);
+    if (drops[i] * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 50);
+
+// Hack lines
+const rIP = () => `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+const rHex = (n=8) => [...Array(n)].map(()=>'0123456789ABCDEF'[Math.floor(Math.random()*16)]).join('');
+const rPort = () => [22,80,443,3306,5432,8080,8443,27017,6379,9200][Math.floor(Math.random()*10)];
+const rPct = () => Math.floor(Math.random()*100)+1;
+
+const hackLines = [
+  ()=>`[SSH] Connecting to ${rIP()}:${rPort()}...`,
+  ()=>`[AUTH] Brute-forcing credentials... attempt ${Math.floor(Math.random()*9999)}`,
+  ()=>`[NET] Scanning port ${rPort()} on ${rIP()}... OPEN`,
+  ()=>`[SYS] Injecting payload 0x${rHex(16)}...`,
+  ()=>`[DB] Dumping table 'users' from ${rIP()}:3306...`,
+  ()=>`[FS] Traversing directory /etc/shadow... ${rPct()}%`,
+  ()=>`[NET] ARP spoofing gateway at ${rIP()}...`,
+  ()=>`[CRYPTO] Cracking hash ${rHex(32)}...`,
+  ()=>`[MEM] Buffer overflow at address 0x${rHex(8)}...`,
+  ()=>`[NET] Intercepting packets on interface eth0...`,
+  ()=>`[SYS] Escalating privileges... UID=0(root)`,
+  ()=>`[SSH] Session established with ${rIP()}`,
+  ()=>`[FS] Reading /var/log/auth.log... ${Math.floor(Math.random()*50000)} entries`,
+  ()=>`[NET] DNS poisoning ${rIP()} -> evil.${rHex(4)}.net`,
+  ()=>`[DB] Extracting ${Math.floor(Math.random()*999999)} rows from database...`,
+  ()=>`[SYS] Kernel exploit loaded: CVE-2024-${Math.floor(Math.random()*9999)}`,
+  ()=>`[CRYPTO] RSA-4096 factorization... ${rPct()}%`,
+  ()=>`[NET] Establishing reverse shell on port ${rPort()}...`,
+  ()=>`[FS] Compressing exfiltrated data... ${Math.floor(Math.random()*500)}MB`,
+  ()=>`[AUTH] Token hijacked: Bearer ${rHex(24)}`,
+  ()=>`[SYS] Disabling firewall rules... iptables flushed`,
+  ()=>`[NET] Spoofing MAC address to ${rHex(2)}:${rHex(2)}:${rHex(2)}:${rHex(2)}:${rHex(2)}:${rHex(2)}`,
+  ()=>`[DB] SQL injection successful on endpoint /api/v2/users`,
+  ()=>`[MEM] Heap spray at 0x${rHex(8)}... allocated ${Math.floor(Math.random()*512)}MB`,
+  ()=>`[FS] Found credentials in .env: API_KEY=${rHex(32)}`,
+  ()=>`[NET] Tunneling through proxy ${rIP()}:8080...`,
+  ()=>`[SYS] Backdoor installed at /usr/bin/.${rHex(6)}`,
+  ()=>`[CRYPTO] Decrypting AES-256 block ${rHex(16)}...`,
+  ()=>`[NET] Zombie node ${rIP()} added to botnet cluster`,
+  ()=>`[AUTH] LDAP bind as cn=admin,dc=${rHex(4)},dc=com... success`,
+  ()=>`[FS] Shadow file cracked: 4 of 12 passwords recovered`,
+  ()=>`[SYS] Loading rootkit module... hiding PID ${Math.floor(Math.random()*65000)}`,
+  ()=>`[NET] MITM attack active on subnet ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.0.0/16`,
+  ()=>`[DB] NoSQL injection: {$gt:""} bypassed auth on ${rIP()}`,
+  ()=>`[MEM] ROP chain built: ${Math.floor(Math.random()*20)+5} gadgets linked`,
+  ()=>`[CRYPTO] Rainbow table lookup for hash ${rHex(16)}... match found`,
+  ()=>`[NET] Exfiltrating data via DNS tunneling... ${Math.floor(Math.random()*100)}KB/s`,
+  ()=>`[SYS] Crontab modified: persistence every 5 minutes`,
+  ()=>`[FS] Wiping logs in /var/log/... ${Math.floor(Math.random()*200)} files cleared`,
+  ()=>`[AUTH] OAuth token refresh intercepted: ${rHex(20)}`,
+];
+
+const decryptLines = [
+  ()=>`[DECRYPT] Processing block ${rHex(16)}... XOR key = 0x${rHex(4)}`,
+  ()=>`[DECRYPT] AES round ${Math.floor(Math.random()*14)+1}/14... SubBytes applied`,
+  ()=>`[DECRYPT] Frequency analysis: E=12.7% T=9.1% A=8.2%...`,
+  ()=>`[DECRYPT] RSA modulus factored: p=${rHex(8)} q=${rHex(8)}`,
+  ()=>`[DECRYPT] Vigenère key recovered: "${['HAVOC','CIPHER','DELTA','OMEGA','PHANTOM'][Math.floor(Math.random()*5)]}"`,
+  ()=>`[DECRYPT] Brute force: testing key ${rHex(16)}... ${rPct()}%`,
+  ()=>`[DECRYPT] CBC mode: IV = ${rHex(16)}`,
+  ()=>`[DECRYPT] Hash collision found at offset 0x${rHex(6)}`,
+  ()=>`[DECRYPT] Padding oracle: block ${Math.floor(Math.random()*16)+1} vulnerable`,
+  ()=>`[DECRYPT] Entropy analysis: ${(Math.random()*4+4).toFixed(2)} bits/byte — encrypted`,
+  ()=>`[DECRYPT] Keystream generated: ${rHex(32)}...`,
+  ()=>`[DECRYPT] S-box substitution layer ${Math.floor(Math.random()*10)+1} complete`,
+  ()=>`[DECRYPT] Known-plaintext attack: ${Math.floor(Math.random()*64)}B recovered`,
+  ()=>`[DECRYPT] ChaCha20 nonce: ${rHex(24)}`,
+  ()=>`[DECRYPT] Differential cryptanalysis: characteristic probability 2^-${Math.floor(Math.random()*48)}`,
+  ()=>`[DECRYPT] Deciphered fragment: "${['ACCESS POINT ALPHA','MAINFRAME DELTA','PROTOCOL NINE','SECTOR 7G','NULL VOID'][Math.floor(Math.random()*5)]}"`,
+];
+
+const downloadLines = [
+  ()=>`[DL] GET https://${rIP()}/files/${rHex(8)}.dat — ${Math.floor(Math.random()*999)}MB`,
+  ()=>`[DL] Downloading classified_${rHex(6)}.zip... ${rPct()}%`,
+  ()=>`[DL] Mirror ${Math.floor(Math.random()*12)+1}/12 selected — ${Math.floor(Math.random()*50)+10}ms latency`,
+  ()=>`[DL] Chunk ${Math.floor(Math.random()*256)}/256 received — SHA256: ${rHex(16)}...`,
+  ()=>`[DL] Torrent: ${Math.floor(Math.random()*200)} seeders / ${Math.floor(Math.random()*50)} leechers`,
+  ()=>`[DL] Encrypted archive ${rHex(8)}.7z extracting...`,
+  ()=>`[DL] Speed: ${(Math.random()*100).toFixed(1)} MB/s via tunnel ${rIP()}`,
+  ()=>`[DL] File integrity check: MD5 ${rHex(32)} ✓`,
+  ()=>`[DL] Decompressing payload_${rHex(4)}.tar.gz... ${Math.floor(Math.random()*5000)} files`,
+  ()=>`[DL] Hidden partition mounted: /dev/sd${['a','b','c'][Math.floor(Math.random()*3)]}${Math.floor(Math.random()*4)+1}`,
+  ()=>`[DL] Steganographic data extracted from image_${rHex(4)}.png — ${Math.floor(Math.random()*500)}KB hidden`,
+  ()=>`[DL] P2P transfer from node ${rIP()} — ETA ${Math.floor(Math.random()*59)+1}s`,
+];
+
+const traceLines = [
+  ()=>`[TRACE] Target: ${rIP()} — initiating traceroute...`,
+  ()=>`[TRACE] Hop ${Math.floor(Math.random()*15)+1}: ${rIP()} — ${Math.floor(Math.random()*200)+1}ms`,
+  ()=>`[TRACE] GeoIP: ${['New York','London','Tokyo','Berlin','Sydney','São Paulo','Mumbai','Toronto','Seoul','Amsterdam'][Math.floor(Math.random()*10)]}, ${['US','UK','JP','DE','AU','BR','IN','CA','KR','NL'][Math.floor(Math.random()*10)]}`,
+  ()=>`[TRACE] ISP identified: ${['Cloudflare','AWS','Google Cloud','DigitalOcean','OVH','Hetzner','Linode'][Math.floor(Math.random()*7)]}`,
+  ()=>`[TRACE] Reverse DNS: host-${rHex(4)}.${['cdn','edge','proxy','gateway'][Math.floor(Math.random()*4)]}.net`,
+  ()=>`[TRACE] ASN: AS${Math.floor(Math.random()*60000)+1000} — ${['Level3','Cogent','NTT','Telia','Lumen'][Math.floor(Math.random()*5)]}`,
+  ()=>`[TRACE] SSL cert: CN=*.${rHex(6)}.com — expires ${2025+Math.floor(Math.random()*3)}-${String(Math.floor(Math.random()*12)+1).padStart(2,'0')}`,
+  ()=>`[TRACE] Open ports: ${[22,80,443,8080,3306].filter(()=>Math.random()>0.4).join(', ')}`,
+  ()=>`[TRACE] Whois: registered ${2010+Math.floor(Math.random()*14)}-${String(Math.floor(Math.random()*12)+1).padStart(2,'0')}-${String(Math.floor(Math.random()*28)+1).padStart(2,'0')}`,
+  ()=>`[TRACE] VPN/Proxy detected: ${Math.random()>0.5?'YES — obfuscation layer active':'NO — direct connection'}`,
+  ()=>`[TRACE] TLS fingerprint: JA3=${rHex(32)}`,
+  ()=>`[TRACE] HTTP headers leaked: Server=nginx/${Math.floor(Math.random()*2)+1}.${Math.floor(Math.random()*20)}.${Math.floor(Math.random()*10)}`,
+  ()=>`[TRACE] BGP route: ${Math.floor(Math.random()*5)+3} autonomous systems traversed`,
+  ()=>`[TRACE] Ping: ${Math.floor(Math.random()*200)+5}ms — ${Math.random()>0.3?'stable':'packet loss 2%'}`,
+  ()=>`[TRACE] OSINT: domain linked to ${Math.floor(Math.random()*20)+1} other hosts`,
+  ()=>`[TRACE] Subnet scan: ${Math.floor(Math.random()*50)+5} live hosts on /24`,
+];
+
+const milestoneLines = [
+  {cls:'success',fn:()=>`[✓] ACCESS GRANTED — root@${rIP()}`},
+  {cls:'success',fn:()=>`[✓] FIREWALL BYPASSED — all ports exposed`},
+  {cls:'warning',fn:()=>`[!] WARNING: Intrusion detection triggered — evading...`},
+  {cls:'success',fn:()=>`[✓] DATABASE DUMPED — ${(Math.random()*50).toFixed(1)}GB exfiltrated`},
+  {cls:'error',fn:()=>`[✗] ALERT: Honeypot detected at ${rIP()} — rerouting...`},
+  {cls:'success',fn:()=>`[✓] ENCRYPTION BROKEN — plaintext recovered`},
+  {cls:'warning',fn:()=>`[!] TRACE DETECTED — spoofing origin to ${rIP()}`},
+  {cls:'success',fn:()=>`[✓] PAYLOAD DELIVERED — remote shell active`},
+  {cls:'success',fn:()=>`[✓] MAINFRAME COMPROMISED — full access achieved`},
+  {cls:'error',fn:()=>`[✗] COUNTER-HACK DETECTED — deploying countermeasures...`},
+];
+
+let mode = 'hack';
+let keyCount = 0;
+const terminal = document.getElementById('terminal');
+
+function getLines() {
+  return {hack:hackLines,decrypt:decryptLines,download:downloadLines,trace:traceLines}[mode];
+}
+
+function addLine(text, cls='') {
+  // Remove cursor
+  const cur = terminal.querySelector('.cursor');
+  if (cur) cur.parentElement.remove();
+  const div = document.createElement('div');
+  div.className = 'line' + (cls ? ' '+cls : '');
+  div.textContent = text;
+  terminal.appendChild(div);
+  // Add cursor back
+  const curDiv = document.createElement('div');
+  curDiv.className = 'line';
+  curDiv.innerHTML = '<span class="cursor"></span>';
+  terminal.appendChild(curDiv);
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  addLine(`[SYSTEM] Mode switched to ${m.toUpperCase()}`, 'info');
+}
+
+function clearTerminal() {
+  terminal.innerHTML = '<div class="line info">[SYSTEM] Terminal cleared</div><div class="line"><span class="cursor"></span></div>';
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(()=>{});
+    document.body.classList.add('fullscreen');
+  } else {
+    document.exitFullscreen();
+    document.body.classList.remove('fullscreen');
+  }
+}
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) document.body.classList.remove('fullscreen');
+});
+
+function shareResult() {
+  const text = `I just hacked into the mainframe with ${keyCount} keystrokes 🖥️💀\n\nTry it: toolhavoc.com/tools/hacker-terminal.html`;
+  if (navigator.share) {
+    navigator.share({title:'Hacker Terminal — ToolHavoc',text}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text).then(()=>{
+      addLine('[SYSTEM] Share text copied to clipboard!', 'info');
+    });
+  }
+}
+
+// Key handler
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') return;
+  if (e.key === 'F11') return;
+  if (e.metaKey || e.ctrlKey) return;
+  e.preventDefault();
+  keyCount++;
+  document.getElementById('keyCount').textContent = keyCount;
+
+  if (keyCount % 15 === 0) {
+    const m = milestoneLines[Math.floor(Math.random()*milestoneLines.length)];
+    addLine(m.fn(), m.cls);
+  } else {
+    const lines = getLines();
+    addLine(lines[Math.floor(Math.random()*lines.length)]());
+  }
+});
+
+// Touch support for mobile
+let touchHeld = false;
+let touchInterval;
+document.addEventListener('touchstart', e => {
+  if (e.target.closest('.top-bar,.mode-bar,.bottom-bar')) return;
+  touchHeld = true;
+  const fire = () => {
+    if (!touchHeld) return;
+    keyCount++;
+    document.getElementById('keyCount').textContent = keyCount;
+    if (keyCount % 15 === 0) {
+      const m = milestoneLines[Math.floor(Math.random()*milestoneLines.length)];
+      addLine(m.fn(), m.cls);
+    } else {
+      const lines = getLines();
+      addLine(lines[Math.floor(Math.random()*lines.length)]());
+    }
+  };
+  fire();
+  touchInterval = setInterval(fire, 80);
+});
+document.addEventListener('touchend', () => { touchHeld=false; clearInterval(touchInterval); });
+document.addEventListener('touchcancel', () => { touchHeld=false; clearInterval(touchInterval); });
+</script>
+</body>
+</html>

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ToolHavoc — Free Tech Tools, Device Scanners & Fun Utilities</title>
+<meta name="description" content="Your all-in-one tech toolbox. Scan your device, test your hardware, check your internet, and have fun — all free, all in one place.">
+<meta property="og:title" content="ToolHavoc — Free Tech Tools & Utilities">
+<meta property="og:description" content="30+ free tools to scan, test, and explore your devices. From PC age scanners to typing speed tests.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #12121a;
+  --bg3: #1a1a2e;
+  --card: rgba(255,255,255,0.03);
+  --card-border: rgba(255,255,255,0.06);
+  --card-hover: rgba(255,255,255,0.07);
+  --text: #e4e4e7;
+  --text2: #a1a1aa;
+  --text3: #52525b;
+  --accent1: #6366f1;
+  --accent2: #8b5cf6;
+  --accent3: #a78bfa;
+  --glow: rgba(99,102,241,0.15);
+  --glow2: rgba(139,92,246,0.1);
+  --gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+  --gradient2: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; overflow-x:hidden; }
+a { color:inherit; text-decoration:none; }
+
+/* NAV */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(10,10,15,0.8); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--card-border);
+  padding:0 24px; height:64px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.nav-brand {
+  font-size:20px; font-weight:800; letter-spacing:-0.5px;
+  background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.nav-links { display:flex; gap:24px; align-items:center; }
+.nav-links a { font-size:14px; color:var(--text2); transition:color 0.2s; font-weight:500; }
+.nav-links a:hover { color:var(--text); }
+.nav-search {
+  background:var(--card); border:1px solid var(--card-border); border-radius:8px;
+  padding:8px 16px; color:var(--text); font-family:'Inter',sans-serif; font-size:14px;
+  width:220px; outline:none; transition:border-color 0.3s;
+}
+.nav-search:focus { border-color:var(--accent1); }
+.nav-search::placeholder { color:var(--text3); }
+.mobile-menu { display:none; background:none; border:none; color:var(--text); font-size:24px; cursor:pointer; }
+
+/* HERO */
+.hero {
+  position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center;
+  text-align:center; padding:120px 24px 80px; overflow:hidden;
+}
+.hero-bg {
+  position:absolute; top:0; left:0; right:0; bottom:0; z-index:0;
+}
+.grid-bg {
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  background-image:
+    linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 70%);
+}
+.hero-orb {
+  position:absolute; border-radius:50%; filter:blur(80px); opacity:0.4; animation:orbFloat 8s ease-in-out infinite;
+}
+.hero-orb.orb1 { width:500px; height:500px; background:var(--accent1); top:-100px; left:-100px; }
+.hero-orb.orb2 { width:400px; height:400px; background:var(--accent2); bottom:-50px; right:-50px; animation-delay:-3s; }
+.hero-orb.orb3 { width:300px; height:300px; background:#ec4899; top:50%; left:60%; animation-delay:-5s; opacity:0.2; }
+@keyframes orbFloat {
+  0%,100% { transform:translate(0,0) scale(1); }
+  33% { transform:translate(30px,-20px) scale(1.05); }
+  66% { transform:translate(-20px,15px) scale(0.95); }
+}
+.hero-content { position:relative; z-index:1; max-width:800px; }
+.hero-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--card); border:1px solid var(--card-border); border-radius:50px;
+  padding:6px 16px; font-size:13px; color:var(--text2); margin-bottom:24px;
+  animation:fadeInUp 0.6s ease-out;
+}
+.hero-badge .dot { width:6px; height:6px; border-radius:50%; background:#22c55e; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.hero h1 {
+  font-size:clamp(36px,6vw,72px); font-weight:900; line-height:1.1; letter-spacing:-2px;
+  margin-bottom:20px; animation:fadeInUp 0.6s ease-out 0.1s both;
+}
+.hero h1 .gradient {
+  background:var(--gradient2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.hero p {
+  font-size:clamp(16px,2vw,20px); color:var(--text2); line-height:1.6; max-width:600px; margin:0 auto 32px;
+  animation:fadeInUp 0.6s ease-out 0.2s both;
+}
+.hero-cta {
+  display:inline-flex; align-items:center; gap:10px;
+  background:var(--gradient); color:#fff; font-weight:700; font-size:16px;
+  padding:14px 32px; border-radius:12px; border:none; cursor:pointer;
+  transition:all 0.3s; animation:fadeInUp 0.6s ease-out 0.3s both;
+  box-shadow:0 0 30px var(--glow);
+}
+.hero-cta:hover { transform:translateY(-2px); box-shadow:0 0 50px var(--glow); }
+.hero-stats {
+  display:flex; justify-content:center; gap:48px; margin-top:48px;
+  animation:fadeInUp 0.6s ease-out 0.4s both;
+}
+.hero-stat { text-align:center; }
+.hero-stat .num { font-size:28px; font-weight:800; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero-stat .label { font-size:13px; color:var(--text3); margin-top:2px; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+/* AD BANNER */
+.ad-slot {
+  max-width:1200px; margin:0 auto; padding:0 24px;
+  text-align:center; min-height:90px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text3); font-size:12px;
+}
+
+/* SECTIONS */
+.section { padding:80px 24px; max-width:1200px; margin:0 auto; }
+.section-header { text-align:center; margin-bottom:48px; }
+.section-label {
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:13px; color:var(--accent3); font-weight:600; text-transform:uppercase; letter-spacing:2px;
+  margin-bottom:12px;
+}
+.section-title { font-size:clamp(28px,4vw,42px); font-weight:800; letter-spacing:-1px; }
+.section-desc { color:var(--text2); font-size:16px; margin-top:8px; max-width:500px; margin-left:auto; margin-right:auto; }
+
+/* CATEGORY TABS */
+.category-tabs {
+  display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;
+}
+.cat-tab {
+  padding:8px 20px; border-radius:50px; font-size:14px; font-weight:500;
+  background:var(--card); border:1px solid var(--card-border); color:var(--text2);
+  cursor:pointer; transition:all 0.3s;
+}
+.cat-tab:hover { border-color:var(--accent1); color:var(--text); }
+.cat-tab.active { background:var(--accent1); border-color:var(--accent1); color:#fff; }
+
+/* TOOL GRID */
+.tool-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px;
+}
+.tool-card {
+  background:var(--card); border:1px solid var(--card-border); border-radius:16px;
+  padding:24px; cursor:pointer; transition:all 0.3s; position:relative; overflow:hidden;
+  text-decoration:none; display:block;
+}
+.tool-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--gradient); opacity:0; transition:opacity 0.3s;
+}
+.tool-card:hover {
+  border-color:rgba(99,102,241,0.3); background:var(--card-hover);
+  transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3);
+}
+.tool-card:hover::before { opacity:1; }
+.tool-icon {
+  width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  font-size:24px; margin-bottom:16px; background:var(--bg3);
+}
+.tool-card h3 { font-size:16px; font-weight:700; margin-bottom:6px; }
+.tool-card p { font-size:13px; color:var(--text2); line-height:1.5; }
+.tool-tag {
+  display:inline-block; font-size:11px; font-weight:600; padding:3px 10px; border-radius:50px;
+  margin-top:12px; background:rgba(99,102,241,0.1); color:var(--accent3);
+}
+.tool-tag.fun { background:rgba(236,72,153,0.1); color:#f472b6; }
+.tool-tag.mobile { background:rgba(34,197,94,0.1); color:#4ade80; }
+.tool-tag.new { background:rgba(251,191,36,0.1); color:#fbbf24; }
+
+/* CTA SECTION */
+.cta-section {
+  text-align:center; padding:80px 24px;
+  background:linear-gradient(180deg, transparent, rgba(99,102,241,0.05), transparent);
+}
+.cta-section h2 { font-size:clamp(24px,4vw,36px); font-weight:800; margin-bottom:12px; }
+.cta-section p { color:var(--text2); margin-bottom:24px; }
+
+/* FOOTER */
+footer {
+  border-top:1px solid var(--card-border); padding:40px 24px; text-align:center;
+  max-width:1200px; margin:0 auto;
+}
+.footer-brand { font-size:18px; font-weight:800; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.footer-links { display:flex; gap:24px; justify-content:center; margin:16px 0; flex-wrap:wrap; }
+.footer-links a { font-size:14px; color:var(--text3); transition:color 0.2s; }
+.footer-links a:hover { color:var(--text); }
+.footer-copy { font-size:12px; color:var(--text3); margin-top:12px; }
+
+/* SCROLL ANIMATIONS */
+.reveal { opacity:0; transform:translateY(30px); transition:all 0.6s ease-out; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* MOBILE */
+@media(max-width:768px) {
+  .nav-links { display:none; }
+  .nav-search { display:none; }
+  .mobile-menu { display:block; }
+  .hero-stats { gap:24px; }
+  .hero-stat .num { font-size:22px; }
+  .tool-grid { grid-template-columns:1fr; }
+  .category-tabs { gap:6px; }
+  .cat-tab { padding:6px 14px; font-size:13px; }
+}
+@media(max-width:480px) {
+  nav { padding:0 16px; }
+  .hero { padding:100px 16px 60px; }
+  .section { padding:60px 16px; }
+}
+
+/* PARTICLES */
+.particle {
+  position:fixed; pointer-events:none; z-index:0;
+  width:2px; height:2px; background:var(--accent1); border-radius:50%; opacity:0;
+  animation:particleDrift linear infinite;
+}
+@keyframes particleDrift {
+  0% { opacity:0; transform:translateY(100vh) scale(0); }
+  10% { opacity:0.6; }
+  90% { opacity:0.6; }
+  100% { opacity:0; transform:translateY(-20px) scale(1); }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <div class="nav-links">
+    <a href="#tools">Tools</a>
+    <a href="#phone">Phone</a>
+    <a href="#computer">Computer</a>
+    <a href="#fun">Fun</a>
+  </div>
+  <input type="text" class="nav-search" placeholder="Search tools..." id="searchInput" oninput="filterTools()">
+  <button class="mobile-menu" onclick="document.querySelector('.nav-links').style.display=document.querySelector('.nav-links').style.display==='flex'?'none':'flex'">☰</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="grid-bg"></div>
+    <div class="hero-orb orb1"></div>
+    <div class="hero-orb orb2"></div>
+    <div class="hero-orb orb3"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span> Free forever — no signup needed</div>
+    <h1>Your Tech <span class="gradient">Toolbox</span> for Everything</h1>
+    <p>Scan your devices, test your hardware, check your speed, and have fun — all free, all in one place.</p>
+    <a href="#tools" class="hero-cta">Explore Tools ↓</a>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num" id="tool-count">30+</div><div class="label">Free Tools</div></div>
+      <div class="hero-stat"><div class="num">100%</div><div class="label">Free</div></div>
+      <div class="hero-stat"><div class="num">0</div><div class="label">Signups Needed</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- AD SLOT -->
+<div class="ad-slot" id="ad-top"><!-- AD SLOT: leaderboard 728x90 --><span>[ Ad Space ]</span></div>
+
+<!-- TOOLS SECTION -->
+<section class="section" id="tools">
+  <div class="section-header reveal">
+    <div class="section-label">⚡ Tools</div>
+    <div class="section-title">Everything You Need</div>
+    <div class="section-desc">Pick a category or browse them all</div>
+  </div>
+
+  <div class="category-tabs reveal" id="catTabs">
+    <button class="cat-tab active" onclick="filterCat('all')">All Tools</button>
+    <button class="cat-tab" onclick="filterCat('computer')">💻 Computer</button>
+    <button class="cat-tab" onclick="filterCat('phone')">📱 Phone</button>
+    <button class="cat-tab" onclick="filterCat('internet')">🌐 Internet</button>
+    <button class="cat-tab" onclick="filterCat('utility')">🛠️ Utilities</button>
+    <button class="cat-tab" onclick="filterCat('fun')">🎮 Fun & Viral</button>
+    <button class="cat-tab" onclick="filterCat('prank')">🤪 Pranks</button>
+  </div>
+
+  <div class="tool-grid" id="toolGrid">
+
+    <!-- COMPUTER TOOLS -->
+    <a href="tools/pc-age.html" class="tool-card" data-cat="computer" data-name="how old is my pc device age scanner">
+      <div class="tool-icon">💻</div>
+      <h3>How Old Is My PC?</h3>
+      <p>Scans your GPU, CPU cores, and RAM to estimate your device's age — then roasts it.</p>
+      <span class="tool-tag new">Popular</span>
+    </a>
+
+    <a href="tools/keyboard-test.html" class="tool-card" data-cat="computer" data-name="keyboard tester key test gaming">
+      <div class="tool-icon">⌨️</div>
+      <h3>Keyboard Tester</h3>
+      <p>Press any key and see it light up. Find dead keys, test rollover, perfect for gamers.</p>
+      <span class="tool-tag">Computer</span>
+    </a>
+
+    <a href="tools/webcam-test.html" class="tool-card" data-cat="computer" data-name="webcam tester camera test video">
+      <div class="tool-icon">📷</div>
+      <h3>Webcam Tester</h3>
+      <p>Check if your camera works. See resolution, frame rate, and preview your feed.</p>
+      <span class="tool-tag">Computer</span>
+    </a>
+
+    <a href="tools/mic-test.html" class="tool-card" data-cat="computer" data-name="microphone tester mic test audio">
+      <div class="tool-icon">🎤</div>
+      <h3>Microphone Tester</h3>
+      <p>Test if your mic is picking up sound. See the live waveform and volume levels.</p>
+      <span class="tool-tag">Computer</span>
+    </a>
+
+    <a href="tools/dead-pixel.html" class="tool-card" data-cat="computer" data-name="dead pixel tester monitor screen test">
+      <div class="tool-icon">🖥️</div>
+      <h3>Dead Pixel Tester</h3>
+      <p>Fullscreen color test to find stuck or dead pixels on your monitor.</p>
+      <span class="tool-tag">Computer</span>
+    </a>
+
+    <a href="tools/speaker-test.html" class="tool-card" data-cat="computer" data-name="speaker audio test left right channel">
+      <div class="tool-icon">🔊</div>
+      <h3>Speaker Tester</h3>
+      <p>Test left and right audio channels. Make sure both speakers are working.</p>
+      <span class="tool-tag">Computer</span>
+    </a>
+
+    <!-- PHONE TOOLS -->
+    <a href="tools/device-info.html" class="tool-card" data-cat="phone" data-name="device info phone scanner specs">
+      <div class="tool-icon">📱</div>
+      <h3>Device Scanner</h3>
+      <p>Detect your phone model, screen size, pixel ratio, browser, and OS version.</p>
+      <span class="tool-tag mobile">Phone</span>
+    </a>
+
+    <a href="tools/touch-test.html" class="tool-card" data-cat="phone" data-name="touchscreen tester touch test phone tablet">
+      <div class="tool-icon">👆</div>
+      <h3>Touchscreen Tester</h3>
+      <p>Draw on screen to test for dead zones. Checks multi-touch support too.</p>
+      <span class="tool-tag mobile">Phone</span>
+    </a>
+
+    <a href="tools/gyroscope-test.html" class="tool-card" data-cat="phone" data-name="gyroscope accelerometer sensor test phone">
+      <div class="tool-icon">🧭</div>
+      <h3>Gyroscope Tester</h3>
+      <p>Visualize your phone's motion sensors in real time. Tilt and watch it respond.</p>
+      <span class="tool-tag mobile">Phone</span>
+    </a>
+
+    <a href="tools/vibration-test.html" class="tool-card" data-cat="phone" data-name="vibration motor test phone android">
+      <div class="tool-icon">📳</div>
+      <h3>Vibration Tester</h3>
+      <p>Test your phone's vibration motor with different patterns. Android only.</p>
+      <span class="tool-tag mobile">Phone</span>
+    </a>
+
+    <!-- INTERNET TOOLS -->
+    <a href="tools/browser-check.html" class="tool-card" data-cat="internet" data-name="what browser am i using version check update">
+      <div class="tool-icon">🌐</div>
+      <h3>What Browser Am I Using?</h3>
+      <p>Detects your browser name, version, and tells you if it's up to date.</p>
+      <span class="tool-tag new">Popular</span>
+    </a>
+
+    <a href="tools/ip-lookup.html" class="tool-card" data-cat="internet" data-name="what is my ip address location lookup">
+      <div class="tool-icon">🔍</div>
+      <h3>What's My IP Address?</h3>
+      <p>Shows your public IP address and approximate location instantly.</p>
+      <span class="tool-tag">Internet</span>
+    </a>
+
+    <a href="tools/screen-resolution.html" class="tool-card" data-cat="internet" data-name="what is my screen resolution display size">
+      <div class="tool-icon">📐</div>
+      <h3>Screen Resolution</h3>
+      <p>Shows your exact screen resolution, pixel ratio, and color depth.</p>
+      <span class="tool-tag">Internet</span>
+    </a>
+
+    <a href="tools/password-checker.html" class="tool-card" data-cat="internet" data-name="password strength checker security test">
+      <div class="tool-icon">🔒</div>
+      <h3>Password Strength Checker</h3>
+      <p>Type a password and see how strong it really is. Nothing is stored or sent.</p>
+      <span class="tool-tag new">Popular</span>
+    </a>
+
+    <!-- UTILITIES -->
+    <a href="tools/qr-generator.html" class="tool-card" data-cat="utility" data-name="qr code generator create make">
+      <div class="tool-icon">📱</div>
+      <h3>QR Code Generator</h3>
+      <p>Paste any URL or text and get a QR code instantly. Download as PNG.</p>
+      <span class="tool-tag">Utility</span>
+    </a>
+
+    <a href="tools/word-counter.html" class="tool-card" data-cat="utility" data-name="word counter character count text">
+      <div class="tool-icon">📝</div>
+      <h3>Word & Character Counter</h3>
+      <p>Paste text to count words, characters, sentences, and reading time.</p>
+      <span class="tool-tag">Utility</span>
+    </a>
+
+    <a href="tools/color-picker.html" class="tool-card" data-cat="utility" data-name="color picker palette generator hex rgb">
+      <div class="tool-icon">🎨</div>
+      <h3>Color Picker</h3>
+      <p>Pick colors, get hex/RGB codes, and generate matching palettes.</p>
+      <span class="tool-tag">Utility</span>
+    </a>
+
+    <a href="tools/text-converter.html" class="tool-card" data-cat="utility" data-name="text case converter uppercase lowercase title">
+      <div class="tool-icon">🔤</div>
+      <h3>Text Case Converter</h3>
+      <p>Convert text to UPPERCASE, lowercase, Title Case, or aLtErNaTiNg.</p>
+      <span class="tool-tag">Utility</span>
+    </a>
+
+    <a href="tools/timer.html" class="tool-card" data-cat="utility" data-name="countdown timer stopwatch clock">
+      <div class="tool-icon">⏱️</div>
+      <h3>Timer & Stopwatch</h3>
+      <p>Clean countdown timer and stopwatch with lap tracking.</p>
+      <span class="tool-tag">Utility</span>
+    </a>
+
+    <!-- FUN & VIRAL -->
+    <a href="tools/hacker-terminal.html" class="tool-card" data-cat="fun" data-name="hacker terminal simulator typing matrix">
+      <div class="tool-icon">🖥️</div>
+      <h3>Hacker Terminal</h3>
+      <p>Type anything and look like you're hacking the mainframe. Matrix vibes.</p>
+      <span class="tool-tag fun">🔥 Viral</span>
+    </a>
+
+    <a href="tools/typing-test.html" class="tool-card" data-cat="fun" data-name="typing speed test wpm roast fast slow">
+      <div class="tool-icon">⚡</div>
+      <h3>Typing Speed Test</h3>
+      <p>Test your WPM then get brutally roasted based on how fast (or slow) you type.</p>
+      <span class="tool-tag fun">🔥 Viral</span>
+    </a>
+
+    <a href="tools/wifi-names.html" class="tool-card" data-cat="fun" data-name="wifi name generator funny network ssid">
+      <div class="tool-icon">📶</div>
+      <h3>WiFi Name Generator</h3>
+      <p>Generate hilarious WiFi network names by category. Copy with one click.</p>
+      <span class="tool-tag fun">Fun</span>
+    </a>
+
+    <a href="tools/hacker-name.html" class="tool-card" data-cat="fun" data-name="hacker name generator alias cyber identity">
+      <div class="tool-icon">🥷</div>
+      <h3>Hacker Name Generator</h3>
+      <p>Enter your name and get your elite hacker alias. Share your cyber identity.</p>
+      <span class="tool-tag fun">Fun</span>
+    </a>
+
+    <a href="tools/internet-quiz.html" class="tool-card" data-cat="fun" data-name="what type of internet user quiz personality">
+      <div class="tool-icon">🧠</div>
+      <h3>What Internet User Are You?</h3>
+      <p>Take the quiz and find out your internet personality type. Scarily accurate.</p>
+      <span class="tool-tag fun">Fun</span>
+    </a>
+
+    <!-- PRANKS -->
+    <a href="tools/fake-error.html" class="tool-card" data-cat="prank" data-name="fake error message generator windows prank">
+      <div class="tool-icon">⚠️</div>
+      <h3>Fake Error Generator</h3>
+      <p>Create realistic-looking error messages to prank your friends.</p>
+      <span class="tool-tag fun">Prank</span>
+    </a>
+
+    <a href="tools/fake-bsod.html" class="tool-card" data-cat="prank" data-name="fake blue screen of death bsod windows prank">
+      <div class="tool-icon">💀</div>
+      <h3>Blue Screen of Death</h3>
+      <p>Fullscreen fake BSOD. Press F11 for maximum panic. ESC to escape.</p>
+      <span class="tool-tag fun">Prank</span>
+    </a>
+
+    <a href="tools/fake-update.html" class="tool-card" data-cat="prank" data-name="fake windows update screen prank loading">
+      <div class="tool-icon">🔄</div>
+      <h3>Fake Update Screen</h3>
+      <p>Fullscreen fake Windows update that never finishes. Classic prank.</p>
+      <span class="tool-tag fun">Prank</span>
+    </a>
+
+  </div>
+</section>
+
+<!-- AD SLOT -->
+<div class="ad-slot" id="ad-mid"><!-- AD SLOT: leaderboard 728x90 --><span>[ Ad Space ]</span></div>
+
+<!-- CTA -->
+<section class="cta-section reveal">
+  <h2>More Tools Coming Every Week</h2>
+  <p>Bookmark ToolHavoc and check back — we're always adding new tools.</p>
+  <a href="#tools" class="hero-cta">Browse All Tools</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">⚡ ToolHavoc</div>
+  <div class="footer-links">
+    <a href="#tools">All Tools</a>
+    <a href="#computer">Computer</a>
+    <a href="#phone">Phone</a>
+    <a href="#fun">Fun</a>
+    <a href="https://tiktok.com/@dexyy" target="_blank">TikTok</a>
+  </div>
+  <div class="footer-copy">© 2026 ToolHavoc.com — Made by Dexyy</div>
+</footer>
+
+<!-- AD SLOT BOTTOM -->
+<div class="ad-slot" id="ad-bottom"><!-- AD SLOT: leaderboard 728x90 --><span>[ Ad Space ]</span></div>
+
+<script>
+// Floating particles
+function createParticles() {
+  const body = document.body;
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = Math.random() * 10 + 's';
+    p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
+    body.appendChild(p);
+  }
+}
+createParticles();
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold:0.1 });
+reveals.forEach(el => revealObserver.observe(el));
+
+// Stagger tool card animations
+const cards = document.querySelectorAll('.tool-card');
+const cardObserver = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }, i * 50);
+    }
+  });
+}, { threshold:0.05 });
+cards.forEach(card => {
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(20px)';
+  card.style.transition = 'all 0.4s ease-out';
+  cardObserver.observe(card);
+});
+
+// Category filter
+function filterCat(cat) {
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.tool-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.style.display = 'block';
+      setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, 50);
+    } else {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(10px)';
+      setTimeout(() => card.style.display = 'none', 300);
+    }
+  });
+}
+
+// Search filter
+function filterTools() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('.tool-card').forEach(card => {
+    const match = card.dataset.name.includes(q) || card.querySelector('h3').textContent.toLowerCase().includes(q);
+    card.style.display = match ? 'block' : 'none';
+    if (match) { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }
+  });
+  // Reset active tab
+  if (q) document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fake Blue Screen of Death — ToolHavoc</title>
+<meta name="description" content="Fullscreen fake BSOD prank. Press F11 for maximum panic. Press ESC to escape.">
+<link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#e4e4e7;font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.setup{max-width:500px;text-align:center}
+.setup h1{font-size:28px;font-weight:800;margin-bottom:8px}
+.setup h1 span{background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.setup p{color:#a1a1aa;font-size:15px;margin-bottom:24px}
+.back-link{position:fixed;top:16px;left:16px;color:#a1a1aa;text-decoration:none;font-size:14px;z-index:200}
+.launch-btn{
+  padding:16px 48px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;
+  font-size:18px;font-weight:700;cursor:pointer;
+  box-shadow:0 0 30px rgba(99,102,241,0.3);transition:all 0.3s;
+  font-family:'Inter',sans-serif;
+}
+.launch-btn:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(99,102,241,0.4)}
+.tip{color:#52525b;font-size:13px;margin-top:16px}
+
+/* BSOD */
+.bsod{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;
+  background:#0078d7;color:#fff;font-family:'Segoe UI',sans-serif;
+  padding:10vh 10vw;cursor:none;
+}
+.bsod .sad{font-size:clamp(80px,15vw,140px);margin-bottom:20px}
+.bsod h1{font-size:clamp(20px,3vw,36px);font-weight:300;margin-bottom:16px}
+.bsod p{font-size:clamp(13px,1.5vw,18px);font-weight:300;line-height:1.8;max-width:700px;margin-bottom:20px}
+.bsod .pct{font-size:clamp(16px,2vw,22px);font-weight:300;margin-bottom:20px}
+.bsod .qr-wrap{display:flex;align-items:flex-start;gap:16px;margin-top:30px}
+.bsod .qr-box{width:80px;height:80px;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bsod .qr-box svg{width:60px;height:60px}
+.bsod .stop-code{font-size:clamp(11px,1.2vw,14px);font-weight:300;line-height:1.6;opacity:0.9}
+
+@media(max-width:600px){
+  .bsod{padding:8vh 6vw}
+  .bsod .qr-wrap{flex-direction:column;gap:10px}
+}
+</style>
+</head>
+<body>
+<a href="../index.html" class="back-link">⚡ ToolHavoc ← Back</a>
+
+<div class="setup" id="setup">
+  <h1>Fake <span>Blue Screen</span> of Death</h1>
+  <p>Launch a realistic Windows BSOD prank. Press F11 first for fullscreen for maximum panic.</p>
+  <button class="launch-btn" onclick="launchBSOD()">💀 Launch BSOD</button>
+  <div class="tip">Press ESC or tap 5 times quickly to exit</div>
+</div>
+
+<div class="bsod" id="bsod">
+  <div class="sad">:(</div>
+  <h1>Your PC ran into a problem and needs to restart. We're just collecting some error info, and then we'll restart for you.</h1>
+  <div class="pct" id="bsodPct">0% complete</div>
+  <div class="qr-wrap">
+    <div class="qr-box">
+      <svg viewBox="0 0 60 60"><rect fill="#000" x="5" y="5" width="15" height="15" rx="2"/><rect fill="#000" x="40" y="5" width="15" height="15" rx="2"/><rect fill="#000" x="5" y="40" width="15" height="15" rx="2"/><rect fill="#000" x="25" y="5" width="5" height="5"/><rect fill="#000" x="35" y="15" width="5" height="5"/><rect fill="#000" x="25" y="25" width="10" height="5"/><rect fill="#000" x="5" y="25" width="5" height="10"/><rect fill="#000" x="15" y="30" width="5" height="5"/><rect fill="#000" x="40" y="25" width="5" height="5"/><rect fill="#000" x="50" y="30" width="5" height="5"/><rect fill="#000" x="25" y="40" width="5" height="5"/><rect fill="#000" x="35" y="45" width="5" height="5"/><rect fill="#000" x="45" y="40" width="5" height="5"/><rect fill="#000" x="25" y="50" width="10" height="5"/></svg>
+    </div>
+    <div class="stop-code">
+      For more information about this issue and possible fixes, visit<br>
+      https://www.windows.com/stopcode<br><br>
+      If you call a support person, give them this info:<br>
+      Stop code: CRITICAL_PROCESS_DIED<br>
+      What failed: ntoskrnl.exe
+    </div>
+  </div>
+</div>
+
+<script>
+let bsodActive = false;
+let pctInterval;
+let tapCount = 0;
+let tapTimer;
+
+function launchBSOD() {
+  bsodActive = true;
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('bsod').style.display = 'block';
+
+  // Animate percentage
+  let pct = 0;
+  document.getElementById('bsodPct').textContent = '0% complete';
+  pctInterval = setInterval(() => {
+    if (pct < 100) {
+      pct += Math.random() > 0.7 ? Math.floor(Math.random()*3)+1 : 0;
+      pct = Math.min(pct, 100);
+      document.getElementById('bsodPct').textContent = pct + '% complete';
+    }
+    if (pct >= 100) {
+      clearInterval(pctInterval);
+      // Reset back to 0 after "restart"
+      setTimeout(() => {
+        pct = 0;
+        document.getElementById('bsodPct').textContent = '0% complete';
+        pctInterval = setInterval(() => {
+          if (pct < 100) {
+            pct += Math.random() > 0.7 ? Math.floor(Math.random()*3)+1 : 0;
+            pct = Math.min(pct, 100);
+            document.getElementById('bsodPct').textContent = pct + '% complete';
+          }
+        }, 800);
+      }, 3000);
+    }
+  }, 800);
+}
+
+function exitBSOD() {
+  bsodActive = false;
+  clearInterval(pctInterval);
+  document.getElementById('bsod').style.display = 'none';
+  document.getElementById('setup').style.display = 'block';
+  if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+}
+
+// ESC to exit
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && bsodActive) exitBSOD();
+});
+
+// 5 taps to exit on mobile
+document.getElementById('bsod').addEventListener('touchstart', () => {
+  tapCount++;
+  clearTimeout(tapTimer);
+  tapTimer = setTimeout(() => tapCount = 0, 2000);
+  if (tapCount >= 5) exitBSOD();
+});
+</script>
+</body>
+</html>

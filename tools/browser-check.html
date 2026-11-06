@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Browser Am I Using? — ToolHavoc</title>
+<meta name="description" content="Instantly detect your browser name, version, operating system, and whether you need to update.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.container{max-width:700px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.browser-card{
+  background:var(--card);border:1px solid var(--card-border);border-radius:20px;
+  padding:40px 24px;text-align:center;margin-bottom:24px;position:relative;overflow:hidden;
+}
+.browser-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gradient)}
+.browser-icon{font-size:64px;margin-bottom:12px}
+.browser-name{font-size:28px;font-weight:800;margin-bottom:4px}
+.browser-version{font-size:16px;color:var(--text2);margin-bottom:16px}
+.update-badge{
+  display:inline-block;padding:6px 16px;border-radius:50px;font-size:13px;font-weight:600;
+}
+.update-badge.good{background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2)}
+.update-badge.warn{background:rgba(245,158,11,0.1);color:#fbbf24;border:1px solid rgba(245,158,11,0.2)}
+
+.specs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:24px}
+.spec-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:16px;transition:all 0.3s}
+.spec-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px)}
+.spec-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.spec-value{font-size:14px;font-weight:600;word-break:break-word}
+
+.features{margin-bottom:24px}
+.features h2{font-size:18px;font-weight:700;margin-bottom:12px}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.feature{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;
+  background:var(--card);border:1px solid var(--card-border);font-size:13px;
+}
+.feature .icon{font-size:16px}
+.feature.yes{color:#4ade80} .feature.no{color:#f87171}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>What <span>Browser</span> Am I Using?</h1>
+  <p class="subtitle">Your browser info, detected instantly</p>
+
+  <div class="browser-card" id="browserCard">
+    <div class="browser-icon" id="browserIcon">🌐</div>
+    <div class="browser-name" id="browserName">Detecting...</div>
+    <div class="browser-version" id="browserVersion"></div>
+    <div class="update-badge good" id="updateBadge" style="display:none"></div>
+  </div>
+
+  <div class="specs-grid" id="specsGrid"></div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+
+  <div class="features">
+    <h2>Browser Features</h2>
+    <div class="feature-grid" id="featureGrid"></div>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+function detectBrowser() {
+  const ua = navigator.userAgent;
+  let name = 'Unknown', version = '', icon = '🌐';
+
+  if (ua.includes('Edg/')) {
+    name = 'Microsoft Edge';
+    version = ua.match(/Edg\/([\d.]+)/)?.[1] || '';
+    icon = '🔵';
+  } else if (ua.includes('OPR/') || ua.includes('Opera')) {
+    name = 'Opera';
+    version = ua.match(/OPR\/([\d.]+)/)?.[1] || '';
+    icon = '🔴';
+  } else if (ua.includes('Brave')) {
+    name = 'Brave';
+    version = ua.match(/Chrome\/([\d.]+)/)?.[1] || '';
+    icon = '🦁';
+  } else if (ua.includes('Vivaldi/')) {
+    name = 'Vivaldi';
+    version = ua.match(/Vivaldi\/([\d.]+)/)?.[1] || '';
+    icon = '🔴';
+  } else if (ua.includes('Firefox/')) {
+    name = 'Mozilla Firefox';
+    version = ua.match(/Firefox\/([\d.]+)/)?.[1] || '';
+    icon = '🦊';
+  } else if (ua.includes('Safari/') && !ua.includes('Chrome')) {
+    name = 'Safari';
+    version = ua.match(/Version\/([\d.]+)/)?.[1] || '';
+    icon = '🧭';
+  } else if (ua.includes('Samsung')) {
+    name = 'Samsung Internet';
+    version = ua.match(/SamsungBrowser\/([\d.]+)/)?.[1] || '';
+    icon = '📱';
+  } else if (ua.includes('Chrome/')) {
+    name = 'Google Chrome';
+    version = ua.match(/Chrome\/([\d.]+)/)?.[1] || '';
+    icon = '🟢';
+  }
+
+  return {name, version, icon};
+}
+
+function detectOS() {
+  const ua = navigator.userAgent;
+  if (ua.includes('Windows NT 10')) return 'Windows 10/11';
+  if (ua.includes('Windows NT 6.3')) return 'Windows 8.1';
+  if (ua.includes('Windows NT 6.1')) return 'Windows 7';
+  if (ua.includes('Windows')) return 'Windows';
+  if (ua.includes('Mac OS X')) {
+    const ver = ua.match(/Mac OS X ([\d_]+)/)?.[1]?.replace(/_/g,'.');
+    return 'macOS ' + (ver || '');
+  }
+  if (ua.includes('Android')) {
+    const ver = ua.match(/Android ([\d.]+)/)?.[1];
+    return 'Android ' + (ver || '');
+  }
+  if (ua.includes('iPhone') || ua.includes('iPad')) {
+    const ver = ua.match(/OS ([\d_]+)/)?.[1]?.replace(/_/g,'.');
+    return 'iOS ' + (ver || '');
+  }
+  if (ua.includes('Linux')) return 'Linux';
+  if (ua.includes('CrOS')) return 'Chrome OS';
+  return navigator.platform || 'Unknown';
+}
+
+function init() {
+  const browser = detectBrowser();
+  const os = detectOS();
+
+  document.getElementById('browserIcon').textContent = browser.icon;
+  document.getElementById('browserName').textContent = browser.name;
+  document.getElementById('browserVersion').textContent = 'Version ' + browser.version;
+
+  // Version check (approximate)
+  const majorVersion = parseInt(browser.version);
+  const badge = document.getElementById('updateBadge');
+  badge.style.display = 'inline-block';
+  if (browser.name.includes('Chrome') || browser.name.includes('Edge')) {
+    if (majorVersion >= 120) { badge.textContent = '✅ Up to date'; badge.className = 'update-badge good'; }
+    else { badge.textContent = '⚠️ Update available'; badge.className = 'update-badge warn'; }
+  } else if (browser.name.includes('Firefox')) {
+    if (majorVersion >= 120) { badge.textContent = '✅ Up to date'; badge.className = 'update-badge good'; }
+    else { badge.textContent = '⚠️ Update available'; badge.className = 'update-badge warn'; }
+  } else {
+    badge.textContent = '📋 Check for updates manually';
+    badge.className = 'update-badge warn';
+  }
+
+  // Specs
+  const grid = document.getElementById('specsGrid');
+  const specs = [
+    {label:'Operating System', value:os},
+    {label:'Screen Resolution', value:`${screen.width}×${screen.height}`},
+    {label:'Window Size', value:`${window.innerWidth}×${window.innerHeight}`},
+    {label:'Pixel Ratio', value:window.devicePixelRatio + 'x'},
+    {label:'Color Depth', value:screen.colorDepth + '-bit'},
+    {label:'Language', value:navigator.language},
+    {label:'Cookies', value:navigator.cookieEnabled ? 'Enabled' : 'Disabled'},
+    {label:'Do Not Track', value:navigator.doNotTrack === '1' ? 'Enabled' : 'Not set'},
+    {label:'CPU Cores', value:navigator.hardwareConcurrency || 'Hidden'},
+    {label:'RAM', value:navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'Hidden'},
+    {label:'Online', value:navigator.onLine ? 'Yes' : 'No'},
+    {label:'Touchscreen', value:navigator.maxTouchPoints > 0 ? `Yes (${navigator.maxTouchPoints} points)` : 'No'},
+  ];
+  specs.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'spec-card';
+    card.innerHTML = `<div class="spec-label">${s.label}</div><div class="spec-value">${s.value}</div>`;
+    grid.appendChild(card);
+  });
+
+  // Features
+  const featureGrid = document.getElementById('featureGrid');
+  const features = [
+    {name:'WebGL', test:()=>{try{return !!document.createElement('canvas').getContext('webgl')}catch(e){return false}}},
+    {name:'WebGL 2', test:()=>{try{return !!document.createElement('canvas').getContext('webgl2')}catch(e){return false}}},
+    {name:'WebRTC', test:()=>!!window.RTCPeerConnection},
+    {name:'Service Worker', test:()=>'serviceWorker' in navigator},
+    {name:'Web Audio', test:()=>!!(window.AudioContext||window.webkitAudioContext)},
+    {name:'WebSocket', test:()=>!!window.WebSocket},
+    {name:'Geolocation', test:()=>'geolocation' in navigator},
+    {name:'Notifications', test:()=>'Notification' in window},
+    {name:'Clipboard API', test:()=>!!navigator.clipboard},
+    {name:'Vibration', test:()=>'vibrate' in navigator},
+    {name:'Gamepad', test:()=>'getGamepads' in navigator},
+    {name:'Bluetooth', test:()=>!!navigator.bluetooth},
+    {name:'USB', test:()=>!!navigator.usb},
+    {name:'Battery', test:()=>'getBattery' in navigator},
+    {name:'Web Share', test:()=>!!navigator.share},
+    {name:'WASM', test:()=>!!window.WebAssembly},
+  ];
+
+  features.forEach(f => {
+    const supported = f.test();
+    const el = document.createElement('div');
+    el.className = 'feature ' + (supported ? 'yes' : 'no');
+    el.innerHTML = `<span class="icon">${supported ? '✅' : '❌'}</span>${f.name}`;
+    featureGrid.appendChild(el);
+  });
+}
+
+init();
+</script>
+</body>
+</html>

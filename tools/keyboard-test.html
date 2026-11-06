@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keyboard Tester — ToolHavoc</title>
+<meta name="description" content="Press any key and see it light up. Find dead keys, test key rollover, and check your keyboard.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--accent2:#8b5cf6;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa);--pressed:#6366f1;--tested:rgba(99,102,241,0.15)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.container{max-width:1000px;margin:0 auto;padding:76px 16px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px;letter-spacing:-0.5px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:24px}
+
+.stats-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:10px 20px;text-align:center}
+.stat .val{font-size:22px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat .lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+.last-key{text-align:center;font-size:14px;color:var(--text2);margin-bottom:20px;min-height:20px}
+
+.keyboard{display:flex;flex-direction:column;gap:4px;align-items:center;margin-bottom:24px}
+.row{display:flex;gap:4px;justify-content:center}
+.key{
+  min-width:42px;height:42px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:600;background:var(--bg3);border:1px solid var(--card-border);
+  color:var(--text2);transition:all 0.15s;flex-shrink:0;padding:0 4px;
+  text-transform:capitalize;position:relative;overflow:hidden;
+}
+.key.tested{background:var(--tested);border-color:rgba(99,102,241,0.3);color:var(--text)}
+.key.active{background:var(--pressed)!important;border-color:var(--accent1)!important;color:#fff!important;transform:scale(0.95);box-shadow:0 0 15px rgba(99,102,241,0.4)}
+
+.key.w-150{min-width:65px} .key.w-175{min-width:76px} .key.w-200{min-width:88px}
+.key.w-225{min-width:99px} .key.w-250{min-width:110px} .key.w-275{min-width:120px}
+.key.w-space{min-width:260px}
+
+.reset-btn{
+  display:block;margin:0 auto;padding:10px 24px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;
+  font-weight:600;cursor:pointer;transition:all 0.3s;
+}
+.reset-btn:hover{border-color:var(--accent1);background:rgba(99,102,241,0.1)}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+
+@media(max-width:800px){
+  .key{min-width:28px;height:34px;font-size:9px;border-radius:5px}
+  .key.w-150{min-width:44px} .key.w-175{min-width:50px} .key.w-200{min-width:58px}
+  .key.w-225{min-width:65px} .key.w-250{min-width:72px} .key.w-275{min-width:80px}
+  .key.w-space{min-width:160px}
+  .row{gap:2px} .keyboard{gap:2px}
+}
+@media(max-width:500px){
+  .key{min-width:22px;height:28px;font-size:7px}
+  .key.w-150{min-width:34px} .key.w-175{min-width:38px} .key.w-200{min-width:44px}
+  .key.w-225{min-width:50px} .key.w-250{min-width:56px} .key.w-275{min-width:62px}
+  .key.w-space{min-width:120px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Keyboard <span>Tester</span></h1>
+  <p class="subtitle">Press any key — it'll light up. Find dead keys instantly.</p>
+
+  <div class="stats-row">
+    <div class="stat"><div class="val" id="testedCount">0</div><div class="lbl">Keys Tested</div></div>
+    <div class="stat"><div class="val" id="totalKeys">0</div><div class="lbl">Total Keys</div></div>
+    <div class="stat"><div class="val" id="rollover">0</div><div class="lbl">Keys Held</div></div>
+  </div>
+
+  <div class="last-key" id="lastKey">Press any key to begin</div>
+
+  <div class="keyboard" id="keyboard"></div>
+
+  <button class="reset-btn" onclick="resetKeys()">Reset All Keys</button>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+const layout = [
+  [{k:'Escape',l:'Esc'},{k:'F1'},{k:'F2'},{k:'F3'},{k:'F4'},{k:'F5'},{k:'F6'},{k:'F7'},{k:'F8'},{k:'F9'},{k:'F10'},{k:'F11'},{k:'F12'},{k:'Delete',l:'Del'}],
+  [{k:'Backquote',l:'`'},{k:'Digit1',l:'1'},{k:'Digit2',l:'2'},{k:'Digit3',l:'3'},{k:'Digit4',l:'4'},{k:'Digit5',l:'5'},{k:'Digit6',l:'6'},{k:'Digit7',l:'7'},{k:'Digit8',l:'8'},{k:'Digit9',l:'9'},{k:'Digit0',l:'0'},{k:'Minus',l:'-'},{k:'Equal',l:'='},{k:'Backspace',l:'Back',w:'w-200'}],
+  [{k:'Tab',l:'Tab',w:'w-150'},{k:'KeyQ',l:'Q'},{k:'KeyW',l:'W'},{k:'KeyE',l:'E'},{k:'KeyR',l:'R'},{k:'KeyT',l:'T'},{k:'KeyY',l:'Y'},{k:'KeyU',l:'U'},{k:'KeyI',l:'I'},{k:'KeyO',l:'O'},{k:'KeyP',l:'P'},{k:'BracketLeft',l:'['},{k:'BracketRight',l:']'},{k:'Backslash',l:'\\',w:'w-150'}],
+  [{k:'CapsLock',l:'Caps',w:'w-175'},{k:'KeyA',l:'A'},{k:'KeyS',l:'S'},{k:'KeyD',l:'D'},{k:'KeyF',l:'F'},{k:'KeyG',l:'G'},{k:'KeyH',l:'H'},{k:'KeyJ',l:'J'},{k:'KeyK',l:'K'},{k:'KeyL',l:'L'},{k:'Semicolon',l:';'},{k:'Quote',l:"'"},{k:'Enter',l:'Enter',w:'w-225'}],
+  [{k:'ShiftLeft',l:'Shift',w:'w-225'},{k:'KeyZ',l:'Z'},{k:'KeyX',l:'X'},{k:'KeyC',l:'C'},{k:'KeyV',l:'V'},{k:'KeyB',l:'B'},{k:'KeyN',l:'N'},{k:'KeyM',l:'M'},{k:'Comma',l:','},{k:'Period',l:'.'},{k:'Slash',l:'/'},{k:'ShiftRight',l:'Shift',w:'w-275'}],
+  [{k:'ControlLeft',l:'Ctrl',w:'w-150'},{k:'MetaLeft',l:'Win'},{k:'AltLeft',l:'Alt',w:'w-150'},{k:'Space',l:'Space',w:'w-space'},{k:'AltRight',l:'Alt'},{k:'MetaRight',l:'Win'},{k:'ControlRight',l:'Ctrl',w:'w-150'}],
+];
+
+const kb = document.getElementById('keyboard');
+const keyElements = {};
+let testedKeys = new Set();
+let heldKeys = new Set();
+
+layout.forEach(row => {
+  const rowDiv = document.createElement('div');
+  rowDiv.className = 'row';
+  row.forEach(({k, l, w}) => {
+    const key = document.createElement('div');
+    key.className = 'key' + (w ? ' '+w : '');
+    key.textContent = l || k;
+    key.dataset.code = k;
+    keyElements[k] = key;
+    rowDiv.appendChild(key);
+  });
+  kb.appendChild(rowDiv);
+});
+
+document.getElementById('totalKeys').textContent = Object.keys(keyElements).length;
+
+document.addEventListener('keydown', e => {
+  e.preventDefault();
+  const code = e.code;
+  heldKeys.add(code);
+
+  if (keyElements[code]) {
+    keyElements[code].classList.add('active','tested');
+    testedKeys.add(code);
+  }
+
+  document.getElementById('testedCount').textContent = testedKeys.size;
+  document.getElementById('rollover').textContent = heldKeys.size;
+  document.getElementById('lastKey').textContent = `Key: ${e.key} | Code: ${code}`;
+});
+
+document.addEventListener('keyup', e => {
+  const code = e.code;
+  heldKeys.delete(code);
+  if (keyElements[code]) keyElements[code].classList.remove('active');
+  document.getElementById('rollover').textContent = heldKeys.size;
+});
+
+function resetKeys() {
+  testedKeys.clear();
+  heldKeys.clear();
+  Object.values(keyElements).forEach(el => el.classList.remove('active','tested'));
+  document.getElementById('testedCount').textContent = '0';
+  document.getElementById('rollover').textContent = '0';
+  document.getElementById('lastKey').textContent = 'Press any key to begin';
+}
+</script>
+</body>
+</html>

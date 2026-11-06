@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Speed Test — ToolHavoc</title>
+<meta name="description" content="Test your typing speed and get roasted based on your WPM. How fast can you really type?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--accent2:#8b5cf6;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa);--correct:#22c55e;--wrong:#ef4444;--current:rgba(99,102,241,0.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.container{max-width:750px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.time-select{display:flex;gap:8px;justify-content:center;margin-bottom:24px}
+.time-btn{
+  padding:8px 20px;border-radius:50px;font-size:14px;font-weight:600;
+  background:var(--card);border:1px solid var(--card-border);color:var(--text2);
+  cursor:pointer;transition:all 0.3s;font-family:'Inter',sans-serif;
+}
+.time-btn:hover{border-color:var(--accent1);color:var(--text)}
+.time-btn.active{background:var(--accent1);border-color:var(--accent1);color:#fff}
+
+.stats-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:12px 20px;text-align:center;min-width:90px}
+.stat .val{font-size:28px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat .lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+.text-box{
+  background:var(--card);border:1px solid var(--card-border);border-radius:16px;
+  padding:24px;margin-bottom:24px;font-family:'Fira Code',monospace;font-size:18px;
+  line-height:2;min-height:160px;position:relative;cursor:text;
+}
+.text-box .char{transition:color 0.1s}
+.text-box .char.correct{color:var(--correct)}
+.text-box .char.wrong{color:var(--wrong);text-decoration:underline}
+.text-box .char.current{background:var(--current);border-radius:2px}
+.text-box .char.upcoming{color:var(--text3)}
+
+.hidden-input{position:absolute;left:-9999px;opacity:0}
+
+.result-card{
+  display:none;text-align:center;background:var(--card);border:1px solid var(--card-border);
+  border-radius:20px;padding:40px 24px;margin-bottom:24px;position:relative;overflow:hidden;
+}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gradient)}
+.result-wpm{font-size:64px;font-weight:900;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.result-label{font-size:14px;color:var(--text3);margin-bottom:16px}
+.result-roast{font-size:17px;color:var(--text2);line-height:1.6;max-width:500px;margin:0 auto 20px}
+.result-stats{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.result-stats .rs{text-align:center}
+.result-stats .rs .v{font-size:20px;font-weight:700}
+.result-stats .rs .l{font-size:12px;color:var(--text3)}
+
+.btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.action-btn{
+  padding:10px 24px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;
+  font-weight:600;cursor:pointer;transition:all 0.3s;
+}
+.action-btn:hover{border-color:var(--accent1);background:rgba(99,102,241,0.1)}
+.action-btn.primary{background:var(--gradient);border:none;color:#fff}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+@media(max-width:600px){.text-box{font-size:15px;padding:16px} .stat{padding:8px 14px}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Typing <span>Speed Test</span></h1>
+  <p class="subtitle">Type the text below. Get your WPM. Get roasted.</p>
+
+  <div class="time-select">
+    <button class="time-btn" onclick="setTime(15)">15s</button>
+    <button class="time-btn active" onclick="setTime(30)">30s</button>
+    <button class="time-btn" onclick="setTime(60)">60s</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="val" id="timer">30</div><div class="lbl">Seconds</div></div>
+    <div class="stat"><div class="val" id="wpm">0</div><div class="lbl">WPM</div></div>
+    <div class="stat"><div class="val" id="accuracy">100%</div><div class="lbl">Accuracy</div></div>
+  </div>
+
+  <div class="text-box" id="textBox" onclick="document.getElementById('hiddenInput').focus()"></div>
+  <input type="text" class="hidden-input" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
+  <div class="result-card" id="resultCard">
+    <div class="result-wpm" id="resultWpm"></div>
+    <div class="result-label">words per minute</div>
+    <div class="result-roast" id="resultRoast"></div>
+    <div class="result-stats">
+      <div class="rs"><div class="v" id="rChars">0</div><div class="l">Characters</div></div>
+      <div class="rs"><div class="v" id="rCorrect">0</div><div class="l">Correct</div></div>
+      <div class="rs"><div class="v" id="rErrors">0</div><div class="l">Errors</div></div>
+      <div class="rs"><div class="v" id="rAccuracy">0%</div><div class="l">Accuracy</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="action-btn primary" onclick="resetTest()">Try Again</button>
+      <button class="action-btn" onclick="shareResult()">📤 Share</button>
+    </div>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+const words = [
+  "the","be","to","of","and","a","in","that","have","i","it","for","not","on","with","he","as","you",
+  "do","at","this","but","his","by","from","they","we","say","her","she","or","an","will","my","one",
+  "all","would","there","their","what","so","up","out","if","about","who","get","which","go","me",
+  "when","make","can","like","time","no","just","him","know","take","people","into","year","your",
+  "good","some","could","them","see","other","than","then","now","look","only","come","its","over",
+  "think","also","back","after","use","two","how","our","work","first","well","way","even","new",
+  "want","because","any","these","give","day","most","us","great","between","need","large","under",
+  "never","last","right","move","thing","general","school","still","every","same","another","begin",
+  "while","number","part","turn","real","leave","might","next","open","seem","together","each","hear",
+  "city","almost","let","above","point","world","home","country","mother","story","young","life",
+  "left","long","keep","should","name","hand","high","place","head","old","found","live","help",
+  "line","walk","own","show","change","off","play","run","small","end","read","start","close","try",
+  "stop","build","carry","state","side","learn","around","house","far","follow","call","before","write"
+];
+
+let duration = 30;
+let testText = '';
+let charIndex = 0;
+let started = false;
+let finished = false;
+let timerInterval;
+let timeLeft;
+let correctChars = 0;
+let errorChars = 0;
+
+function generateText() {
+  const arr = [];
+  for (let i = 0; i < 80; i++) arr.push(words[Math.floor(Math.random()*words.length)]);
+  return arr.join(' ');
+}
+
+function renderText() {
+  const box = document.getElementById('textBox');
+  box.innerHTML = '';
+  for (let i = 0; i < testText.length; i++) {
+    const span = document.createElement('span');
+    span.className = 'char' + (i === 0 ? ' current' : ' upcoming');
+    span.textContent = testText[i];
+    box.appendChild(span);
+  }
+}
+
+function setTime(t) {
+  duration = t;
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  resetTest();
+}
+
+function resetTest() {
+  clearInterval(timerInterval);
+  started = false;
+  finished = false;
+  charIndex = 0;
+  correctChars = 0;
+  errorChars = 0;
+  timeLeft = duration;
+  document.getElementById('timer').textContent = duration;
+  document.getElementById('wpm').textContent = '0';
+  document.getElementById('accuracy').textContent = '100%';
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('textBox').style.display = 'block';
+  testText = generateText();
+  renderText();
+  document.getElementById('hiddenInput').value = '';
+  document.getElementById('hiddenInput').focus();
+}
+
+function startTimer() {
+  started = true;
+  timeLeft = duration;
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timer').textContent = timeLeft;
+    // Update WPM live
+    const elapsed = duration - timeLeft;
+    if (elapsed > 0) {
+      const wpm = Math.round((correctChars / 5) / (elapsed / 60));
+      document.getElementById('wpm').textContent = wpm;
+    }
+    if (timeLeft <= 0) endTest();
+  }, 1000);
+}
+
+function endTest() {
+  clearInterval(timerInterval);
+  finished = true;
+  const totalTyped = correctChars + errorChars;
+  const wpm = Math.round((correctChars / 5) / (duration / 60));
+  const acc = totalTyped > 0 ? Math.round((correctChars / totalTyped) * 100) : 100;
+
+  document.getElementById('textBox').style.display = 'none';
+  const rc = document.getElementById('resultCard');
+  rc.style.display = 'block';
+  document.getElementById('resultWpm').textContent = wpm;
+  document.getElementById('rChars').textContent = totalTyped;
+  document.getElementById('rCorrect').textContent = correctChars;
+  document.getElementById('rErrors').textContent = errorChars;
+  document.getElementById('rAccuracy').textContent = acc + '%';
+
+  // Roast
+  let roast;
+  if (wpm >= 120) roast = "Your fingers are literally a blur. Are you even human? This is insane. 🏆";
+  else if (wpm >= 90) roast = "Okay, speed demon. You type faster than most people think. Genuinely impressive.";
+  else if (wpm >= 70) roast = "Solid typist. You'd survive a real office job. Maybe even thrive. Respect.";
+  else if (wpm >= 50) roast = "Average. You're the Honda Civic of typing — reliable, boring, gets the job done.";
+  else if (wpm >= 35) roast = "You hunt and peck, don't you? Be honest. Your keyboard is crying for mercy.";
+  else if (wpm >= 20) roast = "Bro. My grandma types faster and she uses one finger. ONE finger. 💀";
+  else roast = "Did you fall asleep? Were you typing with your elbows? This is genuinely concerning.";
+  document.getElementById('resultRoast').textContent = roast;
+
+  window._result = {wpm, acc, roast};
+}
+
+document.getElementById('hiddenInput').addEventListener('input', e => {
+  if (finished) return;
+  if (!started) startTimer();
+
+  const val = e.target.value;
+  const chars = document.querySelectorAll('#textBox .char');
+
+  // Process only the last character typed
+  if (val.length > 0) {
+    const typed = val[val.length - 1];
+    if (charIndex < testText.length) {
+      if (typed === testText[charIndex]) {
+        chars[charIndex].className = 'char correct';
+        correctChars++;
+      } else {
+        chars[charIndex].className = 'char wrong';
+        errorChars++;
+      }
+      charIndex++;
+      if (charIndex < testText.length) {
+        chars[charIndex].className = 'char current';
+      }
+      // Update accuracy live
+      const total = correctChars + errorChars;
+      document.getElementById('accuracy').textContent = Math.round((correctChars/total)*100) + '%';
+    }
+    if (charIndex >= testText.length) endTest();
+  }
+  e.target.value = '';
+});
+
+// Handle backspace separately
+document.getElementById('hiddenInput').addEventListener('keydown', e => {
+  if (e.key === 'Backspace' && charIndex > 0 && !finished) {
+    e.preventDefault();
+    const chars = document.querySelectorAll('#textBox .char');
+    if (charIndex < testText.length) chars[charIndex].className = 'char upcoming';
+    charIndex--;
+    const prev = chars[charIndex];
+    if (prev.classList.contains('correct')) correctChars--;
+    else errorChars--;
+    prev.className = 'char current';
+    const total = correctChars + errorChars;
+    document.getElementById('accuracy').textContent = total > 0 ? Math.round((correctChars/total)*100) + '%' : '100%';
+  }
+});
+
+function shareResult() {
+  if (!window._result) return;
+  const r = window._result;
+  const text = `I type ${r.wpm} WPM with ${r.acc}% accuracy 🤯\n\n"${r.roast}"\n\nTest yours: toolhavoc.com/tools/typing-test.html`;
+  if (navigator.share) navigator.share({title:'Typing Speed — ToolHavoc', text}).catch(()=>{});
+  else navigator.clipboard.writeText(text).then(()=>{
+    event.target.textContent = '✓ Copied!';
+    setTimeout(() => event.target.textContent = '📤 Share', 2000);
+  });
+}
+
+// Init
+resetTest();
+</script>
+</body>
+</html>
