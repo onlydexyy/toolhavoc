@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Timer & Stopwatch — ToolHavoc</title>
+<meta name="description" content="Free online timer and stopwatch with lap tracking. Countdown timer with alarm sound and fullscreen mode.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:500px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:24px}
+
+.mode-tabs{display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:4px;margin-bottom:32px}
+.mode-tab{
+  flex:1;padding:10px;border-radius:8px;border:none;background:transparent;
+  color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;text-align:center;
+}
+.mode-tab.active{background:var(--accent1);color:#fff}
+
+.display{text-align:center;margin-bottom:32px}
+.time{font-family:'Fira Code',monospace;font-size:clamp(48px,12vw,72px);font-weight:700;letter-spacing:2px;line-height:1}
+.time .ms{font-size:0.5em;color:var(--text2)}
+
+/* Timer inputs */
+.timer-inputs{display:flex;gap:8px;justify-content:center;margin-bottom:24px}
+.time-input{
+  width:70px;padding:12px;border-radius:10px;background:var(--bg3);
+  border:1px solid var(--card-border);color:var(--text);font-family:'Fira Code',monospace;
+  font-size:24px;text-align:center;outline:none;
+}
+.time-input:focus{border-color:var(--accent1)}
+.time-label{font-size:10px;color:var(--text3);text-align:center;margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+
+.presets{display:flex;gap:6px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.preset{
+  padding:6px 14px;border-radius:50px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text2);font-size:12px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;
+}
+.preset:hover{border-color:var(--accent1);color:var(--text)}
+
+.controls{display:flex;gap:10px;justify-content:center}
+.ctrl-btn{
+  padding:12px 28px;border-radius:10px;border:none;font-family:'Inter',sans-serif;
+  font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s;
+}
+.ctrl-btn.primary{background:var(--gradient);color:#fff;box-shadow:0 0 20px rgba(99,102,241,0.2)}
+.ctrl-btn.primary:hover{transform:translateY(-1px);box-shadow:0 0 30px rgba(99,102,241,0.3)}
+.ctrl-btn.secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--card-border)}
+.ctrl-btn.secondary:hover{border-color:var(--accent1)}
+.ctrl-btn.danger{background:#ef4444;color:#fff}
+
+.laps{margin-top:24px}
+.lap{
+  display:flex;justify-content:space-between;padding:10px 14px;border-radius:8px;
+  border:1px solid var(--card-border);background:var(--card);margin-bottom:6px;font-size:13px;
+}
+.lap .num{color:var(--text3);font-weight:600}
+.lap .time-val{font-family:'Fira Code',monospace;font-weight:500}
+.lap .split{color:var(--text3);font-size:12px}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1><span>Timer</span> & Stopwatch</h1>
+  <p class="subtitle">Countdown timer and stopwatch with lap tracking.</p>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" onclick="setMode('stopwatch')">⏱️ Stopwatch</button>
+    <button class="mode-tab" onclick="setMode('timer')">⏳ Timer</button>
+  </div>
+
+  <div id="timerInputs" style="display:none">
+    <div class="timer-inputs">
+      <div><input type="number" class="time-input" id="timerH" value="0" min="0" max="99"><div class="time-label">Hours</div></div>
+      <div><input type="number" class="time-input" id="timerM" value="5" min="0" max="59"><div class="time-label">Minutes</div></div>
+      <div><input type="number" class="time-input" id="timerS" value="0" min="0" max="59"><div class="time-label">Seconds</div></div>
+    </div>
+    <div class="presets">
+      <button class="preset" onclick="setTimer(1,0)">1 min</button>
+      <button class="preset" onclick="setTimer(5,0)">5 min</button>
+      <button class="preset" onclick="setTimer(10,0)">10 min</button>
+      <button class="preset" onclick="setTimer(15,0)">15 min</button>
+      <button class="preset" onclick="setTimer(25,0)">25 min</button>
+      <button class="preset" onclick="setTimer(0,30)">30 sec</button>
+    </div>
+  </div>
+
+  <div class="display">
+    <div class="time" id="display">00:00:00<span class="ms">.00</span></div>
+  </div>
+
+  <div class="controls" id="controls">
+    <button class="ctrl-btn primary" id="startBtn" onclick="startStop()">▶ Start</button>
+    <button class="ctrl-btn secondary" id="lapBtn" onclick="lap()" style="display:none">🏁 Lap</button>
+    <button class="ctrl-btn secondary" id="resetBtn" onclick="reset()">↺ Reset</button>
+  </div>
+
+  <div class="laps" id="laps"></div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+let mode = 'stopwatch';
+let running = false;
+let interval;
+let elapsed = 0; // ms
+let countdownTarget = 0;
+let lapTimes = [];
+let lastLap = 0;
+
+function setMode(m) {
+  mode = m;
+  reset();
+  document.querySelectorAll('.mode-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&m==='stopwatch')||(i===1&&m==='timer')));
+  document.getElementById('timerInputs').style.display = m==='timer' ? 'block' : 'none';
+  document.getElementById('lapBtn').style.display = 'none';
+}
+
+function setTimer(min, sec) {
+  document.getElementById('timerH').value = 0;
+  document.getElementById('timerM').value = min;
+  document.getElementById('timerS').value = sec;
+  reset();
+}
+
+function formatTime(ms, showMs=true) {
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  const centis = Math.floor((ms % 1000) / 10);
+  const base = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return showMs ? base + `<span class="ms">.${String(centis).padStart(2,'0')}</span>` : base;
+}
+
+function updateDisplay() {
+  if (mode === 'stopwatch') {
+    document.getElementById('display').innerHTML = formatTime(elapsed);
+  } else {
+    const remaining = Math.max(0, countdownTarget - elapsed);
+    document.getElementById('display').innerHTML = formatTime(remaining);
+    if (remaining <= 0 && running) {
+      running = false;
+      clearInterval(interval);
+      document.getElementById('startBtn').textContent = '▶ Start';
+      document.getElementById('startBtn').className = 'ctrl-btn primary';
+      document.title = '⏰ TIME\'S UP! — ToolHavoc';
+      // Flash effect
+      document.body.style.animation = 'flash 0.5s ease 3';
+      setTimeout(() => { document.body.style.animation = ''; document.title = 'Timer & Stopwatch — ToolHavoc'; }, 3000);
+    }
+  }
+}
+
+function startStop() {
+  if (running) {
+    running = false;
+    clearInterval(interval);
+    document.getElementById('startBtn').textContent = '▶ Resume';
+    document.getElementById('startBtn').className = 'ctrl-btn primary';
+    if (mode === 'stopwatch') document.getElementById('lapBtn').style.display = 'none';
+  } else {
+    if (mode === 'timer' && elapsed === 0) {
+      const h = parseInt(document.getElementById('timerH').value) || 0;
+      const m = parseInt(document.getElementById('timerM').value) || 0;
+      const s = parseInt(document.getElementById('timerS').value) || 0;
+      countdownTarget = (h * 3600 + m * 60 + s) * 1000;
+      if (countdownTarget <= 0) return;
+    }
+    running = true;
+    const startTime = Date.now() - elapsed;
+    interval = setInterval(() => {
+      elapsed = Date.now() - startTime;
+      updateDisplay();
+    }, 10);
+    document.getElementById('startBtn').textContent = '⏸ Pause';
+    document.getElementById('startBtn').className = 'ctrl-btn danger';
+    if (mode === 'stopwatch') document.getElementById('lapBtn').style.display = 'inline-block';
+  }
+}
+
+function lap() {
+  const split = elapsed - lastLap;
+  lastLap = elapsed;
+  lapTimes.unshift({ num: lapTimes.length + 1, time: elapsed, split });
+  renderLaps();
+}
+
+function renderLaps() {
+  document.getElementById('laps').innerHTML = lapTimes.map(l =>
+    `<div class="lap"><span class="num">Lap ${l.num}</span><span class="split">+${(l.split/1000).toFixed(2)}s</span><span class="time-val">${formatTimeSimple(l.time)}</span></div>`
+  ).join('');
+}
+
+function formatTimeSimple(ms) {
+  const s = Math.floor(ms/1000);
+  const m = Math.floor(s/60);
+  const h = Math.floor(m/60);
+  return `${String(h).padStart(2,'0')}:${String(m%60).padStart(2,'0')}:${String(s%60).padStart(2,'0')}.${String(Math.floor((ms%1000)/10)).padStart(2,'0')}`;
+}
+
+function reset() {
+  running = false;
+  clearInterval(interval);
+  elapsed = 0;
+  lastLap = 0;
+  lapTimes = [];
+  document.getElementById('laps').innerHTML = '';
+  document.getElementById('startBtn').textContent = '▶ Start';
+  document.getElementById('startBtn').className = 'ctrl-btn primary';
+  document.getElementById('lapBtn').style.display = 'none';
+  updateDisplay();
+}
+
+updateDisplay();
+</script>
+<style>@keyframes flash{0%,100%{background:var(--bg)}50%{background:#1a0a2e}}</style>
+</body>
+</html>

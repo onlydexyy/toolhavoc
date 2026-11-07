@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Text Case Converter & Formatter — ToolHavoc</title>
+<meta name="description" content="Convert text between UPPERCASE, lowercase, Title Case, camelCase, snake_case, and more. Copy with one click.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:24px}
+
+textarea{
+  width:100%;min-height:120px;padding:14px;border-radius:12px;background:var(--bg3);
+  border:1px solid var(--card-border);color:var(--text);font-family:'Inter',sans-serif;
+  font-size:14px;line-height:1.6;outline:none;resize:vertical;margin-bottom:16px;
+}
+textarea:focus{border-color:var(--accent1)}
+
+.conversions{display:grid;gap:10px}
+.conv-card{
+  padding:14px 16px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);display:flex;align-items:center;gap:12px;transition:all 0.2s;
+}
+.conv-card:hover{border-color:rgba(99,102,241,0.3)}
+.conv-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700;width:90px;flex-shrink:0}
+.conv-result{flex:1;font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conv-copy{
+  padding:6px 12px;border-radius:6px;border:1px solid var(--card-border);
+  background:transparent;color:var(--text3);font-size:11px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;flex-shrink:0;
+}
+.conv-copy:hover{border-color:var(--accent1);color:var(--accent1)}
+
+.fun-section{margin-top:24px}
+.section-title{font-size:14px;font-weight:700;margin-bottom:12px}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Text <span>Converter</span></h1>
+  <p class="subtitle">Convert text between cases and formats instantly.</p>
+
+  <textarea id="input" placeholder="Type or paste your text here..." oninput="convert()">The quick brown fox jumps over the lazy dog</textarea>
+
+  <div class="conversions" id="conversions"></div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+
+  <div class="fun-section">
+    <div class="section-title">🎭 Fun Formats</div>
+    <div class="conversions" id="funConversions"></div>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+const converters = {
+  'UPPERCASE': t => t.toUpperCase(),
+  'lowercase': t => t.toLowerCase(),
+  'Title Case': t => t.replace(/\w\S*/g, w => w[0].toUpperCase() + w.slice(1).toLowerCase()),
+  'Sentence': t => t.toLowerCase().replace(/(^\s*\w|[.!?]\s+\w)/g, c => c.toUpperCase()),
+  'camelCase': t => {const w=t.toLowerCase().split(/\s+/);return w[0]+w.slice(1).map(x=>x[0].toUpperCase()+x.slice(1)).join('')},
+  'PascalCase': t => t.toLowerCase().split(/\s+/).map(w=>w[0].toUpperCase()+w.slice(1)).join(''),
+  'snake_case': t => t.toLowerCase().replace(/\s+/g,'_'),
+  'kebab-case': t => t.toLowerCase().replace(/\s+/g,'-'),
+  'CONSTANT': t => t.toUpperCase().replace(/\s+/g,'_'),
+  'dot.case': t => t.toLowerCase().replace(/\s+/g,'.'),
+};
+
+const funConverters = {
+  'aLtErNaTe': t => t.split('').map((c,i)=>i%2?c.toUpperCase():c.toLowerCase()).join(''),
+  'Reversed': t => t.split('').reverse().join(''),
+  'Upside Down': t => {
+    const map='aɐbqcɔdpeǝfɟgƃhɥiᴉjɾkʞlʃmɯnuooppqbɹssztʇunyʌmxzz'.split('');
+    const m={};for(let i=0;i<26;i++)m[String.fromCharCode(97+i)]=map[i*2+1]||String.fromCharCode(97+i);
+    return t.toLowerCase().split('').reverse().map(c=>m[c]||c).join('');
+  },
+  'W i d e': t => t.split('').join(' '),
+  'No Vowels': t => t.replace(/[aeiouAEIOU]/g,''),
+  'Leet Speak': t => {
+    const m={a:'4',e:'3',i:'1',o:'0',s:'5',t:'7',l:'1',b:'8',g:'9'};
+    return t.split('').map(c=>m[c.toLowerCase()]||c).join('');
+  },
+  'Clap 👏': t => t.trim().split(/\s+/).join(' 👏 '),
+  'Zalgo': t => {
+    const above = ['\u0300','\u0301','\u0302','\u0303','\u0304','\u0305','\u0306','\u0307','\u0308','\u0309'];
+    return t.split('').map(c=>{
+      if(c===' ')return c;
+      let z=c;for(let i=0;i<Math.floor(Math.random()*3)+1;i++)z+=above[Math.floor(Math.random()*above.length)];
+      return z;
+    }).join('');
+  },
+};
+
+function convert() {
+  const text = document.getElementById('input').value;
+  renderSection('conversions', converters, text);
+  renderSection('funConversions', funConverters, text);
+}
+
+function renderSection(id, map, text) {
+  const el = document.getElementById(id);
+  el.innerHTML = Object.entries(map).map(([name, fn]) => {
+    const result = text ? fn(text) : '';
+    const escaped = result.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    return `<div class="conv-card">
+      <span class="conv-label">${name}</span>
+      <span class="conv-result">${result}</span>
+      <button class="conv-copy" onclick="copyText(this,'${escaped}')">Copy</button>
+    </div>`;
+  }).join('');
+}
+
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text.replace(/&quot;/g,'"'));
+  btn.textContent = '✓ Copied';
+  btn.style.color = '#22c55e';
+  btn.style.borderColor = '#22c55e';
+  setTimeout(() => { btn.textContent = 'Copy'; btn.style.color = ''; btn.style.borderColor = ''; }, 1200);
+}
+
+convert();
+</script>
+</body>
+</html>

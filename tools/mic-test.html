@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Microphone Test — ToolHavoc</title>
+<meta name="description" content="Test your microphone online. Check if your mic is working, see real-time audio levels, and listen to playback.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.mic-icon{text-align:center;font-size:64px;margin-bottom:20px}
+.status{text-align:center;font-size:14px;color:var(--text2);margin-bottom:24px}
+.status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.status .dot.off{background:#52525b}
+.status .dot.on{background:#22c55e;box-shadow:0 0 8px #22c55e}
+.status .dot.rec{background:#ef4444;box-shadow:0 0 8px #ef4444;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:0.5}}
+
+.level-wrap{margin-bottom:24px}
+.level-bar{height:12px;border-radius:6px;background:var(--bg3);overflow:hidden}
+.level-fill{height:100%;border-radius:6px;background:var(--gradient);transition:width 0.05s;width:0%}
+.level-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px}
+
+canvas{width:100%;height:100px;display:block;margin-bottom:24px;border-radius:10px;background:var(--bg2);border:1px solid var(--card-border)}
+
+.controls{display:flex;gap:10px;justify-content:center;margin-bottom:24px}
+.ctrl-btn{
+  padding:12px 28px;border-radius:10px;border:none;font-family:'Inter',sans-serif;
+  font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s;
+}
+.ctrl-btn.primary{background:var(--gradient);color:#fff;box-shadow:0 0 20px rgba(99,102,241,0.2)}
+.ctrl-btn.primary:hover{transform:translateY(-1px)}
+.ctrl-btn.secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--card-border)}
+
+.info-card{
+  border-radius:12px;border:1px solid var(--card-border);background:var(--card);overflow:hidden;margin-bottom:16px;
+}
+.info-row{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--card-border)}
+.info-row:last-child{border:none}
+.info-label{font-size:13px;color:var(--text2)}
+.info-value{font-size:13px;font-weight:600}
+
+.recording-section{display:none;margin-top:20px;text-align:center}
+.recording-section audio{width:100%;margin-top:10px;border-radius:8px}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Mic <span>Test</span></h1>
+  <p class="subtitle">Test if your microphone is working and see real-time audio levels.</p>
+
+  <div class="mic-icon" id="micIcon">🎤</div>
+  <div class="status" id="status"><span class="dot off"></span>Click "Start Test" to begin</div>
+
+  <div class="level-wrap">
+    <div class="level-bar"><div class="level-fill" id="levelFill"></div></div>
+    <div class="level-label"><span>Silent</span><span>Loud</span></div>
+  </div>
+
+  <canvas id="waveform"></canvas>
+
+  <div class="controls">
+    <button class="ctrl-btn primary" id="startBtn" onclick="toggleMic()">🎤 Start Test</button>
+    <button class="ctrl-btn secondary" id="recordBtn" onclick="toggleRecord()" style="display:none">⏺ Record</button>
+  </div>
+
+  <div class="info-card" id="micInfo" style="display:none">
+    <div class="info-row"><span class="info-label">Microphone</span><span class="info-value" id="micName">—</span></div>
+    <div class="info-row"><span class="info-label">Sample Rate</span><span class="info-value" id="sampleRate">—</span></div>
+    <div class="info-row"><span class="info-label">Channels</span><span class="info-value" id="channels">—</span></div>
+    <div class="info-row"><span class="info-label">Latency</span><span class="info-value" id="latency">—</span></div>
+  </div>
+
+  <div class="recording-section" id="recSection">
+    <p style="color:var(--text2);font-size:13px;margin-bottom:8px">🎧 Your recording:</p>
+    <audio id="playback" controls></audio>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+let stream, audioCtx, analyser, dataArray, animFrame;
+let mediaRecorder, chunks = [];
+let isRecording = false;
+
+const canvas = document.getElementById('waveform');
+const canvasCtx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = canvas.clientWidth * 2;
+  canvas.height = canvas.clientHeight * 2;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+async function toggleMic() {
+  if (stream) {
+    stopMic();
+    return;
+  }
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioCtx = new AudioContext();
+    const source = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    source.connect(analyser);
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    document.getElementById('startBtn').textContent = '⏹ Stop';
+    document.getElementById('recordBtn').style.display = 'inline-block';
+    document.getElementById('status').innerHTML = '<span class="dot on"></span>Microphone active — speak to test';
+    document.getElementById('micInfo').style.display = 'block';
+
+    // Get mic info
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const mic = devices.find(d => d.kind === 'audioinput' && d.deviceId === stream.getAudioTracks()[0].getSettings().deviceId);
+    document.getElementById('micName').textContent = mic ? mic.label : stream.getAudioTracks()[0].label || 'Default';
+    document.getElementById('sampleRate').textContent = audioCtx.sampleRate + ' Hz';
+    document.getElementById('channels').textContent = stream.getAudioTracks()[0].getSettings().channelCount || 1;
+    document.getElementById('latency').textContent = (audioCtx.baseLatency * 1000).toFixed(1) + ' ms';
+
+    draw();
+  } catch(e) {
+    document.getElementById('status').innerHTML = '<span class="dot off"></span>❌ Microphone access denied. Please allow mic access.';
+  }
+}
+
+function stopMic() {
+  if (isRecording) toggleRecord();
+  stream.getTracks().forEach(t => t.stop());
+  stream = null;
+  if (audioCtx) audioCtx.close();
+  cancelAnimationFrame(animFrame);
+  document.getElementById('startBtn').textContent = '🎤 Start Test';
+  document.getElementById('recordBtn').style.display = 'none';
+  document.getElementById('status').innerHTML = '<span class="dot off"></span>Microphone stopped';
+  document.getElementById('levelFill').style.width = '0%';
+  canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function draw() {
+  animFrame = requestAnimationFrame(draw);
+  analyser.getByteTimeDomainData(dataArray);
+
+  // Level meter
+  let max = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    const v = Math.abs(dataArray[i] - 128);
+    if (v > max) max = v;
+  }
+  const level = Math.min(100, (max / 128) * 100 * 1.5);
+  document.getElementById('levelFill').style.width = level + '%';
+
+  // Waveform
+  const w = canvas.width, h = canvas.height;
+  canvasCtx.fillStyle = 'rgba(18,18,26,0.3)';
+  canvasCtx.fillRect(0, 0, w, h);
+
+  canvasCtx.lineWidth = 2;
+  canvasCtx.strokeStyle = '#6366f1';
+  canvasCtx.beginPath();
+
+  const sliceWidth = w / dataArray.length;
+  let x = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    const v = dataArray[i] / 128.0;
+    const y = (v * h) / 2;
+    if (i === 0) canvasCtx.moveTo(x, y);
+    else canvasCtx.lineTo(x, y);
+    x += sliceWidth;
+  }
+  canvasCtx.lineTo(w, h / 2);
+  canvasCtx.stroke();
+}
+
+function toggleRecord() {
+  if (isRecording) {
+    isRecording = false;
+    mediaRecorder.stop();
+    document.getElementById('recordBtn').textContent = '⏺ Record';
+    document.getElementById('status').innerHTML = '<span class="dot on"></span>Recording stopped';
+  } else {
+    chunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      document.getElementById('playback').src = URL.createObjectURL(blob);
+      document.getElementById('recSection').style.display = 'block';
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    document.getElementById('recordBtn').textContent = '⏹ Stop Recording';
+    document.getElementById('status').innerHTML = '<span class="dot rec"></span>Recording...';
+  }
+}
+</script>
+</body>
+</html>

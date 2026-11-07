@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Internet Knowledge Quiz — ToolHavoc</title>
+<meta name="description" content="Test your internet and tech knowledge with this fun quiz. How well do you really know the internet, memes, and tech history?">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.progress{display:flex;gap:4px;margin-bottom:24px}
+.progress-dot{flex:1;height:4px;border-radius:2px;background:var(--bg3);transition:background 0.3s}
+.progress-dot.done{background:var(--accent1)}
+.progress-dot.current{background:var(--gradient)}
+
+.question-num{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600}
+.question-text{font-size:18px;font-weight:700;margin-bottom:20px;line-height:1.4}
+
+.options{display:grid;gap:10px;margin-bottom:24px}
+.option{
+  padding:14px 18px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);cursor:pointer;font-size:14px;transition:all 0.3s;
+  display:flex;align-items:center;gap:12px;
+}
+.option:hover{border-color:var(--accent1);background:rgba(99,102,241,0.05)}
+.option .letter{
+  width:28px;height:28px;border-radius:6px;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:12px;
+  font-weight:700;color:var(--text2);flex-shrink:0;
+}
+.option.correct{border-color:#22c55e;background:rgba(34,197,94,0.1)}
+.option.correct .letter{background:#22c55e;color:#fff}
+.option.wrong{border-color:#ef4444;background:rgba(239,68,68,0.1)}
+.option.wrong .letter{background:#ef4444;color:#fff}
+.option.disabled{pointer-events:none;opacity:0.6}
+.option.correct.disabled,.option.wrong.disabled{opacity:1}
+
+.explanation{
+  display:none;padding:14px;border-radius:10px;background:var(--bg3);
+  border:1px solid var(--card-border);font-size:13px;color:var(--text2);
+  margin-bottom:16px;line-height:1.5;
+}
+
+.next-btn{
+  display:none;width:100%;padding:12px;border-radius:10px;border:none;
+  background:var(--gradient);color:#fff;font-family:'Inter',sans-serif;
+  font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s;
+}
+.next-btn:hover{transform:translateY(-1px)}
+
+/* Results */
+.results{display:none;text-align:center}
+.score-circle{
+  width:140px;height:140px;border-radius:50%;margin:0 auto 20px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:4px solid var(--accent1);
+}
+.score-num{font-size:36px;font-weight:900;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-label{font-size:12px;color:var(--text3)}
+.score-title{font-size:22px;font-weight:800;margin-bottom:8px}
+.score-desc{color:var(--text2);font-size:14px;margin-bottom:24px}
+.result-btns{display:flex;gap:10px}
+.result-btn{
+  flex:1;padding:12px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text);font-size:13px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;
+}
+.result-btn:hover{border-color:var(--accent1)}
+.result-btn.primary{background:var(--gradient);border:none;font-weight:600}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+
+#startScreen .start-btn{
+  display:block;width:100%;padding:14px;border-radius:12px;border:none;
+  background:var(--gradient);color:#fff;font-family:'Inter',sans-serif;
+  font-size:16px;font-weight:700;cursor:pointer;
+  box-shadow:0 0 20px rgba(99,102,241,0.2);transition:all 0.3s;
+}
+#startScreen .start-btn:hover{transform:translateY(-2px)}
+.info-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.info-card{padding:16px;border-radius:10px;border:1px solid var(--card-border);background:var(--card);text-align:center}
+.info-card .num{font-size:22px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.info-card .lbl{font-size:11px;color:var(--text3);margin-top:4px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Internet <span>Quiz</span></h1>
+  <p class="subtitle">How well do you really know the internet?</p>
+
+  <div id="startScreen">
+    <div class="info-cards">
+      <div class="info-card"><div class="num">10</div><div class="lbl">Questions</div></div>
+      <div class="info-card"><div class="num">🧠</div><div class="lbl">Tech & Memes</div></div>
+      <div class="info-card"><div class="num">⚡</div><div class="lbl">Instant Results</div></div>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">🚀 Start Quiz</button>
+  </div>
+
+  <div id="quizScreen" style="display:none">
+    <div class="progress" id="progress"></div>
+    <div class="question-num" id="qNum"></div>
+    <div class="question-text" id="qText"></div>
+    <div class="options" id="options"></div>
+    <div class="explanation" id="explanation"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+  </div>
+
+  <div class="results" id="resultsScreen">
+    <div class="score-circle">
+      <div class="score-num" id="finalScore"></div>
+      <div class="score-label">out of 10</div>
+    </div>
+    <div class="score-title" id="scoreTitle"></div>
+    <div class="score-desc" id="scoreDesc"></div>
+    <div class="result-btns">
+      <button class="result-btn" onclick="shareScore()">📤 Share</button>
+      <button class="result-btn primary" onclick="location.reload()">🔄 Try Again</button>
+    </div>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+const allQuestions = [
+  {q:'What does "HTTP" stand for?',opts:['HyperText Transfer Protocol','High Tech Transfer Program','HyperText Transmission Process','Home Tool Transfer Protocol'],ans:0,exp:'HTTP stands for HyperText Transfer Protocol, the foundation of data communication on the World Wide Web.'},
+  {q:'What year was the first iPhone released?',opts:['2005','2006','2007','2008'],ans:2,exp:'The original iPhone was unveiled by Steve Jobs on January 9, 2007, and went on sale on June 29, 2007.'},
+  {q:'What does "CSS" stand for in web development?',opts:['Computer Style Sheets','Creative Style System','Cascading Style Sheets','Coded Style Syntax'],ans:2,exp:'CSS stands for Cascading Style Sheets, used to style and layout web pages.'},
+  {q:'Which company created the Android operating system?',opts:['Google','Apple','Samsung','Android Inc. (acquired by Google)'],ans:3,exp:'Android was originally created by Android Inc. in 2003, which Google acquired in 2005.'},
+  {q:'What was the first video ever uploaded to YouTube?',opts:['Charlie Bit My Finger','Me at the zoo','Evolution of Dance','Keyboard Cat'],ans:1,exp:'"Me at the zoo" was uploaded by YouTube co-founder Jawed Karim on April 23, 2005. It shows him at the San Diego Zoo.'},
+  {q:'What does "GPU" stand for?',opts:['General Processing Unit','Graphics Processing Unit','Game Play Utility','Graphics Program Utility'],ans:1,exp:'GPU stands for Graphics Processing Unit, a specialized processor for rendering images and video.'},
+  {q:'What is the maximum character count for a standard tweet (as of 2023)?',opts:['140','160','240','280'],ans:3,exp:'Twitter (now X) increased its character limit from 140 to 280 characters in November 2017.'},
+  {q:'What programming language is known as the "language of the web"?',opts:['Python','Java','JavaScript','HTML'],ans:2,exp:'JavaScript is known as the language of the web because it runs natively in web browsers and powers interactive web pages.'},
+  {q:'What does "ISP" stand for?',opts:['Internet Service Provider','Internal System Protocol','Internet Security Program','Information Service Platform'],ans:0,exp:'ISP stands for Internet Service Provider — the company that provides your internet access.'},
+  {q:'What year was Google founded?',opts:['1996','1997','1998','1999'],ans:2,exp:'Google was founded by Larry Page and Sergey Brin on September 4, 1998, while they were Ph.D. students at Stanford.'},
+  {q:'What does "RAM" stand for?',opts:['Random Access Memory','Read And Modify','Readily Available Memory','Run Application Mode'],ans:0,exp:'RAM stands for Random Access Memory — fast, temporary storage that your computer uses to hold data for running applications.'},
+  {q:'Who is considered the inventor of the World Wide Web?',opts:['Bill Gates','Steve Jobs','Tim Berners-Lee','Vint Cerf'],ans:2,exp:'Tim Berners-Lee invented the World Wide Web in 1989 while working at CERN.'},
+  {q:'What does the "404" error code mean?',opts:['Server Error','Access Denied','Page Not Found','Request Timeout'],ans:2,exp:'A 404 error means the server could not find the requested page. It\'s the most well-known HTTP error code.'},
+  {q:'What was the first commercially available web browser?',opts:['Internet Explorer','Netscape Navigator','Mozilla Firefox','Mosaic'],ans:1,exp:'Netscape Navigator, released in 1994, was the first commercially successful web browser.'},
+  {q:'What does "VPN" stand for?',opts:['Virtual Private Network','Visual Processing Node','Very Private Navigation','Virtual Public Network'],ans:0,exp:'VPN stands for Virtual Private Network, which creates a secure, encrypted connection over the internet.'},
+  {q:'Which social media platform was originally called "twttr"?',opts:['Facebook','Instagram','Twitter','TikTok'],ans:2,exp:'Twitter was originally called "twttr" (inspired by Flickr). The vowels were later added to become "Twitter."'},
+  {q:'What was the first ever emoji?',opts:['😀','❤️','📱','A set of 176 emojis by Shigetaka Kurita'],ans:3,exp:'The first emoji set was created in 1999 by Japanese artist Shigetaka Kurita for a mobile carrier. It included 176 12x12 pixel icons.'},
+  {q:'What does "SSD" stand for?',opts:['Super Speed Drive','Solid State Drive','System Storage Device','Secure Storage Disk'],ans:1,exp:'SSD stands for Solid State Drive — a storage device with no moving parts, much faster than traditional hard drives.'},
+  {q:'Which company owns Instagram, WhatsApp, and Threads?',opts:['Google','Microsoft','Meta (Facebook)','Apple'],ans:2,exp:'Meta (formerly Facebook) owns Instagram (acquired 2012), WhatsApp (acquired 2014), and Threads (launched 2023).'},
+  {q:'What does "API" stand for?',opts:['Application Programming Interface','Advanced Program Integration','Automated Process Input','Application Process Integration'],ans:0,exp:'API stands for Application Programming Interface — a set of rules that lets software applications communicate with each other.'},
+];
+
+let questions, current, score;
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startQuiz(){
+  questions = shuffle([...allQuestions]).slice(0,10);
+  current = 0; score = 0;
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('quizScreen').style.display='block';
+  renderProgress();
+  showQuestion();
+}
+
+function renderProgress(){
+  const p=document.getElementById('progress');
+  p.innerHTML='';
+  for(let i=0;i<10;i++){
+    const d=document.createElement('div');
+    d.className='progress-dot'+(i<current?' done':i===current?' current':'');
+    p.appendChild(d);
+  }
+}
+
+function showQuestion(){
+  const q=questions[current];
+  document.getElementById('qNum').textContent='Question '+(current+1)+' of 10';
+  document.getElementById('qText').textContent=q.q;
+  const opts=document.getElementById('options');
+  opts.innerHTML='';
+  const letters='ABCD';
+  q.opts.forEach((opt,i)=>{
+    const d=document.createElement('div');
+    d.className='option';
+    d.innerHTML=`<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    d.onclick=()=>answer(i);
+    opts.appendChild(d);
+  });
+  document.getElementById('explanation').style.display='none';
+  document.getElementById('nextBtn').style.display='none';
+  renderProgress();
+}
+
+function answer(idx){
+  const q=questions[current];
+  const opts=document.querySelectorAll('.option');
+  opts.forEach((o,i)=>{
+    o.classList.add('disabled');
+    if(i===q.ans)o.classList.add('correct');
+    if(i===idx&&i!==q.ans)o.classList.add('wrong');
+  });
+  if(idx===q.ans)score++;
+  const exp=document.getElementById('explanation');
+  exp.textContent=(idx===q.ans?'✅ Correct! ':'❌ Wrong! ')+q.exp;
+  exp.style.display='block';
+  document.getElementById('nextBtn').style.display='block';
+  document.getElementById('nextBtn').textContent=current===9?'See Results →':'Next Question →';
+}
+
+function nextQuestion(){
+  current++;
+  if(current>=10){showResults();return}
+  showQuestion();
+}
+
+function showResults(){
+  document.getElementById('quizScreen').style.display='none';
+  const r=document.getElementById('resultsScreen');
+  r.style.display='block';
+  document.getElementById('finalScore').textContent=score;
+  const titles=[
+    [10,'Internet God 🏆','You know literally everything. Are you the internet itself?'],
+    [8,'Tech Wizard 🧙','Extremely impressive. You clearly spend a lot of time online.'],
+    [6,'Digital Native 💻','Solid knowledge! You know your way around the web.'],
+    [4,'Casual Browser 🌐','Not bad! You know the basics but theres room to grow.'],
+    [0,'Internet Newbie 🐣','Time to do some more browsing! The internet has so much to teach you.'],
+  ];
+  const t=titles.find(([min])=>score>=min);
+  document.getElementById('scoreTitle').textContent=t[1];
+  document.getElementById('scoreDesc').textContent=t[2];
+}
+
+function shareScore(){
+  const text=`I scored ${score}/10 on the ToolHavoc Internet Quiz! Can you beat me?\n\ntoolhavoc.com/tools/internet-quiz.html`;
+  if(navigator.share)navigator.share({title:'Internet Quiz Score',text,url:window.location.href});
+  else navigator.clipboard.writeText(text);
+}
+</script>
+</body>
+</html>

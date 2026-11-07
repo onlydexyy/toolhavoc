@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Vibration Test — ToolHavoc</title>
+<meta name="description" content="Test your phone's vibration motor with different patterns, intensities, and custom vibration sequences.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.status{text-align:center;padding:14px;border-radius:10px;border:1px solid var(--card-border);background:var(--card);font-size:13px;color:var(--text2);margin-bottom:24px}
+
+.section-title{font-size:14px;font-weight:700;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+
+/* Big vibrate button */
+.vib-big{
+  display:block;width:160px;height:160px;border-radius:50%;margin:0 auto 24px;
+  background:var(--gradient);border:none;cursor:pointer;font-size:48px;
+  box-shadow:0 0 40px rgba(99,102,241,0.3);transition:all 0.2s;
+  position:relative;
+}
+.vib-big:hover{transform:scale(1.05);box-shadow:0 0 60px rgba(99,102,241,0.4)}
+.vib-big:active{transform:scale(0.95)}
+.vib-big.vibrating{animation:shake 0.1s linear infinite}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.vib-label{text-align:center;font-size:13px;color:var(--text2);margin-bottom:24px}
+
+/* Duration slider */
+.slider-wrap{margin-bottom:24px}
+.slider-wrap label{display:block;font-size:13px;color:var(--text2);margin-bottom:8px;font-weight:600}
+.slider-row{display:flex;align-items:center;gap:12px}
+input[type=range]{flex:1;-webkit-appearance:none;height:6px;border-radius:3px;background:var(--bg3);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent1);cursor:pointer}
+.slider-val{font-size:14px;font-weight:600;width:60px;text-align:right}
+
+/* Pattern buttons */
+.patterns{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.pattern-btn{
+  padding:16px;border-radius:12px;border:1px solid var(--card-border);
+  background:var(--card);cursor:pointer;text-align:center;transition:all 0.3s;
+  font-family:'Inter',sans-serif;
+}
+.pattern-btn:hover{border-color:var(--accent1);background:rgba(99,102,241,0.05)}
+.pattern-btn:active{transform:scale(0.97)}
+.pattern-btn .icon{font-size:24px;margin-bottom:4px}
+.pattern-btn .name{font-size:13px;font-weight:600}
+.pattern-btn .desc{font-size:11px;color:var(--text3);margin-top:2px}
+
+.not-supported{
+  display:none;text-align:center;padding:20px;border-radius:12px;
+  border:1px solid #f59e0b;background:rgba(245,158,11,0.1);color:#f59e0b;
+  font-size:14px;margin-bottom:24px;
+}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Vibration <span>Test</span></h1>
+  <p class="subtitle">Test your phone's vibration motor with different patterns.</p>
+
+  <div class="not-supported" id="notSupported">⚠️ Vibration API is not supported on this device. This tool works on most Android phones in Chrome.</div>
+
+  <div class="status" id="status">📳 Tap the button below to test vibration</div>
+
+  <button class="vib-big" id="vibBtn" onpointerdown="vibrateStart()" onpointerup="vibrateStop()" onpointerleave="vibrateStop()">📳</button>
+  <div class="vib-label">Hold to vibrate continuously</div>
+
+  <div class="slider-wrap">
+    <label>Vibration Duration</label>
+    <div class="slider-row">
+      <input type="range" id="duration" min="50" max="2000" value="500" oninput="document.getElementById('durVal').textContent=this.value+'ms'">
+      <span class="slider-val" id="durVal">500ms</span>
+    </div>
+  </div>
+
+  <div class="section-title">🎵 Vibration Patterns</div>
+  <div class="patterns">
+    <div class="pattern-btn" onclick="playPattern('short')"><div class="icon">⚡</div><div class="name">Short Buzz</div><div class="desc">Quick single vibration</div></div>
+    <div class="pattern-btn" onclick="playPattern('double')"><div class="icon">✌️</div><div class="name">Double Tap</div><div class="desc">Two quick buzzes</div></div>
+    <div class="pattern-btn" onclick="playPattern('triple')"><div class="icon">🔔</div><div class="name">Triple Tap</div><div class="desc">Three quick buzzes</div></div>
+    <div class="pattern-btn" onclick="playPattern('long')"><div class="icon">📳</div><div class="name">Long Buzz</div><div class="desc">Extended vibration</div></div>
+    <div class="pattern-btn" onclick="playPattern('sos')"><div class="icon">🆘</div><div class="name">SOS</div><div class="desc">···  — — —  ···</div></div>
+    <div class="pattern-btn" onclick="playPattern('heartbeat')"><div class="icon">💓</div><div class="name">Heartbeat</div><div class="desc">Ba-bump pattern</div></div>
+    <div class="pattern-btn" onclick="playPattern('alarm')"><div class="icon">🚨</div><div class="name">Alarm</div><div class="desc">Repeating alert</div></div>
+    <div class="pattern-btn" onclick="playPattern('notification')"><div class="icon">📱</div><div class="name">Notification</div><div class="desc">Standard notification</div></div>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+const supported = 'vibrate' in navigator;
+
+if (!supported) {
+  document.getElementById('notSupported').style.display = 'block';
+}
+
+let vibrating = false;
+let vibInterval;
+
+function vibrateStart() {
+  if (!supported) return;
+  vibrating = true;
+  const btn = document.getElementById('vibBtn');
+  btn.classList.add('vibrating');
+  document.getElementById('status').textContent = '📳 Vibrating...';
+
+  const dur = parseInt(document.getElementById('duration').value);
+  navigator.vibrate(dur);
+  vibInterval = setInterval(() => {
+    if (vibrating) navigator.vibrate(dur);
+  }, dur + 50);
+}
+
+function vibrateStop() {
+  vibrating = false;
+  clearInterval(vibInterval);
+  navigator.vibrate(0);
+  document.getElementById('vibBtn').classList.remove('vibrating');
+  document.getElementById('status').textContent = '📳 Vibration stopped';
+}
+
+const patterns = {
+  short: [100],
+  double: [100, 50, 100],
+  triple: [100, 50, 100, 50, 100],
+  long: [1000],
+  sos: [100,30,100,30,100, 200, 300,30,300,30,300, 200, 100,30,100,30,100],
+  heartbeat: [100,80,200, 400, 100,80,200],
+  alarm: [200,100,200,100,200,100,200,100,200],
+  notification: [50,30,100],
+};
+
+function playPattern(name) {
+  if (!supported) return;
+  navigator.vibrate(0);
+  navigator.vibrate(patterns[name]);
+  document.getElementById('status').textContent = '📳 Playing: ' + name.charAt(0).toUpperCase() + name.slice(1);
+  const total = patterns[name].reduce((a,b) => a+b, 0);
+  setTimeout(() => {
+    document.getElementById('status').textContent = '📳 Pattern complete';
+  }, total);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Gyroscope & Accelerometer Test — ToolHavoc</title>
+<meta name="description" content="Test your phone's gyroscope and accelerometer sensors. See real-time rotation and motion data with a 3D visualization.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.phone-viz{
+  width:160px;height:240px;margin:0 auto 24px;perspective:600px;
+}
+.phone-3d{
+  width:100%;height:100%;border-radius:20px;border:3px solid var(--accent1);
+  background:var(--bg2);position:relative;transition:transform 0.1s;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 30px rgba(99,102,241,0.2);
+}
+.phone-3d .screen{
+  width:80%;height:85%;border-radius:10px;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+}
+.phone-3d .notch{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  width:40px;height:6px;border-radius:3px;background:var(--bg);
+}
+
+.data-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.data-card{
+  padding:14px;border-radius:12px;border:1px solid var(--card-border);
+  background:var(--card);
+}
+.data-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600}
+.data-row{display:flex;justify-content:space-between;padding:3px 0;font-size:13px}
+.data-row .axis{font-weight:700;width:16px}
+.data-row .axis.x{color:#ef4444}
+.data-row .axis.y{color:#22c55e}
+.data-row .axis.z{color:#3b82f6}
+.data-row .val{font-family:'Fira Code',monospace;font-size:12px;color:var(--text2)}
+
+.status-msg{
+  text-align:center;padding:16px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);font-size:13px;color:var(--text2);margin-bottom:20px;
+}
+
+.start-btn{
+  display:block;width:100%;padding:14px;border-radius:12px;border:none;
+  background:var(--gradient);color:#fff;font-family:'Inter',sans-serif;
+  font-size:16px;font-weight:700;cursor:pointer;margin-bottom:16px;
+  box-shadow:0 0 20px rgba(99,102,241,0.2);transition:all 0.3s;
+}
+.start-btn:hover{transform:translateY(-2px)}
+
+.ball-area{
+  width:100%;height:200px;border-radius:12px;border:1px solid var(--card-border);
+  background:var(--bg2);position:relative;overflow:hidden;margin-bottom:20px;
+}
+.ball{
+  width:30px;height:30px;border-radius:50%;background:var(--gradient);
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  box-shadow:0 0 15px rgba(99,102,241,0.4);transition:transform 0.05s;
+}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Gyroscope <span>Test</span></h1>
+  <p class="subtitle">Test your device's motion sensors in real-time.</p>
+
+  <div class="phone-viz">
+    <div class="phone-3d" id="phone3d">
+      <div class="notch"></div>
+      <div class="screen">📱</div>
+    </div>
+  </div>
+
+  <div class="status-msg" id="statusMsg">📱 Tilt your phone to see the sensors in action</div>
+
+  <button class="start-btn" id="startBtn" onclick="requestPermission()">🔓 Enable Sensors (iOS requires this)</button>
+
+  <div class="data-grid">
+    <div class="data-card">
+      <div class="data-title">🧭 Orientation</div>
+      <div class="data-row"><span class="axis x">α</span><span>Alpha</span><span class="val" id="alpha">0°</span></div>
+      <div class="data-row"><span class="axis y">β</span><span>Beta</span><span class="val" id="beta">0°</span></div>
+      <div class="data-row"><span class="axis z">γ</span><span>Gamma</span><span class="val" id="gamma">0°</span></div>
+    </div>
+    <div class="data-card">
+      <div class="data-title">📐 Accelerometer</div>
+      <div class="data-row"><span class="axis x">X</span><span>Left/Right</span><span class="val" id="accX">0</span></div>
+      <div class="data-row"><span class="axis y">Y</span><span>Fwd/Back</span><span class="val" id="accY">0</span></div>
+      <div class="data-row"><span class="axis z">Z</span><span>Up/Down</span><span class="val" id="accZ">0</span></div>
+    </div>
+  </div>
+
+  <div class="ball-area" id="ballArea">
+    <div class="ball" id="ball"></div>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+let hasGyro = false;
+
+function requestPermission() {
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().then(response => {
+      if (response === 'granted') initSensors();
+      else document.getElementById('statusMsg').textContent = '❌ Permission denied. Enable in Settings > Safari.';
+    });
+    DeviceMotionEvent.requestPermission();
+  } else {
+    initSensors();
+  }
+}
+
+function initSensors() {
+  document.getElementById('startBtn').style.display = 'none';
+
+  window.addEventListener('deviceorientation', e => {
+    hasGyro = true;
+    document.getElementById('statusMsg').textContent = '✅ Sensors active — tilt your device!';
+
+    const alpha = e.alpha || 0;
+    const beta = e.beta || 0;
+    const gamma = e.gamma || 0;
+
+    document.getElementById('alpha').textContent = alpha.toFixed(1) + '°';
+    document.getElementById('beta').textContent = beta.toFixed(1) + '°';
+    document.getElementById('gamma').textContent = gamma.toFixed(1) + '°';
+
+    // 3D phone visualization
+    const phone = document.getElementById('phone3d');
+    phone.style.transform = `rotateX(${-beta*0.5}deg) rotateY(${gamma*0.5}deg) rotateZ(${-gamma*0.3}deg)`;
+
+    // Ball
+    const area = document.getElementById('ballArea');
+    const ball = document.getElementById('ball');
+    const maxX = area.clientWidth / 2 - 15;
+    const maxY = area.clientHeight / 2 - 15;
+    const bx = Math.max(-maxX, Math.min(maxX, gamma * 3));
+    const by = Math.max(-maxY, Math.min(maxY, beta * 2));
+    ball.style.transform = `translate(calc(-50% + ${bx}px), calc(-50% + ${by}px))`;
+  });
+
+  window.addEventListener('devicemotion', e => {
+    const acc = e.accelerationIncludingGravity;
+    if (acc) {
+      document.getElementById('accX').textContent = (acc.x || 0).toFixed(2);
+      document.getElementById('accY').textContent = (acc.y || 0).toFixed(2);
+      document.getElementById('accZ').textContent = (acc.z || 0).toFixed(2);
+    }
+  });
+
+  setTimeout(() => {
+    if (!hasGyro) {
+      document.getElementById('statusMsg').textContent = '⚠️ No gyroscope detected. This tool works best on mobile devices.';
+    }
+  }, 2000);
+}
+
+// Auto-init on non-iOS
+if (typeof DeviceOrientationEvent === 'undefined' || typeof DeviceOrientationEvent.requestPermission !== 'function') {
+  initSensors();
+}
+</script>
+</body>
+</html>

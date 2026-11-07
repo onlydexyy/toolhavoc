@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Dead Pixel Test — ToolHavoc</title>
+<meta name="description" content="Test your monitor for dead or stuck pixels. Cycle through solid colors to find screen defects.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.instructions{
+  padding:20px;border-radius:12px;border:1px solid var(--card-border);
+  background:var(--card);margin-bottom:24px;
+}
+.instructions h3{font-size:14px;margin-bottom:8px}
+.instructions ol{padding-left:20px;color:var(--text2);font-size:13px;line-height:1.8}
+
+.colors-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+.color-card{
+  aspect-ratio:1;border-radius:12px;cursor:pointer;border:2px solid var(--card-border);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;
+  transition:all 0.2s;position:relative;overflow:hidden;
+}
+.color-card:hover{transform:scale(1.05);border-color:var(--accent1)}
+.color-card span{
+  background:rgba(0,0,0,0.5);padding:3px 8px;border-radius:4px;color:#fff;font-size:10px;
+}
+
+.start-btn{
+  display:block;width:100%;padding:14px;border-radius:12px;border:none;
+  background:var(--gradient);color:#fff;font-family:'Inter',sans-serif;
+  font-size:16px;font-weight:700;cursor:pointer;margin-bottom:16px;
+  box-shadow:0 0 20px rgba(99,102,241,0.2);transition:all 0.3s;
+}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(99,102,241,0.3)}
+
+.tip{text-align:center;color:var(--text3);font-size:12px;margin-bottom:16px}
+
+/* Fullscreen test */
+.test-screen{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;
+  cursor:pointer;transition:background 0.3s;
+}
+.test-hint{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:10000;
+  background:rgba(0,0,0,0.7);color:#fff;padding:10px 20px;border-radius:8px;
+  font-size:13px;pointer-events:none;opacity:0;transition:opacity 0.5s;
+}
+.test-hint.show{opacity:1}
+.test-counter{
+  position:fixed;top:20px;right:20px;z-index:10000;
+  background:rgba(0,0,0,0.7);color:#fff;padding:6px 14px;border-radius:6px;
+  font-size:12px;pointer-events:none;
+}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Dead <span>Pixel</span> Test</h1>
+  <p class="subtitle">Check your screen for dead or stuck pixels.</p>
+
+  <div class="instructions">
+    <h3>📋 How to use</h3>
+    <ol>
+      <li>Press F11 for fullscreen (recommended)</li>
+      <li>Click "Start Test" or any color below</li>
+      <li>Look carefully for any pixels that don't match</li>
+      <li>Click anywhere or press → to cycle colors</li>
+      <li>Press ESC to exit</li>
+    </ol>
+  </div>
+
+  <div class="colors-grid">
+    <div class="color-card" style="background:#000" onclick="startAt(0)"><span>Black</span></div>
+    <div class="color-card" style="background:#fff" onclick="startAt(1)"><span style="color:#000">White</span></div>
+    <div class="color-card" style="background:#f00" onclick="startAt(2)"><span>Red</span></div>
+    <div class="color-card" style="background:#0f0" onclick="startAt(3)"><span>Green</span></div>
+    <div class="color-card" style="background:#00f" onclick="startAt(4)"><span>Blue</span></div>
+    <div class="color-card" style="background:#ff0" onclick="startAt(5)"><span style="color:#000">Yellow</span></div>
+    <div class="color-card" style="background:#0ff" onclick="startAt(6)"><span style="color:#000">Cyan</span></div>
+    <div class="color-card" style="background:#f0f" onclick="startAt(7)"><span>Magenta</span></div>
+  </div>
+
+  <button class="start-btn" onclick="startAt(0)">🖥️ Start Full Test</button>
+  <p class="tip">💡 Tip: Use in a dark room for best results</p>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<div class="test-screen" id="testScreen" onclick="nextColor()"></div>
+<div class="test-hint" id="hint">Click or press → for next color • ESC to exit</div>
+<div class="test-counter" id="counter" style="display:none"></div>
+
+<script>
+const colors = ['#000000','#ffffff','#ff0000','#00ff00','#0000ff','#ffff00','#00ffff','#ff00ff'];
+const names = ['Black','White','Red','Green','Blue','Yellow','Cyan','Magenta'];
+let currentIdx = 0;
+
+function startAt(idx) {
+  currentIdx = idx;
+  const screen = document.getElementById('testScreen');
+  screen.style.display = 'block';
+  screen.style.background = colors[currentIdx];
+  document.getElementById('counter').style.display = 'block';
+  updateCounter();
+
+  const hint = document.getElementById('hint');
+  hint.classList.add('show');
+  setTimeout(() => hint.classList.remove('show'), 3000);
+}
+
+function nextColor() {
+  currentIdx = (currentIdx + 1) % colors.length;
+  document.getElementById('testScreen').style.background = colors[currentIdx];
+  updateCounter();
+}
+
+function updateCounter() {
+  document.getElementById('counter').textContent = names[currentIdx] + ' (' + (currentIdx + 1) + '/' + colors.length + ')';
+}
+
+function closeTest() {
+  document.getElementById('testScreen').style.display = 'none';
+  document.getElementById('counter').style.display = 'none';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeTest();
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextColor(); }
+  if (e.key === 'ArrowLeft') { currentIdx = (currentIdx - 2 + colors.length) % colors.length; nextColor(); }
+});
+</script>
+</body>
+</html>

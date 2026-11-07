@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Word Counter & Text Analyzer — ToolHavoc</title>
+<meta name="description" content="Count words, characters, sentences, and paragraphs instantly. Reading time estimator and keyword density analyzer included.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:700px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:24px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:20px}
+.stat-card{
+  padding:16px;border-radius:12px;border:1px solid var(--card-border);
+  background:var(--card);text-align:center;
+}
+.stat-num{font-size:24px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:11px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px}
+
+textarea{
+  width:100%;min-height:200px;padding:16px;border-radius:12px;background:var(--bg3);
+  border:1px solid var(--card-border);color:var(--text);font-family:'Inter',sans-serif;
+  font-size:14px;line-height:1.7;outline:none;resize:vertical;transition:border-color 0.3s;
+}
+textarea:focus{border-color:var(--accent1)}
+textarea::placeholder{color:var(--text3)}
+
+.extras{margin-top:20px}
+.extra-card{
+  padding:14px 18px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);margin-bottom:10px;
+}
+.extra-title{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600}
+.extra-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.extra-row .label{color:var(--text2)}
+.extra-row .value{font-weight:600}
+
+.keywords{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.keyword{
+  padding:4px 10px;border-radius:6px;background:var(--bg3);font-size:12px;
+  color:var(--text2);border:1px solid var(--card-border);
+}
+.keyword span{color:var(--accent1);font-weight:700;margin-left:4px}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Word <span>Counter</span></h1>
+  <p class="subtitle">Real-time word, character, and sentence counting.</p>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num" id="words">0</div><div class="stat-label">Words</div></div>
+    <div class="stat-card"><div class="stat-num" id="chars">0</div><div class="stat-label">Characters</div></div>
+    <div class="stat-card"><div class="stat-num" id="sentences">0</div><div class="stat-label">Sentences</div></div>
+    <div class="stat-card"><div class="stat-num" id="paragraphs">0</div><div class="stat-label">Paragraphs</div></div>
+    <div class="stat-card"><div class="stat-num" id="readTime">0m</div><div class="stat-label">Read Time</div></div>
+    <div class="stat-card"><div class="stat-num" id="speakTime">0m</div><div class="stat-label">Speak Time</div></div>
+  </div>
+
+  <textarea id="textInput" placeholder="Start typing or paste your text here..." oninput="analyze()"></textarea>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+
+  <div class="extras">
+    <div class="extra-card">
+      <div class="extra-title">Details</div>
+      <div class="extra-row"><span class="label">Characters (no spaces)</span><span class="value" id="charsNoSpace">0</span></div>
+      <div class="extra-row"><span class="label">Syllables (est.)</span><span class="value" id="syllables">0</span></div>
+      <div class="extra-row"><span class="label">Average Word Length</span><span class="value" id="avgWord">0</span></div>
+      <div class="extra-row"><span class="label">Average Sentence Length</span><span class="value" id="avgSentence">0 words</span></div>
+      <div class="extra-row"><span class="label">Readability (Flesch)</span><span class="value" id="readability">—</span></div>
+    </div>
+    <div class="extra-card">
+      <div class="extra-title">Top Keywords</div>
+      <div class="keywords" id="keywords"><span style="color:var(--text3);font-size:13px">Start typing to see keywords...</span></div>
+    </div>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+const stopWords = new Set(['the','be','to','of','and','a','in','that','have','i','it','for','not','on','with','he','as','you','do','at','this','but','his','by','from','they','we','her','she','or','an','will','my','one','all','would','there','their','what','so','up','out','if','about','who','get','which','go','me','when','make','can','like','time','no','just','him','know','take','people','into','year','your','good','some','could','them','see','other','than','then','now','look','only','come','its','over','think','also','back','after','use','two','how','our','work','first','well','way','even','new','want','because','any','these','give','day','most','us','is','was','are','were','been','has','had','did','does','am','being','has','had']);
+
+function analyze() {
+  const text = document.getElementById('textInput').value;
+  const trimmed = text.trim();
+
+  // Words
+  const wordArr = trimmed ? trimmed.split(/\s+/) : [];
+  const wordCount = wordArr.length;
+
+  // Characters
+  const charCount = text.length;
+  const charNoSpace = text.replace(/\s/g, '').length;
+
+  // Sentences
+  const sentArr = trimmed ? trimmed.split(/[.!?]+/).filter(s => s.trim()) : [];
+  const sentCount = sentArr.length;
+
+  // Paragraphs
+  const paraCount = trimmed ? trimmed.split(/\n\s*\n/).filter(p => p.trim()).length : 0;
+
+  // Reading/Speaking time
+  const readMins = Math.ceil(wordCount / 225);
+  const speakMins = Math.ceil(wordCount / 150);
+
+  // Update stats
+  document.getElementById('words').textContent = wordCount;
+  document.getElementById('chars').textContent = charCount;
+  document.getElementById('sentences').textContent = sentCount;
+  document.getElementById('paragraphs').textContent = paraCount || (trimmed ? 1 : 0);
+  document.getElementById('readTime').textContent = readMins + 'm';
+  document.getElementById('speakTime').textContent = speakMins + 'm';
+  document.getElementById('charsNoSpace').textContent = charNoSpace;
+
+  // Avg word length
+  const avgWordLen = wordCount ? (charNoSpace / wordCount).toFixed(1) : 0;
+  document.getElementById('avgWord').textContent = avgWordLen;
+
+  // Avg sentence length
+  document.getElementById('avgSentence').textContent = sentCount ? Math.round(wordCount / sentCount) + ' words' : '0 words';
+
+  // Syllables estimate
+  const syllCount = wordArr.reduce((sum, w) => sum + countSyllables(w), 0);
+  document.getElementById('syllables').textContent = syllCount;
+
+  // Flesch readability
+  if (wordCount > 0 && sentCount > 0) {
+    const flesch = 206.835 - 1.015 * (wordCount / sentCount) - 84.6 * (syllCount / wordCount);
+    const score = Math.round(Math.max(0, Math.min(100, flesch)));
+    const labels = [[90,'Very Easy'],[80,'Easy'],[70,'Fairly Easy'],[60,'Standard'],[50,'Fairly Hard'],[30,'Hard'],[0,'Very Hard']];
+    const label = labels.find(([min]) => score >= min)[1];
+    document.getElementById('readability').textContent = score + ' — ' + label;
+  } else {
+    document.getElementById('readability').textContent = '—';
+  }
+
+  // Keywords
+  const freq = {};
+  wordArr.forEach(w => {
+    const clean = w.toLowerCase().replace(/[^a-z']/g, '');
+    if (clean.length > 2 && !stopWords.has(clean)) freq[clean] = (freq[clean] || 0) + 1;
+  });
+  const top = Object.entries(freq).sort((a,b) => b[1] - a[1]).slice(0, 8);
+  const kwDiv = document.getElementById('keywords');
+  if (top.length) {
+    kwDiv.innerHTML = top.map(([w, c]) => `<div class="keyword">${w}<span>×${c}</span></div>`).join('');
+  } else {
+    kwDiv.innerHTML = '<span style="color:var(--text3);font-size:13px">Start typing to see keywords...</span>';
+  }
+}
+
+function countSyllables(word) {
+  word = word.toLowerCase().replace(/[^a-z]/g, '');
+  if (word.length <= 3) return 1;
+  word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+  word = word.replace(/^y/, '');
+  const m = word.match(/[aeiouy]{1,2}/g);
+  return m ? m.length : 1;
+}
+</script>
+</body>
+</html>

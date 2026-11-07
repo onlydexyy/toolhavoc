@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Funny WiFi Name Generator — ToolHavoc</title>
+<meta name="description" content="Generate hilarious WiFi network names to confuse your neighbors. Hundreds of funny, clever, and creative WiFi name ideas.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;justify-content:center}
+.cat-tab{
+  padding:6px 14px;border-radius:50px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text2);font-size:12px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;
+}
+.cat-tab:hover{border-color:var(--accent1);color:var(--text)}
+.cat-tab.active{background:var(--accent1);border-color:var(--accent1);color:#fff}
+
+.gen-btn{
+  display:block;width:100%;padding:14px;border-radius:12px;border:none;
+  background:var(--gradient);color:#fff;font-family:'Inter',sans-serif;
+  font-size:16px;font-weight:700;cursor:pointer;margin-bottom:24px;
+  box-shadow:0 0 20px rgba(99,102,241,0.2);transition:all 0.3s;
+}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(99,102,241,0.3)}
+
+.names-grid{display:grid;gap:10px}
+.name-card{
+  padding:14px 18px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);display:flex;align-items:center;justify-content:space-between;
+  transition:all 0.3s;cursor:pointer;
+}
+.name-card:hover{border-color:var(--accent1);background:rgba(99,102,241,0.05)}
+.name-card .wifi-icon{font-size:16px;margin-right:12px;flex-shrink:0}
+.name-card .wifi-name{flex:1;font-size:14px;font-weight:500}
+.name-card .copy-btn{
+  padding:4px 12px;border-radius:6px;border:1px solid var(--card-border);
+  background:transparent;color:var(--text2);font-size:11px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;flex-shrink:0;
+}
+.name-card .copy-btn:hover{border-color:var(--accent1);color:var(--accent1)}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Funny <span>WiFi</span> Names</h1>
+  <p class="subtitle">Generate hilarious WiFi network names. Click any name to copy it.</p>
+
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="setCat('all',this)">🎲 All</button>
+    <button class="cat-tab" onclick="setCat('funny',this)">😂 Funny</button>
+    <button class="cat-tab" onclick="setCat('creepy',this)">👻 Creepy</button>
+    <button class="cat-tab" onclick="setCat('clever',this)">🧠 Clever</button>
+    <button class="cat-tab" onclick="setCat('passive',this)">😤 Passive-Aggressive</button>
+    <button class="cat-tab" onclick="setCat('nerd',this)">🤓 Nerdy</button>
+  </div>
+
+  <button class="gen-btn" onclick="generate()">📶 Generate Names</button>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+
+  <div class="names-grid" id="namesGrid"></div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+const names = {
+  funny: [
+    'Pretty Fly for a Wi-Fi','Bill Wi the Science Fi','The LAN Before Time',
+    'Wu-Tang LAN','Drop It Like Its Hotspot','Benjamin FrankLAN',
+    'Abraham Linksys','John Wilkes Bluetooth','Lord of the Pings',
+    'The Promised LAN','LAN Solo','Obi-WAN Kenobi',
+    'Silence of the LANs','Nacho WiFi','Get Off My LAN',
+    'It Burns When IP','No More Mr Wi-Fi','WiFi So Serious',
+    'The WiFi Next Door','Everyday Im Buffering','Loading...',
+    'Searching...','404 Network Unavailable','A Van Down By The River',
+    'I Believe Wi Can Fi','Tell My WiFi Love Her','WiFight The Inevitable',
+    'LAN of the Free','Hide Yo Kids Hide Yo WiFi','The Creep Next Door',
+    'It Hurts When IP','99 Problems But WiFi Aint One','WiFi Art Thou Romeo',
+    'Series of Tubes','IFeelLikeImBeingWatched','YellPENISForPassword',
+  ],
+  creepy: [
+    'FBI Surveillance Van #7','CIA Listening Post','NSA Data Collection Unit',
+    'DEA Monitoring Station','Witness Protection Network','We Can Hear You',
+    'I Know What You Browse','Your Data Is Mine','Watching You Sleep',
+    'The Dark Web','Not A Secret Lab','Totally Not A Spy',
+    'We See Everything','Camera #3 — Living Room','Hidden Network',
+    'Undercover Police WiFi','Im In Your Walls','I Can See Your Screen',
+    'Your Neighbor Has Cameras','Federal Bureau of Internet',
+  ],
+  clever: [
+    'LAN of Milk and Honey','Router? I Barely Know Her','The Ping in the North',
+    '127.0.0.1 Sweet 127.0.0.1','There Is No Spoon','The Matrix Has You',
+    'Access Denied','Password Is Password','Click Here for Virus',
+    'Free Virus Download','Virus Distribution Center','Not The WiFi Youre Looking For',
+    'May The WiFi Be With You','Winter Is Coming Online','Keep It On The Download',
+    'Panic At The Cisco','I Pronounce You Man and WiFi','Hogwarts Great Hall WiFi',
+  ],
+  passive: [
+    'Stop Stealing My Paper','Your Music Is Annoying','Pick Up Your Dog Poop',
+    'You Park Like An Idiot','Your Cat Is In My Yard','Close Your Blinds',
+    'Stop Slamming The Door','We Can Hear You At Night','Mow Your Lawn',
+    'Your BBQ Smells Like Trash','Turn Down The Bass','Put On Some Pants',
+    'Clean Up After Your Dog','Your Kid Keeps Screaming','Use Your Turn Signal',
+    'Stop Using My Bins','Take Your Shoes Off At Night','Please Stop The Karaoke',
+  ],
+  nerd: [
+    'localhost','192.168.1.1','sudo rm -rf /*',
+    'echo "Hello World"','ping -t 127.0.0.1','chmod 777 /etc/shadow',
+    'SELECT * FROM WiFi','while(true) { hack(); }','segfault_core_dump',
+    '(╯°□°)╯︵ ┻━┻','import antigravity','rm -rf /your/dignity',
+    'git push origin master','Stack Overflow WiFi','It Works On My Machine',
+    'NULL','undefined','NaN',
+    'Kernel Panic','BSOD Wireless','sudo make me a sandwich',
+  ],
+};
+
+let currentCat = 'all';
+
+function setCat(cat, el) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  generate();
+}
+
+function getNames() {
+  if (currentCat === 'all') {
+    const all = Object.values(names).flat();
+    return shuffle(all).slice(0, 12);
+  }
+  return shuffle([...names[currentCat]]).slice(0, 10);
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function generate() {
+  const grid = document.getElementById('namesGrid');
+  grid.innerHTML = '';
+  getNames().forEach(name => {
+    const card = document.createElement('div');
+    card.className = 'name-card';
+    card.innerHTML = `<span class="wifi-icon">📶</span><span class="wifi-name">${name}</span><button class="copy-btn" onclick="event.stopPropagation();copyName(this,'${name.replace(/'/g,"\\'")}')">Copy</button>`;
+    card.onclick = () => copyName(card.querySelector('.copy-btn'), name);
+    grid.appendChild(card);
+  });
+}
+
+function copyName(btn, name) {
+  navigator.clipboard.writeText(name).then(() => {
+    btn.textContent = 'Copied!';
+    btn.style.color = '#22c55e';
+    btn.style.borderColor = '#22c55e';
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 1500);
+  });
+}
+
+generate();
+</script>
+</body>
+</html>

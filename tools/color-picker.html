@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Color Picker & Palette Generator — ToolHavoc</title>
+<meta name="description" content="Pick colors, convert between HEX, RGB, and HSL formats, and generate beautiful color palettes instantly.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.picker-area{display:flex;gap:16px;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap}
+.color-preview{
+  width:120px;height:120px;border-radius:16px;border:2px solid var(--card-border);
+  flex-shrink:0;transition:background 0.2s;
+}
+.picker-inputs{flex:1;min-width:200px}
+.picker-row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.picker-row label{font-size:11px;color:var(--text3);width:32px;font-weight:700;flex-shrink:0}
+.picker-row input[type=text]{
+  flex:1;padding:8px 10px;border-radius:8px;background:var(--bg3);
+  border:1px solid var(--card-border);color:var(--text);font-family:'Inter',sans-serif;
+  font-size:13px;outline:none;
+}
+.picker-row input[type=text]:focus{border-color:var(--accent1)}
+.picker-row .copy-sm{
+  padding:6px 10px;border-radius:6px;border:1px solid var(--card-border);
+  background:transparent;color:var(--text3);font-size:11px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;flex-shrink:0;
+}
+.picker-row .copy-sm:hover{border-color:var(--accent1);color:var(--text)}
+
+input[type=color]{
+  width:100%;height:44px;border:none;border-radius:10px;cursor:pointer;
+  background:transparent;padding:0;
+}
+input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+input[type=color]::-webkit-color-swatch{border:none;border-radius:10px}
+
+.section-title{font-size:14px;font-weight:700;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+
+.palette{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+.palette-swatch{
+  aspect-ratio:1;border-radius:10px;cursor:pointer;position:relative;
+  border:1px solid var(--card-border);transition:transform 0.2s;
+}
+.palette-swatch:hover{transform:scale(1.05)}
+.palette-swatch .hex{
+  position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+  font-size:9px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.5);
+  background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;
+  opacity:0;transition:opacity 0.2s;white-space:nowrap;
+}
+.palette-swatch:hover .hex{opacity:1}
+
+.gen-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.gen-btn{
+  padding:8px 16px;border-radius:8px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text2);font-size:12px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;
+}
+.gen-btn:hover{border-color:var(--accent1);color:var(--text)}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Color <span>Picker</span></h1>
+  <p class="subtitle">Pick colors, convert formats, and generate palettes.</p>
+
+  <div class="picker-area">
+    <div class="color-preview" id="preview" style="background:#6366f1"></div>
+    <div class="picker-inputs">
+      <input type="color" id="colorInput" value="#6366f1" oninput="updateFromPicker(this.value)">
+      <div class="picker-row">
+        <label>HEX</label>
+        <input type="text" id="hexVal" value="#6366f1" oninput="updateFromHex(this.value)">
+        <button class="copy-sm" onclick="copyVal('hexVal')">Copy</button>
+      </div>
+      <div class="picker-row">
+        <label>RGB</label>
+        <input type="text" id="rgbVal" value="rgb(99, 102, 241)" readonly>
+        <button class="copy-sm" onclick="copyVal('rgbVal')">Copy</button>
+      </div>
+      <div class="picker-row">
+        <label>HSL</label>
+        <input type="text" id="hslVal" value="hsl(239, 84%, 67%)" readonly>
+        <button class="copy-sm" onclick="copyVal('hslVal')">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+
+  <div class="section-title">🎨 Palette Generator</div>
+  <div class="gen-btns">
+    <button class="gen-btn" onclick="genPalette('analogous')">Analogous</button>
+    <button class="gen-btn" onclick="genPalette('complementary')">Complementary</button>
+    <button class="gen-btn" onclick="genPalette('triadic')">Triadic</button>
+    <button class="gen-btn" onclick="genPalette('shades')">Shades</button>
+    <button class="gen-btn" onclick="genPalette('random')">🎲 Random</button>
+  </div>
+  <div class="palette" id="palette"></div>
+
+  <div class="section-title">🌈 Trending Palettes</div>
+  <div class="palette" id="trending1"></div>
+  <div class="palette" id="trending2"></div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+let currentColor = {r:99,g:102,b:241};
+
+function hexToRgb(hex) {
+  hex = hex.replace('#','');
+  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+  return {r:parseInt(hex.substr(0,2),16),g:parseInt(hex.substr(2,2),16),b:parseInt(hex.substr(4,2),16)};
+}
+
+function rgbToHex(r,g,b) {
+  return '#'+[r,g,b].map(c=>c.toString(16).padStart(2,'0')).join('');
+}
+
+function rgbToHsl(r,g,b) {
+  r/=255;g/=255;b/=255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b);
+  let h,s,l=(max+min)/2;
+  if(max===min){h=s=0}else{
+    const d=max-min;
+    s=l>0.5?d/(2-max-min):d/(max+min);
+    switch(max){case r:h=((g-b)/d+(g<b?6:0))/6;break;case g:h=((b-r)/d+2)/6;break;case b:h=((r-g)/d+4)/6;break}
+  }
+  return {h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)};
+}
+
+function hslToRgb(h,s,l) {
+  h/=360;s/=100;l/=100;
+  let r,g,b;
+  if(s===0){r=g=b=l}else{
+    const hue2rgb=(p,q,t)=>{if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p};
+    const q=l<0.5?l*(1+s):l+s-l*s;
+    const p=2*l-q;
+    r=hue2rgb(p,q,h+1/3);g=hue2rgb(p,q,h);b=hue2rgb(p,q,h-1/3);
+  }
+  return {r:Math.round(r*255),g:Math.round(g*255),b:Math.round(b*255)};
+}
+
+function updateUI() {
+  const {r,g,b} = currentColor;
+  const hex = rgbToHex(r,g,b);
+  const hsl = rgbToHsl(r,g,b);
+  document.getElementById('preview').style.background = hex;
+  document.getElementById('colorInput').value = hex;
+  document.getElementById('hexVal').value = hex;
+  document.getElementById('rgbVal').value = `rgb(${r}, ${g}, ${b})`;
+  document.getElementById('hslVal').value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+  genPalette('analogous');
+}
+
+function updateFromPicker(hex) {
+  currentColor = hexToRgb(hex);
+  updateUI();
+}
+
+function updateFromHex(hex) {
+  if(/^#?[0-9a-fA-F]{6}$/.test(hex.replace('#',''))) {
+    currentColor = hexToRgb(hex);
+    updateUI();
+  }
+}
+
+function copyVal(id) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.value);
+  const btn = el.nextElementSibling;
+  btn.textContent = '✓';
+  setTimeout(() => btn.textContent = 'Copy', 1000);
+}
+
+function genPalette(type) {
+  const {r,g,b} = currentColor;
+  const hsl = rgbToHsl(r,g,b);
+  let colors = [];
+
+  switch(type) {
+    case 'analogous':
+      for(let i=-2;i<=2;i++) colors.push(hslToRgb((hsl.h+i*30+360)%360,hsl.s,hsl.l));
+      break;
+    case 'complementary':
+      colors = [currentColor, hslToRgb((hsl.h+180)%360,hsl.s,hsl.l)];
+      for(let i=1;i<=3;i++) colors.push(hslToRgb((hsl.h+180)%360,hsl.s,Math.min(95,hsl.l+i*10)));
+      break;
+    case 'triadic':
+      [0,120,240].forEach(off => colors.push(hslToRgb((hsl.h+off)%360,hsl.s,hsl.l)));
+      colors.push(hslToRgb(hsl.h,hsl.s,Math.min(90,hsl.l+15)));
+      colors.push(hslToRgb(hsl.h,hsl.s,Math.max(20,hsl.l-15)));
+      break;
+    case 'shades':
+      for(let i=0;i<5;i++) colors.push(hslToRgb(hsl.h,hsl.s,15+i*17));
+      break;
+    case 'random':
+      for(let i=0;i<5;i++) colors.push({r:Math.floor(Math.random()*256),g:Math.floor(Math.random()*256),b:Math.floor(Math.random()*256)});
+      break;
+  }
+
+  renderPalette('palette', colors);
+}
+
+function renderPalette(id, colors) {
+  const el = document.getElementById(id);
+  el.innerHTML = colors.map(c => {
+    const hex = rgbToHex(c.r,c.g,c.b);
+    return `<div class="palette-swatch" style="background:${hex}" onclick="currentColor={r:${c.r},g:${c.g},b:${c.b}};updateUI()"><span class="hex">${hex}</span></div>`;
+  }).join('');
+}
+
+// Trending palettes
+renderPalette('trending1',[{r:99,g:102,b:241},{r:139,g:92,b:246},{r:236,g:72,b:153},{r:251,g:146,b:60},{r:34,g:197,b:94}]);
+renderPalette('trending2',[{r:14,g:165,b:233},{r:20,g:184,b:166},{r:132,g:204,b:22},{r:234,g:179,b:8},{r:239,g:68,b:68}]);
+
+updateUI();
+</script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Device Info Detector — ToolHavoc</title>
+<meta name="description" content="Detect your device information including browser, OS, screen resolution, battery status, network, and hardware details.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.info-section{margin-bottom:16px}
+.section-header{
+  font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px;
+}
+.info-card{
+  border-radius:12px;border:1px solid var(--card-border);background:var(--card);
+  overflow:hidden;
+}
+.info-row{
+  display:flex;justify-content:space-between;padding:12px 16px;
+  border-bottom:1px solid var(--card-border);align-items:center;
+}
+.info-row:last-child{border:none}
+.info-label{font-size:13px;color:var(--text2)}
+.info-value{font-size:13px;font-weight:600;text-align:right;max-width:55%;word-break:break-word}
+
+.battery-bar{
+  width:60px;height:20px;border-radius:4px;border:2px solid var(--text2);
+  position:relative;display:inline-block;vertical-align:middle;
+}
+.battery-bar::after{
+  content:'';position:absolute;right:-5px;top:5px;width:3px;height:8px;
+  background:var(--text2);border-radius:0 2px 2px 0;
+}
+.battery-fill{height:100%;border-radius:2px;transition:width 0.5s}
+
+.share-btn{
+  display:block;width:100%;padding:12px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text2);font-size:13px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;text-align:center;margin-top:16px;
+}
+.share-btn:hover{border-color:var(--accent1);color:var(--text)}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Device <span>Info</span></h1>
+  <p class="subtitle">Everything we can detect about your device.</p>
+
+  <div class="info-section">
+    <div class="section-header">📱 Device</div>
+    <div class="info-card">
+      <div class="info-row"><span class="info-label">Device Type</span><span class="info-value" id="deviceType">—</span></div>
+      <div class="info-row"><span class="info-label">Operating System</span><span class="info-value" id="os">—</span></div>
+      <div class="info-row"><span class="info-label">Platform</span><span class="info-value" id="platform">—</span></div>
+      <div class="info-row"><span class="info-label">CPU Cores</span><span class="info-value" id="cores">—</span></div>
+      <div class="info-row"><span class="info-label">RAM (approx)</span><span class="info-value" id="ram">—</span></div>
+      <div class="info-row"><span class="info-label">GPU</span><span class="info-value" id="gpu">—</span></div>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <div class="section-header">🌐 Browser</div>
+    <div class="info-card">
+      <div class="info-row"><span class="info-label">Browser</span><span class="info-value" id="browser">—</span></div>
+      <div class="info-row"><span class="info-label">Engine</span><span class="info-value" id="engine">—</span></div>
+      <div class="info-row"><span class="info-label">Language</span><span class="info-value" id="lang">—</span></div>
+      <div class="info-row"><span class="info-label">Cookies</span><span class="info-value" id="cookies">—</span></div>
+      <div class="info-row"><span class="info-label">Do Not Track</span><span class="info-value" id="dnt">—</span></div>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <div class="section-header">🖥️ Display</div>
+    <div class="info-card">
+      <div class="info-row"><span class="info-label">Screen Resolution</span><span class="info-value" id="screenRes">—</span></div>
+      <div class="info-row"><span class="info-label">Viewport</span><span class="info-value" id="viewport">—</span></div>
+      <div class="info-row"><span class="info-label">Pixel Ratio</span><span class="info-value" id="dpr">—</span></div>
+      <div class="info-row"><span class="info-label">Color Depth</span><span class="info-value" id="colorDepth">—</span></div>
+      <div class="info-row"><span class="info-label">Orientation</span><span class="info-value" id="orientation">—</span></div>
+      <div class="info-row"><span class="info-label">Touch Support</span><span class="info-value" id="touch">—</span></div>
+    </div>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+
+  <div class="info-section">
+    <div class="section-header">🔋 Battery</div>
+    <div class="info-card" id="batterySection">
+      <div class="info-row"><span class="info-label">Battery Level</span><span class="info-value" id="battery">—</span></div>
+      <div class="info-row"><span class="info-label">Charging</span><span class="info-value" id="charging">—</span></div>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <div class="section-header">📡 Network</div>
+    <div class="info-card">
+      <div class="info-row"><span class="info-label">Online</span><span class="info-value" id="online">—</span></div>
+      <div class="info-row"><span class="info-label">Connection Type</span><span class="info-value" id="connType">—</span></div>
+      <div class="info-row"><span class="info-label">Downlink Speed</span><span class="info-value" id="downlink">—</span></div>
+    </div>
+  </div>
+
+  <button class="share-btn" onclick="shareInfo()">📋 Copy All Info</button>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+function detect() {
+  const ua = navigator.userAgent;
+
+  // Device type
+  const isMobile = /Mobile|Android|iPhone|iPad/i.test(ua);
+  const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua);
+  document.getElementById('deviceType').textContent = isTablet ? '📱 Tablet' : isMobile ? '📱 Mobile' : '💻 Desktop';
+
+  // OS
+  let os = 'Unknown';
+  if (/Windows NT 10/.test(ua)) os = 'Windows 10/11';
+  else if (/Windows/.test(ua)) os = 'Windows';
+  else if (/Mac OS X/.test(ua)) { const v = ua.match(/Mac OS X (\d+[._]\d+)/); os = 'macOS' + (v ? ' ' + v[1].replace('_','.') : ''); }
+  else if (/Android/.test(ua)) { const v = ua.match(/Android (\d+(\.\d+)?)/); os = 'Android' + (v ? ' ' + v[1] : ''); }
+  else if (/iPhone|iPad/.test(ua)) { const v = ua.match(/OS (\d+_\d+)/); os = 'iOS' + (v ? ' ' + v[1].replace('_','.') : ''); }
+  else if (/Linux/.test(ua)) os = 'Linux';
+  else if (/CrOS/.test(ua)) os = 'Chrome OS';
+  document.getElementById('os').textContent = os;
+
+  document.getElementById('platform').textContent = navigator.platform || 'N/A';
+  document.getElementById('cores').textContent = navigator.hardwareConcurrency || 'N/A';
+  document.getElementById('ram').textContent = navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'N/A';
+
+  // GPU
+  try {
+    const c = document.createElement('canvas');
+    const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+    if (gl) {
+      const ext = gl.getExtension('WEBGL_debug_renderer_info');
+      document.getElementById('gpu').textContent = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : 'WebGL supported';
+    }
+  } catch(e) { document.getElementById('gpu').textContent = 'N/A'; }
+
+  // Browser
+  let browser = 'Unknown';
+  if (/Edg\//.test(ua)) browser = 'Microsoft Edge';
+  else if (/OPR\/|Opera/.test(ua)) browser = 'Opera';
+  else if (/Chrome\//.test(ua)) browser = 'Chrome';
+  else if (/Firefox\//.test(ua)) browser = 'Firefox';
+  else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+  document.getElementById('browser').textContent = browser;
+
+  let engine = 'Unknown';
+  if (/AppleWebKit/.test(ua)) engine = 'WebKit/Blink';
+  else if (/Gecko/.test(ua)) engine = 'Gecko';
+  document.getElementById('engine').textContent = engine;
+
+  document.getElementById('lang').textContent = navigator.language;
+  document.getElementById('cookies').textContent = navigator.cookieEnabled ? '✅ Enabled' : '❌ Disabled';
+  document.getElementById('dnt').textContent = navigator.doNotTrack === '1' ? '✅ Enabled' : '❌ Disabled';
+
+  // Display
+  document.getElementById('screenRes').textContent = screen.width + ' × ' + screen.height;
+  document.getElementById('viewport').textContent = window.innerWidth + ' × ' + window.innerHeight;
+  document.getElementById('dpr').textContent = window.devicePixelRatio + 'x';
+  document.getElementById('colorDepth').textContent = screen.colorDepth + '-bit';
+  document.getElementById('orientation').textContent = window.innerWidth > window.innerHeight ? '🖥️ Landscape' : '📱 Portrait';
+  document.getElementById('touch').textContent = ('ontouchstart' in window) ? '✅ Yes (' + navigator.maxTouchPoints + ' points)' : '❌ No';
+
+  // Battery
+  if (navigator.getBattery) {
+    navigator.getBattery().then(b => {
+      const pct = Math.round(b.level * 100);
+      document.getElementById('battery').innerHTML = pct + '% <div class="battery-bar"><div class="battery-fill" style="width:' + pct + '%;background:' + (pct > 20 ? '#22c55e' : '#ef4444') + '"></div></div>';
+      document.getElementById('charging').textContent = b.charging ? '⚡ Yes' : '🔌 No';
+    });
+  }
+
+  // Network
+  document.getElementById('online').textContent = navigator.onLine ? '✅ Online' : '❌ Offline';
+  if (navigator.connection) {
+    document.getElementById('connType').textContent = navigator.connection.effectiveType || 'N/A';
+    document.getElementById('downlink').textContent = navigator.connection.downlink ? navigator.connection.downlink + ' Mbps' : 'N/A';
+  }
+}
+
+function shareInfo() {
+  const rows = document.querySelectorAll('.info-row');
+  let text = '📱 My Device Info (via ToolHavoc)\n\n';
+  rows.forEach(r => {
+    const label = r.querySelector('.info-label').textContent;
+    const value = r.querySelector('.info-value').textContent;
+    text += label + ': ' + value + '\n';
+  });
+  text += '\ntoolhavoc.com/tools/device-info.html';
+  navigator.clipboard.writeText(text);
+}
+
+detect();
+window.addEventListener('resize', () => {
+  document.getElementById('viewport').textContent = window.innerWidth + ' × ' + window.innerHeight;
+  document.getElementById('orientation').textContent = window.innerWidth > window.innerHeight ? '🖥️ Landscape' : '📱 Portrait';
+});
+</script>
+</body>
+</html>

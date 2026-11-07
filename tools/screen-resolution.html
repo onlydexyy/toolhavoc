@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Screen Resolution Test — ToolHavoc</title>
+<meta name="description" content="Check your screen resolution, viewport size, pixel ratio, color depth, and display information instantly.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.hero-res{
+  text-align:center;padding:28px;border-radius:16px;
+  border:1px solid var(--card-border);background:var(--card);
+  margin-bottom:24px;
+}
+.hero-res .label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.hero-res .res{font-size:clamp(32px,6vw,48px);font-weight:900;font-family:'Fira Code',monospace;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-res .standard{font-size:14px;color:var(--accent1);margin-top:6px;font-weight:600}
+
+.info-card{border-radius:12px;border:1px solid var(--card-border);background:var(--card);overflow:hidden;margin-bottom:16px}
+.info-card .card-title{padding:14px 16px;font-size:14px;font-weight:700;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:8px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--card-border)}
+.info-row:last-child{border:none}
+.info-label{font-size:13px;color:var(--text2)}
+.info-value{font-size:13px;font-weight:600;font-family:'Fira Code',monospace}
+
+/* Aspect ratio visual */
+.aspect-visual{
+  margin:0 auto 24px;max-width:300px;position:relative;
+}
+.aspect-box{
+  border:2px solid var(--accent1);border-radius:8px;
+  background:rgba(99,102,241,0.05);position:relative;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--accent1);
+}
+
+.copy-all{
+  display:block;width:100%;padding:14px;border-radius:12px;border:none;
+  background:var(--gradient);color:#fff;font-family:'Inter',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;
+  box-shadow:0 0 20px rgba(99,102,241,0.2);transition:all 0.3s;
+}
+.copy-all:hover{transform:translateY(-1px)}
+
+.live-tag{display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:#22c55e;font-size:10px;font-weight:600;margin-left:8px}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Screen <span>Resolution</span></h1>
+  <p class="subtitle">Detailed information about your display. <span class="live-tag">LIVE</span></p>
+
+  <div class="hero-res">
+    <div class="label">Screen Resolution</div>
+    <div class="res" id="screenRes">—</div>
+    <div class="standard" id="standard"></div>
+  </div>
+
+  <div class="aspect-visual">
+    <div class="aspect-box" id="aspectBox">—</div>
+  </div>
+
+  <div class="info-card">
+    <div class="card-title">🖥️ Display</div>
+    <div class="info-row"><span class="info-label">Screen Resolution</span><span class="info-value" id="scrRes">—</span></div>
+    <div class="info-row"><span class="info-label">Available Screen</span><span class="info-value" id="availRes">—</span></div>
+    <div class="info-row"><span class="info-label">Viewport Size</span><span class="info-value" id="viewport">—</span></div>
+    <div class="info-row"><span class="info-label">Pixel Ratio (DPR)</span><span class="info-value" id="dpr">—</span></div>
+    <div class="info-row"><span class="info-label">Actual Pixels</span><span class="info-value" id="actual">—</span></div>
+    <div class="info-row"><span class="info-label">Color Depth</span><span class="info-value" id="colorDepth">—</span></div>
+    <div class="info-row"><span class="info-label">Orientation</span><span class="info-value" id="orientation">—</span></div>
+    <div class="info-row"><span class="info-label">Aspect Ratio</span><span class="info-value" id="aspect">—</span></div>
+  </div>
+
+  <div class="info-card">
+    <div class="card-title">📐 Window</div>
+    <div class="info-row"><span class="info-label">Outer Window</span><span class="info-value" id="outerWin">—</span></div>
+    <div class="info-row"><span class="info-label">Inner Window</span><span class="info-value" id="innerWin">—</span></div>
+    <div class="info-row"><span class="info-label">Scrollbar Width</span><span class="info-value" id="scrollbar">—</span></div>
+  </div>
+
+  <div class="info-card">
+    <div class="card-title">🎨 Color & Media</div>
+    <div class="info-row"><span class="info-label">Color Gamut</span><span class="info-value" id="gamut">—</span></div>
+    <div class="info-row"><span class="info-label">HDR Support</span><span class="info-value" id="hdr">—</span></div>
+    <div class="info-row"><span class="info-label">Preferred Colors</span><span class="info-value" id="colorScheme">—</span></div>
+    <div class="info-row"><span class="info-label">Reduced Motion</span><span class="info-value" id="motion">—</span></div>
+    <div class="info-row"><span class="info-label">Touch Support</span><span class="info-value" id="touch">—</span></div>
+  </div>
+
+  <button class="copy-all" onclick="copyAll()">📋 Copy All Info</button>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+function getStandard(w, h) {
+  const standards = {
+    '7680x4320':'8K UHD','5120x2880':'5K','3840x2160':'4K UHD',
+    '3440x1440':'UWQHD','2560x1440':'QHD (2K)','2560x1080':'UWHD',
+    '1920x1200':'WUXGA','1920x1080':'Full HD (1080p)',
+    '1680x1050':'WSXGA+','1600x900':'HD+',
+    '1440x900':'WXGA+','1366x768':'WXGA','1280x1024':'SXGA',
+    '1280x800':'WXGA','1280x720':'HD (720p)',
+    '1024x768':'XGA','800x600':'SVGA',
+    '2778x1284':'iPhone 13 Pro Max','2532x1170':'iPhone 13 Pro',
+    '2340x1080':'Common Android FHD+',
+    '2048x2732':'iPad Pro 12.9"','2388x1668':'iPad Pro 11"'
+  };
+  return standards[w+'x'+h] || standards[h+'x'+w] || '';
+}
+
+function update() {
+  const sw = screen.width, sh = screen.height;
+  const dpr = window.devicePixelRatio || 1;
+  const vw = window.innerWidth, vh = window.innerHeight;
+
+  // Hero
+  document.getElementById('screenRes').textContent = sw + ' × ' + sh;
+  const std = getStandard(sw, sh);
+  document.getElementById('standard').textContent = std;
+
+  // Aspect ratio
+  const d = gcd(sw, sh);
+  const ar = (sw/d) + ':' + (sh/d);
+  document.getElementById('aspect').textContent = ar;
+
+  // Aspect ratio visual box
+  const box = document.getElementById('aspectBox');
+  const maxW = 300;
+  const ratio = sw / sh;
+  let bw, bh;
+  if (ratio >= 1) { bw = maxW; bh = maxW / ratio; }
+  else { bh = 200; bw = 200 * ratio; }
+  box.style.width = bw + 'px';
+  box.style.height = bh + 'px';
+  box.textContent = ar;
+
+  // Display card
+  document.getElementById('scrRes').textContent = sw + ' × ' + sh;
+  document.getElementById('availRes').textContent = screen.availWidth + ' × ' + screen.availHeight;
+  document.getElementById('viewport').textContent = vw + ' × ' + vh;
+  document.getElementById('dpr').textContent = dpr + 'x';
+  document.getElementById('actual').textContent = Math.round(sw * dpr) + ' × ' + Math.round(sh * dpr);
+  document.getElementById('colorDepth').textContent = screen.colorDepth + '-bit';
+  document.getElementById('orientation').textContent = sw > sh ? '🖥️ Landscape' : sw < sh ? '📱 Portrait' : '⬜ Square';
+
+  // Window card
+  document.getElementById('outerWin').textContent = window.outerWidth + ' × ' + window.outerHeight;
+  document.getElementById('innerWin').textContent = vw + ' × ' + vh;
+  document.getElementById('scrollbar').textContent = (window.innerWidth - document.documentElement.clientWidth) + 'px';
+
+  // Color & Media
+  const gamut = window.matchMedia('(color-gamut: rec2020)').matches ? 'Rec. 2020' :
+                window.matchMedia('(color-gamut: p3)').matches ? 'Display P3' :
+                window.matchMedia('(color-gamut: srgb)').matches ? 'sRGB' : 'Unknown';
+  document.getElementById('gamut').textContent = gamut;
+  document.getElementById('hdr').textContent = window.matchMedia('(dynamic-range: high)').matches ? '✅ Yes' : '❌ No';
+  document.getElementById('colorScheme').textContent = window.matchMedia('(prefers-color-scheme: dark)').matches ? '🌙 Dark' : '☀️ Light';
+  document.getElementById('motion').textContent = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? '✅ Yes' : '❌ No';
+  document.getElementById('touch').textContent = ('ontouchstart' in window || navigator.maxTouchPoints > 0) ? '✅ Yes (' + navigator.maxTouchPoints + ' points)' : '❌ No';
+}
+
+function copyAll() {
+  const rows = document.querySelectorAll('.info-row');
+  let text = 'Screen Resolution Report\n========================\n';
+  text += 'Resolution: ' + screen.width + ' × ' + screen.height + '\n\n';
+  rows.forEach(row => {
+    const label = row.querySelector('.info-label').textContent;
+    const value = row.querySelector('.info-value').textContent;
+    text += label + ': ' + value + '\n';
+  });
+  text += '\nGenerated by ToolHavoc.com';
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-all');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy All Info', 1500);
+  });
+}
+
+update();
+window.addEventListener('resize', update);
+screen.orientation && screen.orientation.addEventListener('change', update);
+</script>
+</body>
+</html>

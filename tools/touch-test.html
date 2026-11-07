@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Touch Screen Test — ToolHavoc</title>
+<meta name="description" content="Test your touchscreen for dead spots, multi-touch support, and responsiveness. Draw on your screen to verify every pixel works.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:24px}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.stat{padding:14px;border-radius:10px;border:1px solid var(--card-border);background:var(--card);text-align:center}
+.stat-num{font-size:20px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:10px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:0.5px}
+
+.canvas-wrap{
+  border-radius:16px;border:2px dashed var(--card-border);overflow:hidden;
+  margin-bottom:16px;position:relative;touch-action:none;
+}
+canvas{display:block;width:100%;background:var(--bg2);cursor:crosshair}
+
+.toolbar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.tool-btn{
+  padding:8px 14px;border-radius:8px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text2);font-size:12px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;
+}
+.tool-btn:hover{border-color:var(--accent1);color:var(--text)}
+.tool-btn.active{background:var(--accent1);border-color:var(--accent1);color:#fff}
+
+.color-dots{display:flex;gap:6px;align-items:center}
+.color-dot{
+  width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;
+  transition:all 0.2s;
+}
+.color-dot:hover,.color-dot.active{border-color:#fff;transform:scale(1.1)}
+
+.grid-overlay{
+  position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;
+  display:none;
+}
+
+.multitouch-display{
+  text-align:center;padding:12px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);margin-bottom:16px;font-size:13px;color:var(--text2);
+}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Touch <span>Test</span></h1>
+  <p class="subtitle">Draw on the canvas to test your touchscreen. Check for dead spots and multi-touch.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="touchPoints">0</div><div class="stat-label">Touch Points</div></div>
+    <div class="stat"><div class="stat-num" id="maxTouch">0</div><div class="stat-label">Max Simultaneous</div></div>
+    <div class="stat"><div class="stat-num" id="touchCount">0</div><div class="stat-label">Total Touches</div></div>
+  </div>
+
+  <div class="multitouch-display" id="mtDisplay">Touch the canvas with multiple fingers to test multi-touch</div>
+
+  <div class="toolbar">
+    <div class="color-dots">
+      <div class="color-dot active" style="background:#6366f1" onclick="setColor('#6366f1',this)"></div>
+      <div class="color-dot" style="background:#ef4444" onclick="setColor('#ef4444',this)"></div>
+      <div class="color-dot" style="background:#22c55e" onclick="setColor('#22c55e',this)"></div>
+      <div class="color-dot" style="background:#f59e0b" onclick="setColor('#f59e0b',this)"></div>
+      <div class="color-dot" style="background:#ffffff" onclick="setColor('#ffffff',this)"></div>
+    </div>
+    <button class="tool-btn" onclick="toggleGrid()">📐 Grid</button>
+    <button class="tool-btn" onclick="clearCanvas()">🗑️ Clear</button>
+  </div>
+
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let drawColor = '#6366f1';
+let totalTouches = 0;
+let maxSimul = 0;
+let showGrid = false;
+
+function resize() {
+  const wrap = document.getElementById('canvasWrap');
+  canvas.width = wrap.clientWidth;
+  canvas.height = Math.min(400, window.innerHeight * 0.5);
+  if (showGrid) drawGrid();
+}
+
+function drawGrid() {
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  const step = 40;
+  for (let x = step; x < canvas.width; x += step) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+  }
+  for (let y = step; y < canvas.height; y += step) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+  }
+}
+
+function toggleGrid() {
+  showGrid = !showGrid;
+  if (showGrid) drawGrid();
+  else { ctx.clearRect(0,0,canvas.width,canvas.height); }
+}
+
+function setColor(c, el) {
+  drawColor = c;
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (showGrid) drawGrid();
+}
+
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  if (e.touches) {
+    return Array.from(e.touches).map(t => ({
+      x: (t.clientX - rect.left) * scaleX,
+      y: (t.clientY - rect.top) * scaleY
+    }));
+  }
+  return [{ x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY }];
+}
+
+let drawing = false;
+let lastPositions = {};
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  drawing = true;
+  const touches = e.touches;
+  totalTouches++;
+  document.getElementById('touchCount').textContent = totalTouches;
+
+  const count = touches.length;
+  document.getElementById('touchPoints').textContent = count;
+  if (count > maxSimul) {
+    maxSimul = count;
+    document.getElementById('maxTouch').textContent = maxSimul;
+  }
+  document.getElementById('mtDisplay').textContent = count > 1 ? `${count} fingers detected! 🎯` : 'Touch detected!';
+
+  for (let i = 0; i < touches.length; i++) {
+    const rect = canvas.getBoundingClientRect();
+    lastPositions[touches[i].identifier] = {
+      x: (touches[i].clientX - rect.left) * (canvas.width / rect.width),
+      y: (touches[i].clientY - rect.top) * (canvas.height / rect.height)
+    };
+  }
+});
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!drawing) return;
+  const rect = canvas.getBoundingClientRect();
+
+  for (let i = 0; i < e.touches.length; i++) {
+    const t = e.touches[i];
+    const x = (t.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (t.clientY - rect.top) * (canvas.height / rect.height);
+    const last = lastPositions[t.identifier];
+
+    if (last) {
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = drawColor;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+    lastPositions[t.identifier] = { x, y };
+  }
+
+  document.getElementById('touchPoints').textContent = e.touches.length;
+});
+
+canvas.addEventListener('touchend', e => {
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    delete lastPositions[e.changedTouches[i].identifier];
+  }
+  if (e.touches.length === 0) {
+    drawing = false;
+    document.getElementById('touchPoints').textContent = 0;
+  } else {
+    document.getElementById('touchPoints').textContent = e.touches.length;
+  }
+});
+
+// Mouse fallback
+let mouseDown = false;
+let lastMouse = null;
+canvas.addEventListener('mousedown', e => { mouseDown = true; lastMouse = getPos(e)[0]; totalTouches++; document.getElementById('touchCount').textContent = totalTouches; });
+canvas.addEventListener('mousemove', e => {
+  if (!mouseDown) return;
+  const pos = getPos(e)[0];
+  ctx.beginPath(); ctx.moveTo(lastMouse.x, lastMouse.y); ctx.lineTo(pos.x, pos.y);
+  ctx.strokeStyle = drawColor; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
+  lastMouse = pos;
+});
+canvas.addEventListener('mouseup', () => { mouseDown = false; });
+
+resize();
+window.addEventListener('resize', resize);
+</script>
+</body>
+</html>

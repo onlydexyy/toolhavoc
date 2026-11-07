@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>IP Address Lookup — ToolHavoc</title>
+<meta name="description" content="Find your public IP address and geolocation data. See your ISP, city, region, country, timezone, and more.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.ip-display{
+  text-align:center;padding:28px;border-radius:16px;
+  border:1px solid var(--card-border);background:var(--card);
+  margin-bottom:24px;
+}
+.ip-display .label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.ip-display .ip{font-size:clamp(28px,5vw,40px);font-weight:900;font-family:'Fira Code',monospace;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ip-display .copy-btn{
+  display:inline-block;margin-top:10px;padding:6px 16px;border-radius:6px;
+  border:1px solid var(--card-border);background:var(--bg3);color:var(--text2);
+  font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;
+}
+.ip-display .copy-btn:hover{border-color:var(--accent1);color:var(--text)}
+
+.info-card{border-radius:12px;border:1px solid var(--card-border);background:var(--card);overflow:hidden;margin-bottom:16px}
+.info-card .card-title{padding:14px 16px;font-size:14px;font-weight:700;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:8px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--card-border)}
+.info-row:last-child{border:none}
+.info-label{font-size:13px;color:var(--text2)}
+.info-value{font-size:13px;font-weight:600;font-family:'Fira Code',monospace;text-align:right;max-width:60%;word-break:break-all}
+
+.loading{text-align:center;padding:40px;color:var(--text2);font-size:14px}
+.loading .spinner{display:inline-block;width:24px;height:24px;border:3px solid var(--bg3);border-top-color:var(--accent1);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.error-msg{
+  display:none;text-align:center;padding:20px;border-radius:12px;
+  border:1px solid #ef4444;background:rgba(239,68,68,0.1);color:#ef4444;
+  font-size:14px;margin-bottom:24px;
+}
+
+.refresh-btn{
+  display:block;width:100%;padding:14px;border-radius:12px;border:none;
+  background:var(--gradient);color:#fff;font-family:'Inter',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;
+  box-shadow:0 0 20px rgba(99,102,241,0.2);transition:all 0.3s;
+}
+.refresh-btn:hover{transform:translateY(-1px)}
+
+.disclaimer{text-align:center;font-size:11px;color:var(--text3);margin-top:12px;line-height:1.6}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>IP <span>Lookup</span></h1>
+  <p class="subtitle">Find your public IP address and location data.</p>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div id="loadingState" class="loading">
+    <div class="spinner"></div>
+    <div>Looking up your IP address...</div>
+  </div>
+
+  <div id="resultState" style="display:none">
+    <div class="ip-display">
+      <div class="label">Your Public IP Address</div>
+      <div class="ip" id="ipAddr">—</div>
+      <button class="copy-btn" onclick="copyIP()">📋 Copy IP</button>
+    </div>
+
+    <div class="info-card">
+      <div class="card-title">📍 Location</div>
+      <div class="info-row"><span class="info-label">City</span><span class="info-value" id="city">—</span></div>
+      <div class="info-row"><span class="info-label">Region</span><span class="info-value" id="region">—</span></div>
+      <div class="info-row"><span class="info-label">Country</span><span class="info-value" id="country">—</span></div>
+      <div class="info-row"><span class="info-label">Postal Code</span><span class="info-value" id="postal">—</span></div>
+      <div class="info-row"><span class="info-label">Coordinates</span><span class="info-value" id="coords">—</span></div>
+      <div class="info-row"><span class="info-label">Timezone</span><span class="info-value" id="timezone">—</span></div>
+    </div>
+
+    <div class="info-card">
+      <div class="card-title">🌐 Network</div>
+      <div class="info-row"><span class="info-label">ISP</span><span class="info-value" id="isp">—</span></div>
+      <div class="info-row"><span class="info-label">Organization</span><span class="info-value" id="org">—</span></div>
+      <div class="info-row"><span class="info-label">AS Number</span><span class="info-value" id="asn">—</span></div>
+    </div>
+
+    <button class="refresh-btn" onclick="lookupIP()">🔄 Refresh</button>
+
+    <p class="disclaimer">⚠️ IP geolocation is approximate and may not reflect your exact location. VPN or proxy users will see the server's location instead.</p>
+  </div>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<script>
+async function lookupIP() {
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('resultState').style.display = 'none';
+  document.getElementById('errorMsg').style.display = 'none';
+
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    if (!res.ok) throw new Error('API request failed');
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.reason || 'Lookup failed');
+
+    document.getElementById('ipAddr').textContent = data.ip || '—';
+    document.getElementById('city').textContent = data.city || '—';
+    document.getElementById('region').textContent = data.region || '—';
+    document.getElementById('country').textContent = (data.country_name || '—') + (data.country_code ? ` (${data.country_code})` : '');
+    document.getElementById('postal').textContent = data.postal || '—';
+    document.getElementById('coords').textContent = data.latitude && data.longitude ? `${data.latitude}, ${data.longitude}` : '—';
+    document.getElementById('timezone').textContent = data.timezone || '—';
+    document.getElementById('isp').textContent = data.org || '—';
+    document.getElementById('org').textContent = data.org || '—';
+    document.getElementById('asn').textContent = data.asn || '—';
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('resultState').style.display = 'block';
+  } catch(e) {
+    // Fallback to secondary API
+    try {
+      const res2 = await fetch('https://api.ipify.org?format=json');
+      const ipData = await res2.json();
+
+      document.getElementById('ipAddr').textContent = ipData.ip || '—';
+      document.getElementById('city').textContent = '—';
+      document.getElementById('region').textContent = '—';
+      document.getElementById('country').textContent = '—';
+      document.getElementById('postal').textContent = '—';
+      document.getElementById('coords').textContent = '—';
+      document.getElementById('timezone').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || '—';
+      document.getElementById('isp').textContent = '—';
+      document.getElementById('org').textContent = '—';
+      document.getElementById('asn').textContent = '—';
+
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('resultState').style.display = 'block';
+    } catch(e2) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('errorMsg').textContent = '❌ Could not fetch IP data. Please disable ad blockers or try again.';
+      document.getElementById('errorMsg').style.display = 'block';
+    }
+  }
+}
+
+function copyIP() {
+  const ip = document.getElementById('ipAddr').textContent;
+  navigator.clipboard.writeText(ip).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy IP', 1500);
+  });
+}
+
+lookupIP();
+</script>
+</body>
+</html>

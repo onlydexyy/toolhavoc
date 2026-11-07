@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Fake Update Screen Prank — ToolHavoc</title>
+<meta name="description" content="Fake Windows, macOS, or Linux update screen prank. Go fullscreen and watch your friends panic as their computer 'updates' forever.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Segoe+UI:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:80px 20px 40px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px}
+h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:32px}
+
+.os-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.os-card{
+  padding:24px 16px;border-radius:14px;border:1px solid var(--card-border);
+  background:var(--card);cursor:pointer;text-align:center;transition:all 0.3s;
+}
+.os-card:hover{border-color:var(--accent1);transform:translateY(-2px)}
+.os-card.active{border-color:var(--accent1);background:rgba(99,102,241,0.1)}
+.os-card .icon{font-size:36px;margin-bottom:8px}
+.os-card .name{font-size:14px;font-weight:600}
+.os-card .desc{font-size:11px;color:var(--text3);margin-top:4px}
+
+.speed-control{margin-bottom:24px}
+.speed-control label{display:block;font-size:13px;color:var(--text2);margin-bottom:8px;font-weight:600}
+.speed-btns{display:flex;gap:8px}
+.speed-btn{
+  flex:1;padding:10px;border-radius:8px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text2);font-size:13px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;text-align:center;
+}
+.speed-btn:hover{border-color:var(--accent1)}
+.speed-btn.active{background:var(--accent1);border-color:var(--accent1);color:#fff}
+
+.launch-btn{
+  display:block;width:100%;padding:14px;border-radius:12px;border:none;
+  background:var(--gradient);color:#fff;font-family:'Inter',sans-serif;
+  font-size:16px;font-weight:700;cursor:pointer;
+  box-shadow:0 0 20px rgba(99,102,241,0.2);transition:all 0.3s;
+}
+.launch-btn:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(99,102,241,0.3)}
+
+.tip{text-align:center;color:var(--text3);font-size:12px;margin-top:16px}
+
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+
+/* Fullscreen update screens */
+.update-screen{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;cursor:none;user-select:none}
+
+/* Windows Update */
+.win-update{background:#0078d4;flex-direction:column;align-items:center;justify-content:center;font-family:'Segoe UI',sans-serif}
+.win-spinner{width:44px;height:44px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1.2s linear infinite;margin-bottom:30px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.win-text{color:#fff;font-size:22px;font-weight:300;margin-bottom:12px}
+.win-pct{color:#fff;font-size:16px;font-weight:300;opacity:0.8}
+.win-sub{color:rgba(255,255,255,0.5);font-size:13px;margin-top:20px;font-weight:300}
+
+/* macOS Update */
+.mac-update{background:#000;flex-direction:column;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif}
+.apple-logo{font-size:64px;margin-bottom:30px;filter:brightness(0) invert(1)}
+.mac-bar-wrap{width:240px;height:5px;background:rgba(255,255,255,0.2);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.mac-bar{height:100%;background:#fff;border-radius:3px;transition:width 0.5s}
+.mac-time{color:rgba(255,255,255,0.5);font-size:13px}
+
+/* Linux Update */
+.linux-update{background:#1a1a2e;flex-direction:column;padding:40px;font-family:'Courier New',monospace;overflow-y:auto}
+.linux-line{color:#0f0;font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-all}
+.linux-cursor{display:inline-block;width:8px;height:14px;background:#0f0;animation:blink 0.7s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-brand">⚡ ToolHavoc</a>
+  <a href="../index.html">← Back</a>
+</nav>
+
+<div class="container">
+  <h1>Fake <span>Update</span> Screen</h1>
+  <p class="subtitle">Fullscreen fake OS update. Press F11 for maximum effect. Press ESC to exit.</p>
+
+  <div class="os-grid">
+    <div class="os-card active" onclick="selectOS('windows',this)">
+      <div class="icon">🪟</div>
+      <div class="name">Windows</div>
+      <div class="desc">Windows Update style</div>
+    </div>
+    <div class="os-card" onclick="selectOS('mac',this)">
+      <div class="icon">🍎</div>
+      <div class="name">macOS</div>
+      <div class="desc">Apple update style</div>
+    </div>
+    <div class="os-card" onclick="selectOS('linux',this)">
+      <div class="icon">🐧</div>
+      <div class="name">Linux</div>
+      <div class="desc">Terminal update style</div>
+    </div>
+  </div>
+
+  <div class="speed-control">
+    <label>Update Speed</label>
+    <div class="speed-btns">
+      <button class="speed-btn" onclick="setSpeed('fast',this)">🐇 Fast</button>
+      <button class="speed-btn active" onclick="setSpeed('normal',this)">🐢 Normal</button>
+      <button class="speed-btn" onclick="setSpeed('stuck',this)">💀 Stuck at 99%</button>
+    </div>
+  </div>
+
+  <button class="launch-btn" onclick="startUpdate()">🖥️ Launch Fake Update</button>
+  <p class="tip">💡 Press F11 first for fullscreen, then launch. Press ESC to exit.</p>
+
+  <div class="ad-slot">[ Ad Space ]</div>
+</div>
+
+<!-- Windows Update Screen -->
+<div class="update-screen win-update" id="winScreen">
+  <div class="win-spinner"></div>
+  <div class="win-text">Working on updates</div>
+  <div class="win-pct" id="winPct">0% complete</div>
+  <div class="win-sub">Don't turn off your computer. This will take a while.<br>Your PC will restart several times.</div>
+</div>
+
+<!-- macOS Update Screen -->
+<div class="update-screen mac-update" id="macScreen">
+  <div class="apple-logo"></div>
+  <div class="mac-bar-wrap"><div class="mac-bar" id="macBar" style="width:0%"></div></div>
+  <div class="mac-time" id="macTime">About 20 minutes remaining...</div>
+</div>
+
+<!-- Linux Update Screen -->
+<div class="update-screen linux-update" id="linuxScreen">
+  <div id="linuxOutput"></div>
+</div>
+
+<script>
+let selectedOS = 'windows';
+let speed = 'normal';
+let updateInterval;
+
+function selectOS(os, el) {
+  selectedOS = os;
+  document.querySelectorAll('.os-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setSpeed(s, el) {
+  speed = s;
+  document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function startUpdate() {
+  if (selectedOS === 'windows') startWindows();
+  else if (selectedOS === 'mac') startMac();
+  else startLinux();
+}
+
+function startWindows() {
+  const screen = document.getElementById('winScreen');
+  screen.style.display = 'flex';
+  let pct = 0;
+  const el = document.getElementById('winPct');
+  const inc = speed === 'fast' ? 2 : speed === 'stuck' ? 0.3 : 0.8;
+  const maxPct = speed === 'stuck' ? 99 : 100;
+  updateInterval = setInterval(() => {
+    pct = Math.min(pct + (Math.random() * inc), maxPct);
+    el.textContent = Math.floor(pct) + '% complete';
+    if (pct >= 100) clearInterval(updateInterval);
+  }, speed === 'fast' ? 200 : 600);
+}
+
+function startMac() {
+  const screen = document.getElementById('macScreen');
+  screen.style.display = 'flex';
+  let pct = 0;
+  const bar = document.getElementById('macBar');
+  const time = document.getElementById('macTime');
+  const inc = speed === 'fast' ? 1.5 : speed === 'stuck' ? 0.2 : 0.6;
+  const maxPct = speed === 'stuck' ? 99 : 100;
+  updateInterval = setInterval(() => {
+    pct = Math.min(pct + (Math.random() * inc), maxPct);
+    bar.style.width = pct + '%';
+    const mins = Math.max(1, Math.floor((100 - pct) / 3));
+    time.textContent = pct >= 99 ? 'Less than a minute remaining...' : 'About ' + mins + ' minutes remaining...';
+    if (pct >= 100) clearInterval(updateInterval);
+  }, speed === 'fast' ? 200 : 600);
+}
+
+const linuxLines = [
+  'sudo apt-get update && sudo apt-get upgrade -y',
+  'Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease',
+  'Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [110 kB]',
+  'Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [119 kB]',
+  'Fetched 229 kB in 2s (115 kB/s)',
+  'Reading package lists... Done',
+  'Building dependency tree... Done',
+  'Reading state information... Done',
+  'Calculating upgrade... Done',
+  'The following packages will be upgraded:',
+  '  base-files coreutils dpkg gcc-12-base grub-common grub-pc',
+  '  grub-pc-bin grub2-common libgcc-s1 libstdc++6 linux-firmware',
+  '  linux-generic linux-headers-generic linux-image-generic',
+  '  linux-libc-dev python3-software-properties snapd',
+  '  software-properties-common ubuntu-advantage-tools',
+  '19 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.',
+  'Need to get 287 MB of archives.',
+  'After this operation, 4,096 B of additional disk space will be used.',
+  'Get:1 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 base-files amd64 12ubuntu4.4 [60.4 kB]',
+  'Get:2 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 dpkg amd64 1.21.1ubuntu2.2 [2,205 kB]',
+  'Get:3 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 coreutils amd64 8.32-4.1ubuntu1.1 [1,400 kB]',
+  'Fetching updates for linux-firmware...',
+  'Unpacking linux-firmware (20220329.git681281e4-0ubuntu3.20) ...',
+  'Setting up linux-firmware (20220329.git681281e4-0ubuntu3.20) ...',
+  'update-initramfs: Generating /boot/initrd.img-5.15.0-88-generic',
+  'Processing triggers for initramfs-tools (0.140ubuntu13.1) ...',
+  'Setting up linux-image-5.15.0-88-generic ...',
+  'I: /boot/vmlinuz is now a symlink to vmlinuz-5.15.0-88-generic',
+  'Processing triggers for linux-image-5.15.0-88-generic ...',
+  '/etc/kernel/postinst.d/initramfs-tools:',
+  'update-initramfs: Generating /boot/initrd.img-5.15.0-88-generic',
+  'DKMS: install completed.',
+  'Setting up grub-pc (2.06-2ubuntu14.1) ...',
+  'Installing for i386-pc platform.',
+  'Installation finished. No error reported.',
+  'Generating grub configuration file ...',
+  'Found linux image: /boot/vmlinuz-5.15.0-88-generic',
+  'Found initrd image: /boot/initrd.img-5.15.0-88-generic',
+  'Warning: os-prober will not be executed to detect other bootable partitions.',
+  'done',
+  'Processing triggers for man-db (2.10.2-1) ...',
+  'Processing triggers for dbus (1.12.20-2ubuntu4.1) ...',
+];
+
+function startLinux() {
+  const screen = document.getElementById('linuxScreen');
+  screen.style.display = 'flex';
+  const output = document.getElementById('linuxOutput');
+  output.innerHTML = '';
+  let i = 0;
+  const delay = speed === 'fast' ? 80 : speed === 'stuck' ? 400 : 180;
+  const lines = speed === 'stuck' ? [...linuxLines, ...linuxLines, 'Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)', 'System halted.'] : linuxLines;
+  updateInterval = setInterval(() => {
+    if (i < lines.length) {
+      const line = document.createElement('div');
+      line.className = 'linux-line';
+      line.textContent = lines[i];
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+      i++;
+    } else {
+      clearInterval(updateInterval);
+      const cursor = document.createElement('span');
+      cursor.className = 'linux-cursor';
+      output.lastChild.appendChild(cursor);
+    }
+  }, delay);
+}
+
+function closeAll() {
+  clearInterval(updateInterval);
+  document.querySelectorAll('.update-screen').forEach(s => s.style.display = 'none');
+  document.getElementById('linuxOutput').innerHTML = '';
+  document.getElementById('winPct').textContent = '0% complete';
+  document.getElementById('macBar').style.width = '0%';
+}
+
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAll(); });
+</script>
+</body>
+</html>
