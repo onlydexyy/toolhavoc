@@ -138,6 +138,45 @@ html{scroll-behavior:smooth}
 ::-webkit-scrollbar-track{background:#020205}
 ::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:#334155}
+
+/* ══════════════════════════════════════════
+   NEBULA BREATHING + PARTICLES
+   ══════════════════════════════════════════ */
+@keyframes nebula-breath{
+  0%  {transform:scale(1) rotate(0deg);    opacity:.08}
+  25% {transform:scale(1.08) rotate(2deg); opacity:.15}
+  50% {transform:scale(1.15) rotate(5deg); opacity:.18}
+  75% {transform:scale(1.06) rotate(2deg); opacity:.12}
+  100%{transform:scale(1) rotate(0deg);    opacity:.08}
+}
+.orb-breath{
+  will-change:transform,opacity;
+  animation:nebula-breath 16s ease-in-out infinite;
+}
+.orb-breath-delay{
+  will-change:transform,opacity;
+  animation:nebula-breath 16s ease-in-out infinite;
+  animation-delay:-6s;
+}
+.orb-breath-delay2{
+  will-change:transform,opacity;
+  animation:nebula-breath 20s ease-in-out infinite;
+  animation-delay:-12s;
+}
+.star-particle{
+  position:absolute;width:1.5px;height:1.5px;border-radius:50%;
+  background:rgba(148,163,184,.35);
+  will-change:transform;
+  pointer-events:none;
+}
+@keyframes star-drift{
+  0%{transform:translateY(0) translateX(0);opacity:.15}
+  50%{opacity:.4}
+  100%{transform:translateY(100vh) translateX(20px);opacity:.1}
+}
+@media(max-width:768px){
+  .star-particle{display:none}
+}
 </style>
 </head>
 
@@ -149,13 +188,14 @@ html{scroll-behavior:smooth}
 <!-- ┌─────────────────────────────────────────┐
      │  FIXED AMBIENT SPACE CANVAS (z-0)       │
      └─────────────────────────────────────────┘ -->
-<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-  <!-- Orb 1: Top Left Accent — boosted to 25% opacity, 160px blur -->
-  <div class="fixed rounded-full" style="top:-10%;left:-10%;width:600px;height:600px;background:rgba(79,172,254,0.25);filter:blur(160px)"></div>
-  <!-- Orb 2: Center Right Cosmic Flare — boosted to 25% opacity, 170px blur -->
-  <div class="fixed rounded-full" style="top:25%;right:-15%;width:650px;height:650px;background:rgba(233,30,99,0.25);filter:blur(170px)"></div>
-  <!-- Orb 3: Bottom Left Nebula Bloom — boosted to 15% opacity, 140px blur -->
-  <div class="fixed rounded-full" style="bottom:-10%;left:5%;width:550px;height:550px;background:rgba(6,182,212,0.15);filter:blur(140px)"></div>
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none" id="bgCanvas">
+  <!-- Orb 1: Top Left — breathing cycle -->
+  <div class="fixed rounded-full orb-breath" id="orb1" style="top:-10%;left:-10%;width:600px;height:600px;background:rgba(79,172,254,0.25);filter:blur(160px)"></div>
+  <!-- Orb 2: Center Right — breathing cycle, phase-shifted -->
+  <div class="fixed rounded-full orb-breath-delay" id="orb2" style="top:25%;right:-15%;width:650px;height:650px;background:rgba(233,30,99,0.25);filter:blur(170px)"></div>
+  <!-- Orb 3: Bottom Left — slower breathing cycle -->
+  <div class="fixed rounded-full orb-breath-delay2" id="orb3" style="bottom:-10%;left:5%;width:550px;height:550px;background:rgba(6,182,212,0.15);filter:blur(140px)"></div>
+  <!-- Particles injected here by JS -->
 </div>
 
 <!-- ┌─────────────────────────────────────────┐
@@ -653,6 +693,73 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a){
     if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}
   });
 });
+
+/* ═══ MICRO-PARTICLE STAR FIELD ═══ */
+(function(){
+  if(window.innerWidth<=768) return; /* skip on mobile */
+  var canvas=document.getElementById('bgCanvas');
+  if(!canvas) return;
+  var count=25;
+  for(var i=0;i<count;i++){
+    var p=document.createElement('div');
+    p.className='star-particle';
+    /* Place particles in the outer margins (left 0-15% or right 85-100%) */
+    var side=Math.random()>.5;
+    var xPos=side?(85+Math.random()*14):(Math.random()*14);
+    p.style.left=xPos+'%';
+    p.style.top=(Math.random()*100)+'%';
+    var dur=12+Math.random()*18;
+    p.style.animation='star-drift '+dur+'s linear infinite';
+    p.style.animationDelay=(-Math.random()*dur)+'s';
+    /* Vary sizes slightly */
+    var sz=1+Math.random()*1.2;
+    p.style.width=sz+'px';p.style.height=sz+'px';
+    /* Some cyan-tinted */
+    if(Math.random()>.6) p.style.background='rgba(79,172,254,.3)';
+    canvas.appendChild(p);
+  }
+})();
+
+/* ═══ MOUSE PARALLAX (desktop only) ═══ */
+(function(){
+  if(window.innerWidth<=768) return;
+  var orb1=document.getElementById('orb1'),
+      orb2=document.getElementById('orb2'),
+      orb3=document.getElementById('orb3'),
+      particles=document.querySelectorAll('.star-particle'),
+      cx=window.innerWidth/2,cy=window.innerHeight/2,
+      tx=0,ty=0,ax=0,ay=0,raf=null;
+
+  function lerp(){
+    ax+=(tx-ax)*0.04;
+    ay+=(ty-ay)*0.04;
+    if(orb1) orb1.style.transform='translate('+(-ax*0.02)+'px,'+(-ay*0.015)+'px)';
+    if(orb2) orb2.style.transform='translate('+(ax*0.018)+'px,'+(ay*0.012)+'px)';
+    if(orb3) orb3.style.transform='translate('+(-ax*0.01)+'px,'+(ay*0.02)+'px)';
+    for(var i=0;i<particles.length;i++){
+      var factor=0.008+(i%5)*0.004;
+      particles[i].style.transform='translate('+(ax*factor)+'px,'+(ay*factor)+'px)';
+    }
+    raf=requestAnimationFrame(lerp);
+  }
+  raf=requestAnimationFrame(lerp);
+
+  var lastMove=0;
+  window.addEventListener('mousemove',function(e){
+    var now=Date.now();
+    if(now-lastMove<16) return; /* ~60fps throttle */
+    lastMove=now;
+    tx=e.clientX-cx;
+    ty=e.clientY-cy;
+  },{passive:true});
+
+  /* Recalculate center on resize */
+  window.addEventListener('resize',function(){
+    cx=window.innerWidth/2;cy=window.innerHeight/2;
+    /* Kill parallax if window shrinks to mobile */
+    if(window.innerWidth<=768&&raf){cancelAnimationFrame(raf);raf=null}
+  });
+})();
 </script>
 </body>
 </html>
