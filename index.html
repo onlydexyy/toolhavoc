@@ -3,628 +3,721 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>ToolHavoc — Free Tech Tools, Device Scanners & Fun Utilities</title>
-<meta name="description" content="Your all-in-one tech toolbox. Scan your device, test your hardware, check your internet, and have fun — all free, all in one place.">
+<meta name="description" content="Your all-in-one tech toolbox. 35+ free tools to scan your device, test hardware, check internet, and have fun — all free, all in one place.">
 <meta property="og:title" content="ToolHavoc — Free Tech Tools & Utilities">
-<meta property="og:description" content="30+ free tools to scan, test, and explore your devices. From PC age scanners to typing speed tests.">
+<meta property="og:description" content="35+ free tools to scan, test, and explore your devices. From AI detectors to typing speed tests.">
 <meta property="og:type" content="website">
+<!-- INLINE SVG FAVICON -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2306b6d4'/%3E%3Cstop offset='100%25' stop-color='%23a855f7'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='56' height='56' rx='12' fill='none' stroke='url(%23g)' stroke-width='3' opacity='.5'/%3E%3Crect x='12' y='12' width='40' height='40' rx='6' fill='none' stroke='url(%23g)' stroke-width='2' opacity='.3'/%3E%3Cpath d='M20 16v32M44 16v32M20 32h24' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      colors: {
+        cyber: { cyan: '#06b6d4', violet: '#a855f7', green: '#22c55e' }
+      }
+    }
+  }
+}
+</script>
 <style>
-:root {
-  --bg: #0a0a0f;
-  --bg2: #12121a;
-  --bg3: #1a1a2e;
-  --card: rgba(255,255,255,0.03);
-  --card-border: rgba(255,255,255,0.06);
-  --card-hover: rgba(255,255,255,0.07);
-  --text: #e4e4e7;
-  --text2: #a1a1aa;
-  --text3: #52525b;
-  --accent1: #6366f1;
-  --accent2: #8b5cf6;
-  --accent3: #a78bfa;
-  --glow: rgba(99,102,241,0.15);
-  --glow2: rgba(139,92,246,0.1);
-  --gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
-  --gradient2: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+@font-face {
+  font-family: 'New Rocker';
+  src: url('fonts/NewRocker-Regular.ttf') format('truetype');
+  font-display: swap;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; overflow-x:hidden; }
-a { color:inherit; text-decoration:none; }
 
-/* NAV */
-nav {
-  position:fixed; top:0; left:0; right:0; z-index:100;
-  background:rgba(10,10,15,0.8); backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--card-border);
-  padding:0 24px; height:64px;
-  display:flex; align-items:center; justify-content:space-between;
+/* Atmospheric gradient orbs */
+body { background: #020617; }
+.atmo-bg {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 600px 600px at 15% 20%, rgba(34,197,94,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 500px at 80% 15%, rgba(6,182,212,0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 700px 700px at 60% 70%, rgba(168,85,247,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 400px at 30% 80%, rgba(6,182,212,0.06) 0%, transparent 70%);
 }
-.nav-brand {
-  font-size:20px; font-weight:800; letter-spacing:-0.5px;
-  background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+.atmo-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 300px 300px at 90% 50%, rgba(168,85,247,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 350px 350px at 10% 60%, rgba(34,197,94,0.04) 0%, transparent 70%);
+  animation: orbDrift 20s ease-in-out infinite alternate;
 }
-.nav-links { display:flex; gap:24px; align-items:center; }
-.nav-links a { font-size:14px; color:var(--text2); transition:color 0.2s; font-weight:500; }
-.nav-links a:hover { color:var(--text); }
-.nav-search {
-  background:var(--card); border:1px solid var(--card-border); border-radius:8px;
-  padding:8px 16px; color:var(--text); font-family:'Inter',sans-serif; font-size:14px;
-  width:220px; outline:none; transition:border-color 0.3s;
+@keyframes orbDrift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(30px, -20px); }
 }
-.nav-search:focus { border-color:var(--accent1); }
-.nav-search::placeholder { color:var(--text3); }
-.mobile-menu { display:none; background:none; border:none; color:var(--text); font-size:24px; cursor:pointer; }
 
-/* HERO */
-.hero {
-  position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center;
-  text-align:center; padding:120px 24px 80px; overflow:hidden;
-}
-.hero-bg {
-  position:absolute; top:0; left:0; right:0; bottom:0; z-index:0;
-}
-.grid-bg {
-  position:absolute; top:0; left:0; right:0; bottom:0;
+/* Grid border overlay */
+.grid-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none;
   background-image:
-    linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
-  background-size:60px 60px;
-  mask-image:radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 70%);
-  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 70%);
-}
-.hero-orb {
-  position:absolute; border-radius:50%; filter:blur(80px); opacity:0.4; animation:orbFloat 8s ease-in-out infinite;
-}
-.hero-orb.orb1 { width:500px; height:500px; background:var(--accent1); top:-100px; left:-100px; }
-.hero-orb.orb2 { width:400px; height:400px; background:var(--accent2); bottom:-50px; right:-50px; animation-delay:-3s; }
-.hero-orb.orb3 { width:300px; height:300px; background:#ec4899; top:50%; left:60%; animation-delay:-5s; opacity:0.2; }
-@keyframes orbFloat {
-  0%,100% { transform:translate(0,0) scale(1); }
-  33% { transform:translate(30px,-20px) scale(1.05); }
-  66% { transform:translate(-20px,15px) scale(0.95); }
-}
-.hero-content { position:relative; z-index:1; max-width:800px; }
-.hero-badge {
-  display:inline-flex; align-items:center; gap:8px;
-  background:var(--card); border:1px solid var(--card-border); border-radius:50px;
-  padding:6px 16px; font-size:13px; color:var(--text2); margin-bottom:24px;
-  animation:fadeInUp 0.6s ease-out;
-}
-.hero-badge .dot { width:6px; height:6px; border-radius:50%; background:#22c55e; animation:pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.hero h1 {
-  font-size:clamp(36px,6vw,72px); font-weight:900; line-height:1.1; letter-spacing:-2px;
-  margin-bottom:20px; animation:fadeInUp 0.6s ease-out 0.1s both;
-}
-.hero h1 .gradient {
-  background:var(--gradient2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-}
-.hero p {
-  font-size:clamp(16px,2vw,20px); color:var(--text2); line-height:1.6; max-width:600px; margin:0 auto 32px;
-  animation:fadeInUp 0.6s ease-out 0.2s both;
-}
-.hero-cta {
-  display:inline-flex; align-items:center; gap:10px;
-  background:var(--gradient); color:#fff; font-weight:700; font-size:16px;
-  padding:14px 32px; border-radius:12px; border:none; cursor:pointer;
-  transition:all 0.3s; animation:fadeInUp 0.6s ease-out 0.3s both;
-  box-shadow:0 0 30px var(--glow);
-}
-.hero-cta:hover { transform:translateY(-2px); box-shadow:0 0 50px var(--glow); }
-.hero-stats {
-  display:flex; justify-content:center; gap:48px; margin-top:48px;
-  animation:fadeInUp 0.6s ease-out 0.4s both;
-}
-.hero-stat { text-align:center; }
-.hero-stat .num { font-size:28px; font-weight:800; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.hero-stat .label { font-size:13px; color:var(--text3); margin-top:2px; }
-@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-
-/* AD BANNER */
-.ad-slot {
-  max-width:1200px; margin:0 auto; padding:0 24px;
-  text-align:center; min-height:90px;
-  display:flex; align-items:center; justify-content:center;
-  color:var(--text3); font-size:12px;
+    linear-gradient(rgba(148,163,184,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,0.04) 1px, transparent 1px);
+  background-size: 80px 80px;
 }
 
-/* SECTIONS */
-.section { padding:80px 24px; max-width:1200px; margin:0 auto; }
-.section-header { text-align:center; margin-bottom:48px; }
-.section-label {
-  display:inline-flex; align-items:center; gap:8px;
-  font-size:13px; color:var(--accent3); font-weight:600; text-transform:uppercase; letter-spacing:2px;
-  margin-bottom:12px;
-}
-.section-title { font-size:clamp(28px,4vw,42px); font-weight:800; letter-spacing:-1px; }
-.section-desc { color:var(--text2); font-size:16px; margin-top:8px; max-width:500px; margin-left:auto; margin-right:auto; }
+/* Splash loader */
+#splash-screen { will-change: transform, opacity; }
+.splash-panel { transition: transform 0.7s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.5s ease; }
+.splash-text { font-family: 'New Rocker', 'Inter', sans-serif; will-change: transform, opacity; }
 
-/* CATEGORY TABS */
-.category-tabs {
-  display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;
-}
-.cat-tab {
-  padding:8px 20px; border-radius:50px; font-size:14px; font-weight:500;
-  background:var(--card); border:1px solid var(--card-border); color:var(--text2);
-  cursor:pointer; transition:all 0.3s;
-}
-.cat-tab:hover { border-color:var(--accent1); color:var(--text); }
-.cat-tab.active { background:var(--accent1); border-color:var(--accent1); color:#fff; }
-
-/* TOOL GRID */
-.tool-grid {
-  display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px;
-}
+/* Card hover glow */
 .tool-card {
-  background:var(--card); border:1px solid var(--card-border); border-radius:16px;
-  padding:24px; cursor:pointer; transition:all 0.3s; position:relative; overflow:hidden;
-  text-decoration:none; display:block;
-}
-.tool-card::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:2px;
-  background:var(--gradient); opacity:0; transition:opacity 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
 }
 .tool-card:hover {
-  border-color:rgba(99,102,241,0.3); background:var(--card-hover);
-  transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3);
-}
-.tool-card:hover::before { opacity:1; }
-.tool-icon {
-  width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;
-  font-size:24px; margin-bottom:16px; background:var(--bg3);
-}
-.tool-card h3 { font-size:16px; font-weight:700; margin-bottom:6px; }
-.tool-card p { font-size:13px; color:var(--text2); line-height:1.5; }
-.tool-tag {
-  display:inline-block; font-size:11px; font-weight:600; padding:3px 10px; border-radius:50px;
-  margin-top:12px; background:rgba(99,102,241,0.1); color:var(--accent3);
-}
-.tool-tag.fun { background:rgba(236,72,153,0.1); color:#f472b6; }
-.tool-tag.mobile { background:rgba(34,197,94,0.1); color:#4ade80; }
-.tool-tag.new { background:rgba(251,191,36,0.1); color:#fbbf24; }
-
-/* CTA SECTION */
-.cta-section {
-  text-align:center; padding:80px 24px;
-  background:linear-gradient(180deg, transparent, rgba(99,102,241,0.05), transparent);
-}
-.cta-section h2 { font-size:clamp(24px,4vw,36px); font-weight:800; margin-bottom:12px; }
-.cta-section p { color:var(--text2); margin-bottom:24px; }
-
-/* FOOTER */
-footer {
-  border-top:1px solid var(--card-border); padding:40px 24px; text-align:center;
-  max-width:1200px; margin:0 auto;
-}
-.footer-brand { font-size:18px; font-weight:800; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.footer-links { display:flex; gap:24px; justify-content:center; margin:16px 0; flex-wrap:wrap; }
-.footer-links a { font-size:14px; color:var(--text3); transition:color 0.2s; }
-.footer-links a:hover { color:var(--text); }
-.footer-copy { font-size:12px; color:var(--text3); margin-top:12px; }
-
-/* SCROLL ANIMATIONS */
-.reveal { opacity:0; transform:translateY(30px); transition:all 0.6s ease-out; }
-.reveal.visible { opacity:1; transform:translateY(0); }
-
-/* MOBILE */
-@media(max-width:768px) {
-  .nav-links { display:none; }
-  .nav-search { display:none; }
-  .mobile-menu { display:block; }
-  .hero-stats { gap:24px; }
-  .hero-stat .num { font-size:22px; }
-  .tool-grid { grid-template-columns:1fr; }
-  .category-tabs { gap:6px; }
-  .cat-tab { padding:6px 14px; font-size:13px; }
-}
-@media(max-width:480px) {
-  nav { padding:0 16px; }
-  .hero { padding:100px 16px 60px; }
-  .section { padding:60px 16px; }
+  border-color: rgba(6,182,212,0.3) !important;
+  box-shadow: 0 0 30px rgba(6,182,212,0.08), 0 0 60px rgba(168,85,247,0.05);
+  transform: translateY(-2px);
 }
 
-/* PARTICLES */
-.particle {
-  position:fixed; pointer-events:none; z-index:0;
-  width:2px; height:2px; background:var(--accent1); border-radius:50%; opacity:0;
-  animation:particleDrift linear infinite;
+/* Search glow */
+.search-glow:focus {
+  box-shadow: 0 0 0 3px rgba(6,182,212,0.2), 0 0 20px rgba(6,182,212,0.1);
 }
-@keyframes particleDrift {
-  0% { opacity:0; transform:translateY(100vh) scale(0); }
-  10% { opacity:0.6; }
-  90% { opacity:0.6; }
-  100% { opacity:0; transform:translateY(-20px) scale(1); }
+
+/* Filter pills */
+.cat-pill { transition: all 0.3s; }
+.cat-pill.active { background: linear-gradient(135deg, #06b6d4, #a855f7); color: #fff; }
+.cat-pill:not(.active):hover { border-color: rgba(6,182,212,0.4); color: #e2e8f0; }
+
+/* Card visibility transitions */
+.tool-card { transition: opacity 0.3s, transform 0.3s, border-color 0.3s, box-shadow 0.3s; }
+.tool-card.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; position: absolute; }
+
+/* Ticker scroll */
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
+.ticker-inner { animation: tickerScroll 30s linear infinite; }
+
+/* Bottom sticky banner */
+.sticky-banner { transition: transform 0.4s ease, opacity 0.4s ease; }
+.sticky-banner.dismissed { transform: translateY(100%); opacity: 0; pointer-events: none; }
+
+/* Ad containers - fixed dimensions to prevent CLS */
+.ad-leaderboard { min-height: 90px; width: 100%; max-width: 728px; }
+.ad-native { min-height: 250px; }
+.ad-sticky { min-height: 90px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #020617; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #334155; }
 </style>
 </head>
-<body>
+<body class="font-sans text-slate-300 overflow-x-hidden">
 
-<!-- NAV -->
-<nav>
-  <a href="index.html" class="nav-brand">⚡ ToolHavoc</a>
-  <div class="nav-links">
-    <a href="#tools">Tools</a>
-    <a href="#phone">Phone</a>
-    <a href="#computer">Computer</a>
-    <a href="#fun">Fun</a>
+<!-- ATMOSPHERIC BG -->
+<div class="atmo-bg"></div>
+<div class="grid-overlay"></div>
+
+<!-- ============================================ -->
+<!-- SPLASH LOADER -->
+<!-- ============================================ -->
+<div id="splash-screen" class="fixed inset-0 z-[9999] pointer-events-none">
+  <div id="splash-top" class="splash-panel absolute top-0 left-0 right-0 h-[50vh] bg-black flex items-end justify-center"></div>
+  <div id="splash-bottom" class="splash-panel absolute bottom-0 left-0 right-0 h-[50vh] bg-black"></div>
+  <div class="absolute inset-0 flex flex-col items-center justify-center z-10">
+    <div id="splash-havoc" class="splash-text text-white text-5xl md:text-7xl font-bold tracking-widest drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]" style="transform:scale(0.92)">HAVOC</div>
+    <div id="loading-counter" class="text-cyan-400 text-xl md:text-2xl font-mono mt-4 tracking-wider">0%</div>
   </div>
-  <input type="text" class="nav-search" placeholder="Search tools..." id="searchInput" oninput="filterTools()">
-  <button class="mobile-menu" onclick="document.querySelector('.nav-links').style.display=document.querySelector('.nav-links').style.display==='flex'?'none':'flex'">☰</button>
+</div>
+
+<!-- ============================================ -->
+<!-- NAVBAR -->
+<!-- ============================================ -->
+<nav class="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/60">
+  <div class="bg-slate-950/80 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+      <!-- Brand -->
+      <a href="#" class="flex items-center gap-2">
+        <span class="text-xl font-extrabold bg-gradient-to-r from-cyan-400 to-violet-500 bg-clip-text text-transparent">⚡ ToolHavoc</span>
+      </a>
+      <!-- Nav Links Desktop -->
+      <div class="hidden md:flex items-center gap-1">
+        <a href="#tools" class="px-3 py-1.5 text-sm text-slate-400 hover:text-slate-200 border border-transparent hover:border-slate-800/60 rounded transition">Tools</a>
+        <a href="#trending" class="px-3 py-1.5 text-sm text-slate-400 hover:text-slate-200 border border-transparent hover:border-slate-800/60 rounded transition">Trending</a>
+        <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-sm text-slate-400 hover:text-slate-200 border border-transparent hover:border-slate-800/60 rounded transition">TikTok</a>
+      </div>
+      <!-- Mobile menu btn -->
+      <button id="mobileMenuBtn" class="md:hidden text-slate-400 text-2xl" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">☰</button>
+    </div>
+  </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg">
-    <div class="grid-bg"></div>
-    <div class="hero-orb orb1"></div>
-    <div class="hero-orb orb2"></div>
-    <div class="hero-orb orb3"></div>
+<!-- Mobile menu dropdown -->
+<div id="mobileMenu" class="hidden fixed top-16 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/60">
+  <div class="p-4 flex flex-col gap-2">
+    <a href="#tools" class="px-4 py-2 text-sm text-slate-400 hover:text-white border border-slate-800/40 rounded" onclick="document.getElementById('mobileMenu').classList.add('hidden')">Tools</a>
+    <a href="#trending" class="px-4 py-2 text-sm text-slate-400 hover:text-white border border-slate-800/40 rounded" onclick="document.getElementById('mobileMenu').classList.add('hidden')">Trending</a>
+    <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="px-4 py-2 text-sm text-slate-400 hover:text-white border border-slate-800/40 rounded">TikTok</a>
   </div>
-  <div class="hero-content">
-    <div class="hero-badge"><span class="dot"></span> Free forever — no signup needed</div>
-    <h1>Your Tech <span class="gradient">Toolbox</span> for Everything</h1>
-    <p>Scan your devices, test your hardware, check your speed, and have fun — all free, all in one place.</p>
-    <a href="#tools" class="hero-cta">Explore Tools ↓</a>
-    <div class="hero-stats">
-      <div class="hero-stat"><div class="num" id="tool-count">30+</div><div class="label">Free Tools</div></div>
-      <div class="hero-stat"><div class="num">100%</div><div class="label">Free</div></div>
-      <div class="hero-stat"><div class="num">0</div><div class="label">Signups Needed</div></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SLOT A: TOP LEADERBOARD -->
+<!-- ============================================ -->
+<!-- ADSTERRA BANNER PLACEMENT -->
+<div class="relative z-10 flex justify-center pt-20 pb-2">
+  <div class="ad-leaderboard flex items-center justify-center border border-slate-800/40 rounded bg-slate-950/30 overflow-hidden">
+    <script>
+      atOptions = {
+        'key' : '76f41da819582075b2e5619851f50a31',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+      };
+    </script>
+    <script src="https://bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- HERO SECTION -->
+<!-- ============================================ -->
+<section class="relative z-10 text-center py-16 md:py-24 px-4">
+  <div class="max-w-3xl mx-auto">
+    <div class="inline-flex items-center gap-2 bg-slate-900/50 border border-slate-800/60 rounded-full px-4 py-1.5 text-xs text-slate-400 mb-6">
+      <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+      35+ Free Tools — No Signup Required
+    </div>
+    <h1 class="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05] mb-5">
+      <span class="text-white">Your Tech Toolbox</span><br>
+      <span class="bg-gradient-to-r from-cyan-400 via-violet-400 to-violet-500 bg-clip-text text-transparent">for Everything</span>
+    </h1>
+    <p class="text-slate-400 text-base md:text-lg max-w-xl mx-auto mb-8">Scan your device, test hardware, check security, detect AI — all free, instant, no downloads.</p>
+
+    <!-- HERO SEARCH -->
+    <div class="max-w-lg mx-auto relative">
+      <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">🔍</div>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search tools..."
+        oninput="filterTools()"
+        class="search-glow w-full pl-11 pr-4 py-3.5 bg-slate-900/60 border border-slate-700/60 rounded-xl text-slate-200 text-sm placeholder-slate-500 outline-none focus:border-cyan-500/50 transition"
+      >
     </div>
   </div>
 </section>
 
-<!-- AD SLOT -->
-<div class="ad-slot" id="ad-top" style="text-align:center;padding:20px 0;margin:20px 0;overflow:hidden">
-<script>
-  atOptions = {
-    'key' : '76f41da819582075b2e5619851f50a31',
-    'format' : 'iframe',
-    'height' : 90,
-    'width' : 728,
-    'params' : {}
-  };
-</script>
-<script src="https://bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
-</div>
-
-<!-- TOOLS SECTION -->
-<section class="section" id="tools">
-  <div class="section-header reveal">
-    <div class="section-label">⚡ Tools</div>
-    <div class="section-title">Everything You Need</div>
-    <div class="section-desc">Pick a category or browse them all</div>
-  </div>
-
-  <div class="category-tabs reveal" id="catTabs">
-    <button class="cat-tab active" onclick="filterCat('all')">All Tools</button>
-    <button class="cat-tab" onclick="filterCat('computer')">💻 Computer</button>
-    <button class="cat-tab" onclick="filterCat('phone')">📱 Phone</button>
-    <button class="cat-tab" onclick="filterCat('internet')">🌐 Internet</button>
-    <button class="cat-tab" onclick="filterCat('utility')">🛠️ Utilities</button>
-    <button class="cat-tab" onclick="filterCat('fun')">🎮 Fun & Viral</button>
-    <button class="cat-tab" onclick="filterCat('prank')">🤪 Pranks</button>
-  </div>
-
-  <div class="tool-grid" id="toolGrid">
-
-    <!-- COMPUTER TOOLS -->
-    <a href="tools/pc-age.html" class="tool-card" data-cat="computer" data-name="how old is my pc device age scanner">
-      <div class="tool-icon">💻</div>
-      <h3>How Old Is My PC?</h3>
-      <p>Scans your GPU, CPU cores, and RAM to estimate your device's age — then roasts it.</p>
-      <span class="tool-tag new">Popular</span>
-    </a>
-
-    <a href="tools/keyboard-test.html" class="tool-card" data-cat="computer" data-name="keyboard tester key test gaming">
-      <div class="tool-icon">⌨️</div>
-      <h3>Keyboard Tester</h3>
-      <p>Press any key and see it light up. Find dead keys, test rollover, perfect for gamers.</p>
-      <span class="tool-tag">Computer</span>
-    </a>
-
-    <a href="tools/webcam-test.html" class="tool-card" data-cat="computer" data-name="webcam tester camera test video">
-      <div class="tool-icon">📷</div>
-      <h3>Webcam Tester</h3>
-      <p>Check if your camera works. See resolution, frame rate, and preview your feed.</p>
-      <span class="tool-tag">Computer</span>
-    </a>
-
-    <a href="tools/mic-test.html" class="tool-card" data-cat="computer" data-name="microphone tester mic test audio">
-      <div class="tool-icon">🎤</div>
-      <h3>Microphone Tester</h3>
-      <p>Test if your mic is picking up sound. See the live waveform and volume levels.</p>
-      <span class="tool-tag">Computer</span>
-    </a>
-
-    <a href="tools/dead-pixel.html" class="tool-card" data-cat="computer" data-name="dead pixel tester monitor screen test">
-      <div class="tool-icon">🖥️</div>
-      <h3>Dead Pixel Tester</h3>
-      <p>Fullscreen color test to find stuck or dead pixels on your monitor.</p>
-      <span class="tool-tag">Computer</span>
-    </a>
-
-    <a href="tools/speaker-test.html" class="tool-card" data-cat="computer" data-name="speaker audio test left right channel">
-      <div class="tool-icon">🔊</div>
-      <h3>Speaker Tester</h3>
-      <p>Test left and right audio channels. Make sure both speakers are working.</p>
-      <span class="tool-tag">Computer</span>
-    </a>
-
-    <!-- PHONE TOOLS -->
-    <a href="tools/device-info.html" class="tool-card" data-cat="phone" data-name="device info phone scanner specs">
-      <div class="tool-icon">📱</div>
-      <h3>Device Scanner</h3>
-      <p>Detect your phone model, screen size, pixel ratio, browser, and OS version.</p>
-      <span class="tool-tag mobile">Phone</span>
-    </a>
-
-    <a href="tools/touch-test.html" class="tool-card" data-cat="phone" data-name="touchscreen tester touch test phone tablet">
-      <div class="tool-icon">👆</div>
-      <h3>Touchscreen Tester</h3>
-      <p>Draw on screen to test for dead zones. Checks multi-touch support too.</p>
-      <span class="tool-tag mobile">Phone</span>
-    </a>
-
-    <a href="tools/gyroscope-test.html" class="tool-card" data-cat="phone" data-name="gyroscope accelerometer sensor test phone">
-      <div class="tool-icon">🧭</div>
-      <h3>Gyroscope Tester</h3>
-      <p>Visualize your phone's motion sensors in real time. Tilt and watch it respond.</p>
-      <span class="tool-tag mobile">Phone</span>
-    </a>
-
-    <a href="tools/vibration-test.html" class="tool-card" data-cat="phone" data-name="vibration motor test phone android">
-      <div class="tool-icon">📳</div>
-      <h3>Vibration Tester</h3>
-      <p>Test your phone's vibration motor with different patterns. Android only.</p>
-      <span class="tool-tag mobile">Phone</span>
-    </a>
-
-    <!-- INTERNET TOOLS -->
-    <a href="tools/browser-check.html" class="tool-card" data-cat="internet" data-name="what browser am i using version check update">
-      <div class="tool-icon">🌐</div>
-      <h3>What Browser Am I Using?</h3>
-      <p>Detects your browser name, version, and tells you if it's up to date.</p>
-      <span class="tool-tag new">Popular</span>
-    </a>
-
-    <a href="tools/ip-lookup.html" class="tool-card" data-cat="internet" data-name="what is my ip address location lookup">
-      <div class="tool-icon">🔍</div>
-      <h3>What's My IP Address?</h3>
-      <p>Shows your public IP address and approximate location instantly.</p>
-      <span class="tool-tag">Internet</span>
-    </a>
-
-    <a href="tools/screen-resolution.html" class="tool-card" data-cat="internet" data-name="what is my screen resolution display size">
-      <div class="tool-icon">📐</div>
-      <h3>Screen Resolution</h3>
-      <p>Shows your exact screen resolution, pixel ratio, and color depth.</p>
-      <span class="tool-tag">Internet</span>
-    </a>
-
-    <a href="tools/password-checker.html" class="tool-card" data-cat="internet" data-name="password strength checker security test">
-      <div class="tool-icon">🔒</div>
-      <h3>Password Strength Checker</h3>
-      <p>Type a password and see how strong it really is. Nothing is stored or sent.</p>
-      <span class="tool-tag new">Popular</span>
-    </a>
-
-    <!-- UTILITIES -->
-    <a href="tools/qr-generator.html" class="tool-card" data-cat="utility" data-name="qr code generator create make">
-      <div class="tool-icon">📱</div>
-      <h3>QR Code Generator</h3>
-      <p>Paste any URL or text and get a QR code instantly. Download as PNG.</p>
-      <span class="tool-tag">Utility</span>
-    </a>
-
-    <a href="tools/word-counter.html" class="tool-card" data-cat="utility" data-name="word counter character count text">
-      <div class="tool-icon">📝</div>
-      <h3>Word & Character Counter</h3>
-      <p>Paste text to count words, characters, sentences, and reading time.</p>
-      <span class="tool-tag">Utility</span>
-    </a>
-
-    <a href="tools/color-picker.html" class="tool-card" data-cat="utility" data-name="color picker palette generator hex rgb">
-      <div class="tool-icon">🎨</div>
-      <h3>Color Picker</h3>
-      <p>Pick colors, get hex/RGB codes, and generate matching palettes.</p>
-      <span class="tool-tag">Utility</span>
-    </a>
-
-    <a href="tools/text-converter.html" class="tool-card" data-cat="utility" data-name="text case converter uppercase lowercase title">
-      <div class="tool-icon">🔤</div>
-      <h3>Text Case Converter</h3>
-      <p>Convert text to UPPERCASE, lowercase, Title Case, or aLtErNaTiNg.</p>
-      <span class="tool-tag">Utility</span>
-    </a>
-
-    <a href="tools/timer.html" class="tool-card" data-cat="utility" data-name="countdown timer stopwatch clock">
-      <div class="tool-icon">⏱️</div>
-      <h3>Timer & Stopwatch</h3>
-      <p>Clean countdown timer and stopwatch with lap tracking.</p>
-      <span class="tool-tag">Utility</span>
-    </a>
-
-    <!-- FUN & VIRAL -->
-    <a href="tools/hacker-terminal.html" class="tool-card" data-cat="fun" data-name="hacker terminal simulator typing matrix">
-      <div class="tool-icon">🖥️</div>
-      <h3>Hacker Terminal</h3>
-      <p>Type anything and look like you're hacking the mainframe. Matrix vibes.</p>
-      <span class="tool-tag fun">🔥 Viral</span>
-    </a>
-
-    <a href="tools/typing-test.html" class="tool-card" data-cat="fun" data-name="typing speed test wpm roast fast slow">
-      <div class="tool-icon">⚡</div>
-      <h3>Typing Speed Test</h3>
-      <p>Test your WPM then get brutally roasted based on how fast (or slow) you type.</p>
-      <span class="tool-tag fun">🔥 Viral</span>
-    </a>
-
-    <a href="tools/wifi-names.html" class="tool-card" data-cat="fun" data-name="wifi name generator funny network ssid">
-      <div class="tool-icon">📶</div>
-      <h3>WiFi Name Generator</h3>
-      <p>Generate hilarious WiFi network names by category. Copy with one click.</p>
-      <span class="tool-tag fun">Fun</span>
-    </a>
-
-    <a href="tools/hacker-name.html" class="tool-card" data-cat="fun" data-name="hacker name generator alias cyber identity">
-      <div class="tool-icon">🥷</div>
-      <h3>Hacker Name Generator</h3>
-      <p>Enter your name and get your elite hacker alias. Share your cyber identity.</p>
-      <span class="tool-tag fun">Fun</span>
-    </a>
-
-    <a href="tools/internet-quiz.html" class="tool-card" data-cat="fun" data-name="what type of internet user quiz personality">
-      <div class="tool-icon">🧠</div>
-      <h3>What Internet User Are You?</h3>
-      <p>Take the quiz and find out your internet personality type. Scarily accurate.</p>
-      <span class="tool-tag fun">Fun</span>
-    </a>
-
-    <!-- PRANKS -->
-    <a href="tools/fake-error.html" class="tool-card" data-cat="prank" data-name="fake error message generator windows prank">
-      <div class="tool-icon">⚠️</div>
-      <h3>Fake Error Generator</h3>
-      <p>Create realistic-looking error messages to prank your friends.</p>
-      <span class="tool-tag fun">Prank</span>
-    </a>
-
-    <a href="tools/fake-bsod.html" class="tool-card" data-cat="prank" data-name="fake blue screen of death bsod windows prank">
-      <div class="tool-icon">💀</div>
-      <h3>Blue Screen of Death</h3>
-      <p>Fullscreen fake BSOD. Press F11 for maximum panic. ESC to escape.</p>
-      <span class="tool-tag fun">Prank</span>
-    </a>
-
-    <a href="tools/fake-update.html" class="tool-card" data-cat="prank" data-name="fake windows update screen prank loading">
-      <div class="tool-icon">🔄</div>
-      <h3>Fake Update Screen</h3>
-      <p>Fullscreen fake Windows update that never finishes. Classic prank.</p>
-      <span class="tool-tag fun">Prank</span>
-    </a>
-
+<!-- ============================================ -->
+<!-- CATEGORY FILTER -->
+<!-- ============================================ -->
+<section class="relative z-10 px-4 mb-8" id="tools">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex flex-wrap gap-2 justify-center" id="catTabs">
+      <button class="cat-pill active px-4 py-2 text-xs font-semibold rounded-lg border border-slate-700/60 bg-slate-900/40 text-slate-400 cursor-pointer" onclick="filterCat('all',this)">All Tools</button>
+      <button class="cat-pill px-4 py-2 text-xs font-semibold rounded-lg border border-slate-700/60 bg-slate-900/40 text-slate-400 cursor-pointer" onclick="filterCat('computer',this)">💻 Computer</button>
+      <button class="cat-pill px-4 py-2 text-xs font-semibold rounded-lg border border-slate-700/60 bg-slate-900/40 text-slate-400 cursor-pointer" onclick="filterCat('phone',this)">📱 Phone</button>
+      <button class="cat-pill px-4 py-2 text-xs font-semibold rounded-lg border border-slate-700/60 bg-slate-900/40 text-slate-400 cursor-pointer" onclick="filterCat('internet',this)">🌐 Internet</button>
+      <button class="cat-pill px-4 py-2 text-xs font-semibold rounded-lg border border-slate-700/60 bg-slate-900/40 text-slate-400 cursor-pointer" onclick="filterCat('utility',this)">🛠️ Utilities</button>
+      <button class="cat-pill px-4 py-2 text-xs font-semibold rounded-lg border border-slate-700/60 bg-slate-900/40 text-slate-400 cursor-pointer" onclick="filterCat('fun',this)">🎮 Fun & Viral</button>
+      <button class="cat-pill px-4 py-2 text-xs font-semibold rounded-lg border border-slate-700/60 bg-slate-900/40 text-slate-400 cursor-pointer" onclick="filterCat('prank',this)">🤪 Pranks</button>
+    </div>
   </div>
 </section>
 
-<!-- AD SLOT -->
-<div class="ad-slot" id="ad-mid" style="text-align:center;padding:20px 0;margin:20px 0;overflow:hidden">
-<script async="async" data-cfasync="false" src="https://bauval.org/21/d0f677b4d72b913f07ead837adf17f31"></script>
-<div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
-</div>
+<!-- ============================================ -->
+<!-- TOOL GRID -->
+<!-- ============================================ -->
+<section class="relative z-10 px-4 pb-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="toolGrid">
 
+      <!-- ===== TRENDING NEW TOOLS ===== -->
+      <a href="tools/ai-image-detector.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="utility" data-name="ai image detector fake photo exif metadata scan" id="trending">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🖼️</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30">Breakout</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">AI Image Detector</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Drag and drop any image to run a client-side EXIF metadata and pattern scan to evaluate artificial generation likelihood.</p>
+      </a>
+
+      <a href="tools/ai-text-detector.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="utility" data-name="ai text detector gpt chatgpt writing check">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🤖</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">Popular</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">AI Text Detector</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Paste copy to analyze syntactic perplexity patterns and track potential AI writing markers.</p>
+      </a>
+
+      <a href="tools/citation-generator.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="utility" data-name="apa mla citation generator bibliography reference">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">📚</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Utility</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">APA & MLA Citation Generator</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Instantly format websites, publications, and research into correct scholastic citation strings.</p>
+      </a>
+
+      <a href="tools/pdf-link-generator.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="utility" data-name="pdf link generator share document url">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">📄</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Utility</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">PDF Link Generator</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Convert local documents into web-accessible object URLs entirely in your browser without file uploads.</p>
+      </a>
+
+      <!-- ===== COMPUTER TOOLS ===== -->
+      <a href="tools/pc-age.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="computer" data-name="how old is my pc device age scanner">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">💻</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">Popular</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">How Old Is My PC?</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Scans your GPU, CPU cores, and RAM to estimate your device's age — then roasts it.</p>
+      </a>
+
+      <a href="tools/keyboard-test.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="computer" data-name="keyboard tester key test gaming">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">⌨️</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-700/40 text-slate-400 border border-slate-600/30">Computer</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Keyboard Tester</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Press any key and see it light up. Find dead keys, test rollover, perfect for gamers.</p>
+      </a>
+
+      <a href="tools/webcam-test.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="computer" data-name="webcam tester camera test video">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">📷</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-700/40 text-slate-400 border border-slate-600/30">Computer</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Webcam Tester</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Check if your camera works. See resolution, frame rate, and preview your feed.</p>
+      </a>
+
+      <a href="tools/mic-test.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="computer" data-name="microphone tester mic test audio">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🎤</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-700/40 text-slate-400 border border-slate-600/30">Computer</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Microphone Tester</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Test if your mic is picking up sound. See the live waveform and volume levels.</p>
+      </a>
+
+      <a href="tools/dead-pixel.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="computer" data-name="dead pixel tester monitor screen test">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🖥️</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-700/40 text-slate-400 border border-slate-600/30">Computer</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Dead Pixel Tester</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Fullscreen color test to find stuck or dead pixels on your monitor.</p>
+      </a>
+
+      <a href="tools/speaker-test.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="computer" data-name="speaker audio test left right channel">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🔊</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-700/40 text-slate-400 border border-slate-600/30">Computer</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Speaker Tester</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Test left and right audio channels. Make sure both speakers are working.</p>
+      </a>
+
+      <!-- ===== SLOT B: MID-GRID NATIVE AD ===== -->
+      <!-- ADSTERRA BANNER PLACEMENT -->
+      <div class="ad-native flex items-center justify-center rounded-xl bg-slate-900/20 border border-slate-800/40 p-4 overflow-hidden sm:col-span-2 lg:col-span-1">
+        <script async="async" data-cfasync="false" src="https://bauval.org/21/d0f677b4d72b913f07ead837adf17f31"></script>
+        <div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
+      </div>
+
+      <!-- ===== PHONE TOOLS ===== -->
+      <a href="tools/device-info.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="phone" data-name="device info phone scanner specs">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">📱</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-violet-500/20 text-violet-400 border border-violet-500/30">Phone</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Device Scanner</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Detect your phone model, screen size, pixel ratio, browser, and OS version.</p>
+      </a>
+
+      <a href="tools/touch-test.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="phone" data-name="touchscreen tester touch test phone tablet">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">👆</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-violet-500/20 text-violet-400 border border-violet-500/30">Phone</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Touchscreen Tester</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Draw on screen to test for dead zones. Checks multi-touch support too.</p>
+      </a>
+
+      <a href="tools/gyroscope-test.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="phone" data-name="gyroscope accelerometer sensor test phone">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🧭</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-violet-500/20 text-violet-400 border border-violet-500/30">Phone</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Gyroscope Tester</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Visualize your phone's motion sensors in real time. Tilt and watch it respond.</p>
+      </a>
+
+      <a href="tools/vibration-test.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="phone" data-name="vibration motor test phone android">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">📳</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-violet-500/20 text-violet-400 border border-violet-500/30">Phone</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Vibration Tester</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Test your phone's vibration motor with different patterns. Android only.</p>
+      </a>
+
+      <!-- ===== INTERNET TOOLS ===== -->
+      <a href="tools/browser-check.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="internet" data-name="what browser am i using version check update">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🌐</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">Popular</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">What Browser Am I Using?</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Detects your browser name, version, and tells you if it's up to date.</p>
+      </a>
+
+      <a href="tools/ip-lookup.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="internet" data-name="what is my ip address location lookup">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🔍</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Internet</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">What's My IP Address?</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Shows your public IP address and approximate location instantly.</p>
+      </a>
+
+      <a href="tools/screen-resolution.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="internet" data-name="what is my screen resolution display size">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">📐</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Internet</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Screen Resolution</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Shows your exact screen resolution, pixel ratio, and color depth.</p>
+      </a>
+
+      <a href="tools/password-checker.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="internet" data-name="password strength checker security test">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🔒</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">Popular</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Password Strength Checker</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Type a password and see how strong it really is. Nothing is stored or sent.</p>
+      </a>
+
+      <!-- ===== UTILITIES ===== -->
+      <a href="tools/qr-generator.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="utility" data-name="qr code generator create make">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">📱</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Utility</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">QR Code Generator</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Paste any URL or text and get a QR code instantly. Download as PNG.</p>
+      </a>
+
+      <a href="tools/word-counter.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="utility" data-name="word counter character count text">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">📝</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Utility</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Word & Character Counter</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Paste text to count words, characters, sentences, and reading time.</p>
+      </a>
+
+      <a href="tools/color-picker.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="utility" data-name="color picker palette generator hex rgb">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🎨</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Utility</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Color Picker</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Pick colors, get hex/RGB codes, and generate matching palettes.</p>
+      </a>
+
+      <a href="tools/text-converter.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="utility" data-name="text case converter uppercase lowercase title">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🔤</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Utility</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Text Case Converter</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Convert text to UPPERCASE, lowercase, Title Case, or aLtErNaTiNg.</p>
+      </a>
+
+      <a href="tools/timer.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="utility" data-name="countdown timer stopwatch clock">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">⏱️</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Utility</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Timer & Stopwatch</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Clean countdown timer and stopwatch with lap tracking.</p>
+      </a>
+
+      <!-- ===== FUN & VIRAL ===== -->
+      <a href="tools/hacker-terminal.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="fun" data-name="hacker terminal simulator typing matrix">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🖥️</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30">🔥 Viral</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Hacker Terminal</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Type anything and look like you're hacking the mainframe. Matrix vibes.</p>
+      </a>
+
+      <a href="tools/typing-test.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="fun" data-name="typing speed test wpm roast fast slow">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">⚡</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30">🔥 Viral</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Typing Speed Test</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Test your WPM then get brutally roasted based on how fast (or slow) you type.</p>
+      </a>
+
+      <a href="tools/wifi-names.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="fun" data-name="wifi name generator funny network ssid">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">📶</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Fun</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">WiFi Name Generator</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Generate hilarious WiFi network names by category. Copy with one click.</p>
+      </a>
+
+      <a href="tools/hacker-name.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="fun" data-name="hacker name generator alias cyber identity">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🥷</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Fun</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Hacker Name Generator</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Enter your name and get your elite hacker alias. Share your cyber identity.</p>
+      </a>
+
+      <a href="tools/internet-quiz.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="fun" data-name="what type of internet user quiz personality">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🧠</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Fun</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">What Internet User Are You?</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Take the quiz and find out your internet personality type. Scarily accurate.</p>
+      </a>
+
+      <!-- ===== PRANKS ===== -->
+      <a href="tools/fake-error.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="prank" data-name="fake error message generator windows prank">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">⚠️</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">Prank</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Fake Error Generator</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Create realistic-looking error messages to prank your friends.</p>
+      </a>
+
+      <a href="tools/fake-bsod.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="prank" data-name="fake blue screen of death bsod windows prank">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">💀</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">Prank</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Blue Screen of Death</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Fullscreen fake BSOD. Press F11 for maximum panic. ESC to escape.</p>
+      </a>
+
+      <a href="tools/fake-update.html" class="tool-card block p-5 rounded-xl bg-slate-900/40 border border-slate-800/80 group" data-cat="prank" data-name="fake windows update screen prank loading">
+        <div class="flex items-start justify-between mb-3">
+          <span class="text-2xl">🔄</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">Prank</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1.5 group-hover:text-cyan-300 transition">Fake Update Screen</h3>
+        <p class="text-slate-500 text-xs leading-relaxed">Fullscreen fake Windows update that never finishes. Classic prank.</p>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
 <!-- CTA -->
-<section class="cta-section reveal">
-  <h2>More Tools Coming Every Week</h2>
-  <p>Bookmark ToolHavoc and check back — we're always adding new tools.</p>
-  <a href="#tools" class="hero-cta">Browse All Tools</a>
+<!-- ============================================ -->
+<section class="relative z-10 text-center py-16 px-4">
+  <div class="max-w-lg mx-auto">
+    <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">More Tools Coming Every Week</h2>
+    <p class="text-slate-400 text-sm mb-6">Bookmark ToolHavoc and check back — we're always shipping new tools.</p>
+    <a href="#tools" class="inline-block px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-violet-500 text-white text-sm font-bold hover:opacity-90 transition">Browse All Tools</a>
+  </div>
 </section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-brand">⚡ ToolHavoc</div>
-  <div class="footer-links">
-    <a href="#tools">All Tools</a>
-    <a href="#computer">Computer</a>
-    <a href="#phone">Phone</a>
-    <a href="#fun">Fun</a>
-    <a href="https://tiktok.com/@dexyy" target="_blank">TikTok</a>
+<!-- ============================================ -->
+<!-- LIVE STATS TICKER -->
+<!-- ============================================ -->
+<div class="relative z-10 border-t border-b border-slate-800/60 bg-slate-950/60 backdrop-blur-sm overflow-hidden">
+  <div class="ticker-inner flex items-center gap-12 py-3 px-4 whitespace-nowrap" style="width: max-content;">
+    <span class="text-xs font-bold text-red-400 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>LIVE STATS</span>
+    <span class="text-xs text-slate-500">TOTAL UTILITIES: <span class="text-cyan-400 font-mono font-bold">35+</span></span>
+    <span class="text-xs text-slate-600">│</span>
+    <span class="text-xs text-slate-500">SPEED SCANNER: <span class="text-green-400 font-mono font-bold">0.02s</span></span>
+    <span class="text-xs text-slate-600">│</span>
+    <span class="text-xs text-slate-500">AVG LATENCY: <span class="text-violet-400 font-mono font-bold">12ms</span></span>
+    <span class="text-xs text-slate-600">│</span>
+    <span class="text-xs text-slate-500">ACTIVE SESSIONS: <span class="text-cyan-400 font-mono font-bold">Live</span></span>
+    <span class="text-xs text-slate-600">│</span>
+    <span class="text-xs text-slate-500">UPTIME: <span class="text-green-400 font-mono font-bold">99.9%</span></span>
+    <span class="text-xs text-slate-600">│</span>
+    <!-- Duplicate for seamless loop -->
+    <span class="text-xs font-bold text-red-400 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>LIVE STATS</span>
+    <span class="text-xs text-slate-500">TOTAL UTILITIES: <span class="text-cyan-400 font-mono font-bold">35+</span></span>
+    <span class="text-xs text-slate-600">│</span>
+    <span class="text-xs text-slate-500">SPEED SCANNER: <span class="text-green-400 font-mono font-bold">0.02s</span></span>
+    <span class="text-xs text-slate-600">│</span>
+    <span class="text-xs text-slate-500">AVG LATENCY: <span class="text-violet-400 font-mono font-bold">12ms</span></span>
+    <span class="text-xs text-slate-600">│</span>
+    <span class="text-xs text-slate-500">ACTIVE SESSIONS: <span class="text-cyan-400 font-mono font-bold">Live</span></span>
+    <span class="text-xs text-slate-600">│</span>
+    <span class="text-xs text-slate-500">UPTIME: <span class="text-green-400 font-mono font-bold">99.9%</span></span>
   </div>
-  <div class="footer-copy">© 2026 ToolHavoc.com — Made by Dexyy</div>
+</div>
+
+<!-- ============================================ -->
+<!-- FOOTER -->
+<!-- ============================================ -->
+<footer class="relative z-10 border-t border-slate-800/60 bg-slate-950/40">
+  <div class="max-w-6xl mx-auto px-4 py-10 text-center">
+    <div class="text-xl font-extrabold bg-gradient-to-r from-cyan-400 to-violet-500 bg-clip-text text-transparent mb-4">⚡ ToolHavoc</div>
+    <div class="flex flex-wrap justify-center gap-6 mb-6">
+      <a href="#tools" class="text-xs text-slate-500 hover:text-slate-300 transition">All Tools</a>
+      <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" onclick="filterCat('computer',document.querySelector('[onclick*=computer]'))">Computer</a>
+      <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" onclick="filterCat('phone',document.querySelector('[onclick*=phone]'))">Phone</a>
+      <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" onclick="filterCat('fun',document.querySelector('[onclick*=fun]'))">Fun</a>
+      <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-slate-300 transition">TikTok</a>
+    </div>
+    <div class="text-[11px] text-slate-600">© 2026 ToolHavoc.com — Made by Dexyy</div>
+  </div>
 </footer>
 
-<!-- AD SLOT BOTTOM -->
-<div class="ad-slot" id="ad-bottom" style="text-align:center;padding:20px 0;margin:20px 0;overflow:hidden">
-<script>
-  atOptions = {
-    'key' : '4eb8d16a9cbab1deebe011d440079990',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
+<!-- ============================================ -->
+<!-- SLOT C: BOTTOM STICKY DISMISSIBLE BANNER -->
+<!-- ============================================ -->
+<!-- ADSTERRA BANNER PLACEMENT -->
+<div id="stickyBanner" class="sticky-banner fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800/60 bg-slate-950/90 backdrop-blur-xl">
+  <div class="ad-sticky flex items-center justify-center py-2 relative">
+    <button onclick="document.getElementById('stickyBanner').classList.add('dismissed')" class="absolute top-1 right-3 text-slate-500 hover:text-slate-300 text-sm font-bold z-10 cursor-pointer" aria-label="Close ad">✕</button>
+    <script>
+      atOptions = {
+        'key' : '4eb8d16a9cbab1deebe011d440079990',
+        'format' : 'iframe',
+        'height' : 250,
+        'width' : 300,
+        'params' : {}
+      };
+    </script>
+    <script src="https://bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
+  </div>
 </div>
 
+<!-- ============================================ -->
+<!-- SCRIPTS -->
+<!-- ============================================ -->
 <script>
-// Floating particles
-function createParticles() {
-  const body = document.body;
-  for (let i = 0; i < 30; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = Math.random() * 100 + '%';
-    p.style.animationDuration = (8 + Math.random() * 12) + 's';
-    p.style.animationDelay = Math.random() * 10 + 's';
-    p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
-    body.appendChild(p);
-  }
-}
-createParticles();
+/* ===== SPLASH LOADER ===== */
+(function() {
+  const splash = document.getElementById('splash-screen');
+  const counter = document.getElementById('loading-counter');
+  const havoc = document.getElementById('splash-havoc');
+  const top = document.getElementById('splash-top');
+  const bottom = document.getElementById('splash-bottom');
+  let start = null;
+  const duration = 1500;
 
-// Scroll reveal
-const reveals = document.querySelectorAll('.reveal');
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
-}, { threshold:0.1 });
-reveals.forEach(el => revealObserver.observe(el));
+  function animateLoader(ts) {
+    if (!start) start = ts;
+    const elapsed = ts - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const pct = Math.round(progress * 100);
 
-// Stagger tool card animations
-const cards = document.querySelectorAll('.tool-card');
-const cardObserver = new IntersectionObserver((entries) => {
-  entries.forEach((e, i) => {
-    if (e.isIntersecting) {
-      setTimeout(() => {
-        e.target.style.opacity = '1';
-        e.target.style.transform = 'translateY(0)';
-      }, i * 50);
+    counter.textContent = pct + '%';
+
+    const scale = 0.92 + (progress * 0.13);
+    havoc.style.transform = 'scale(' + scale + ')';
+
+    if (progress < 1) {
+      requestAnimationFrame(animateLoader);
+    } else {
+      setTimeout(function() {
+        top.style.transform = 'translateY(-100%)';
+        bottom.style.transform = 'translateY(100%)';
+        havoc.style.opacity = '0';
+        counter.style.opacity = '0';
+        setTimeout(function() {
+          splash.remove();
+        }, 900);
+      }, 150);
     }
-  });
-}, { threshold:0.05 });
-cards.forEach(card => {
-  card.style.opacity = '0';
-  card.style.transform = 'translateY(20px)';
-  card.style.transition = 'all 0.4s ease-out';
-  cardObserver.observe(card);
-});
+  }
 
-// Category filter
-function filterCat(cat) {
-  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  document.querySelectorAll('.tool-card').forEach(card => {
+  requestAnimationFrame(animateLoader);
+})();
+
+/* ===== CATEGORY FILTER ===== */
+function filterCat(cat, btn) {
+  // Update pills
+  document.querySelectorAll('.cat-pill').forEach(function(t) { t.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+
+  // Clear search
+  document.getElementById('searchInput').value = '';
+
+  var cards = document.querySelectorAll('.tool-card');
+  cards.forEach(function(card) {
     if (cat === 'all' || card.dataset.cat === cat) {
-      card.style.display = 'block';
-      setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, 50);
+      card.classList.remove('hidden');
+      card.style.opacity = '1';
+      card.style.transform = '';
+      card.style.position = '';
     } else {
       card.style.opacity = '0';
-      card.style.transform = 'translateY(10px)';
-      setTimeout(() => card.style.display = 'none', 300);
+      card.style.transform = 'scale(0.95)';
+      setTimeout(function() {
+        card.classList.add('hidden');
+        card.style.position = 'absolute';
+      }, 300);
     }
   });
 }
 
-// Search filter
+/* ===== SEARCH FILTER ===== */
 function filterTools() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  document.querySelectorAll('.tool-card').forEach(card => {
-    const match = card.dataset.name.includes(q) || card.querySelector('h3').textContent.toLowerCase().includes(q);
-    card.style.display = match ? 'block' : 'none';
-    if (match) { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }
+  var q = document.getElementById('searchInput').value.toLowerCase().trim();
+  var cards = document.querySelectorAll('.tool-card');
+
+  // Reset pills
+  if (q) {
+    document.querySelectorAll('.cat-pill').forEach(function(t) { t.classList.remove('active'); });
+  }
+
+  cards.forEach(function(card) {
+    var name = card.dataset.name || '';
+    var title = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '';
+    var match = !q || name.includes(q) || title.includes(q);
+
+    if (match) {
+      card.classList.remove('hidden');
+      card.style.opacity = '1';
+      card.style.transform = '';
+      card.style.position = '';
+    } else {
+      card.classList.add('hidden');
+      card.style.opacity = '0';
+      card.style.position = 'absolute';
+    }
   });
-  // Reset active tab
-  if (q) document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
 }
 
-// Smooth scroll
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    e.preventDefault();
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+/* ===== SMOOTH SCROLL ===== */
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   });
 });
 </script>
