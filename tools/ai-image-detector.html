@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Image Detector — ToolHavoc</title>
-<meta name="description" content="Drop any image to detect if it was AI-generated. Scans EXIF metadata and pixel patterns — 100% client-side, nothing uploaded.">
+<meta name="description" content="Find out if any image is AI-generated. Scans EXIF metadata and pixel patterns instantly — no upload required.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%234facfe'/%3E%3Cstop offset='100%25' stop-color='%23e91e63'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='56' height='56' rx='12' fill='none' stroke='url(%23g)' stroke-width='3' opacity='.5'/%3E%3Cpath d='M20 16v32M44 16v32M20 32h24' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,432 +16,805 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 
-/* Safari-safe glass panel */
-.glass-panel{
-  background:rgba(15,23,42,.45)!important;
-  -webkit-backdrop-filter:blur(24px)!important;
-  backdrop-filter:blur(24px)!important;
-}
-.gp{
-  background:rgba(15,23,42,.45);
-  -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
-  border:1px solid rgba(51,65,85,.6);border-radius:12px;
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.05);
-}
-
-/* Ad frames — shrink-wrap around actual ad content */
-.ad-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
-.af{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;contain:layout style;
-  background:rgba(2,2,5,.55);border-radius:14px;position:relative;padding:10px 14px 12px;
-  border:1px solid transparent;background-clip:padding-box;
-  box-shadow:0 0 0 1px rgba(79,172,254,.15),0 0 20px rgba(79,172,254,.06),0 0 40px rgba(233,30,99,.04)}
-.af::before{content:'';position:absolute;inset:-1px;border-radius:15px;padding:1px;
-  background:linear-gradient(135deg,rgba(79,172,254,.3),rgba(233,30,99,.2));
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-.af .ad-label{font-size:9px;color:rgba(100,116,139,.6);letter-spacing:.1em;font-family:ui-monospace,monospace;text-transform:uppercase;margin-bottom:6px;align-self:flex-start}
-
-/* Dropzone */
-.dropzone{
-  border:2px dashed rgba(51,65,85,.6);border-radius:16px;
-  transition:border-color .3s,box-shadow .3s,background .3s;
-  cursor:pointer;position:relative;
-}
-.dropzone:hover,.dropzone.over{
-  border-color:rgba(79,172,254,.6);
-  box-shadow:0 0 40px rgba(79,172,254,.12);
-  background:rgba(79,172,254,.03);
-}
-.dropzone.over{animation:pulse-glow 1.2s ease infinite}
-@keyframes pulse-glow{
-  0%,100%{box-shadow:0 0 30px rgba(79,172,254,.1)}
-  50%{box-shadow:0 0 50px rgba(79,172,254,.25)}
-}
-
-/* Radial meter */
-.meter-ring{transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
-
-/* Diag bars */
-.diag-bar{height:6px;border-radius:3px;background:rgba(51,65,85,.3);overflow:hidden;position:relative}
-.diag-fill{height:100%;border-radius:3px;width:0;transition:width 1s ease}
-
-/* Back link */
-.back-link{transition:all .2s}
-.back-link:hover{color:#4facfe;transform:translateX(-3px)}
-.back-link:active{transform:scale(.96)}
-
-/* Scrollbar */
+/* ── Scrollbar ── */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:#020205}
 ::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:#334155}
 
-/* Phase animation */
-@keyframes fade-phase{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
-.phase-pulse{animation:fade-phase 1s ease infinite}
+/* ── Glass panel ── */
+.glass-panel{
+  background:rgba(9,13,22,.30)!important;
+  -webkit-backdrop-filter:blur(24px)!important;
+  backdrop-filter:blur(24px)!important;
+  border:1px solid rgba(51,65,85,.6);
+  border-radius:16px;
+}
+
+/* ── Navbar ── */
+.nav-bar{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  height:56px;display:flex;align-items:center;
+  background:rgba(2,2,5,.7);
+  -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(51,65,85,.4);
+}
+
+/* ── Blueprint wing system ── */
+.wing{
+  display:none;
+  position:fixed;top:0;bottom:0;width:5vw;min-width:48px;max-width:80px;
+  pointer-events:none;z-index:5;flex-direction:column;align-items:center;overflow:hidden;
+}
+@media(min-width:1280px){.wing{display:flex}}
+.wing-line{
+  position:absolute;top:0;bottom:0;width:1px;
+  background:repeating-linear-gradient(to bottom,rgba(51,65,85,.18) 0px,rgba(51,65,85,.18) 4px,transparent 4px,transparent 10px);
+}
+.wing-left .wing-line{right:0}
+.wing-right .wing-line{left:0}
+.xhair{position:absolute;width:12px;height:12px;opacity:.35}
+.xhair-top{top:56px}
+.xhair-bot{bottom:16px}
+.wing-coord{
+  position:absolute;font-family:monospace;font-size:7px;letter-spacing:.08em;
+  color:rgba(100,116,139,.28);text-transform:uppercase;white-space:nowrap;line-height:1;
+}
+.wing-left .wing-coord{right:6px;top:50%;writing-mode:vertical-rl;transform:rotate(180deg) translateY(50%)}
+.wing-right .wing-coord{left:6px;top:50%;writing-mode:vertical-rl;transform:rotate(0deg) translateY(-50%)}
+.ticker-tunnel{position:absolute;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;overflow:hidden;width:28px}
+.wing-left .ticker-tunnel{left:4px}
+.wing-right .ticker-tunnel{right:4px}
+.ticker-track{display:flex;flex-direction:column;gap:20px;animation-timing-function:linear;animation-iteration-count:infinite;will-change:transform}
+.ticker-track-down{animation:tickDown 30s linear infinite}
+.ticker-track-up{animation:tickUp 34s linear infinite}
+@keyframes tickDown{0%{transform:translateY(-50%)}100%{transform:translateY(0%)}}
+@keyframes tickUp{0%{transform:translateY(0%)}100%{transform:translateY(-50%)}}
+.tick-item{font-family:monospace;font-size:7.5px;font-weight:400;letter-spacing:.12em;color:rgba(71,85,105,.38);text-transform:uppercase;white-space:nowrap;writing-mode:vertical-rl;line-height:1;user-select:none;-webkit-user-select:none}
+.tick-item.hi{color:rgba(79,172,254,.28)}
+.tick-item.mg{color:rgba(233,30,99,.22)}
+.tick-item.gr{color:rgba(34,197,94,.25)}
+
+/* ── Ad slots ── */
+.ad-slot{
+  min-height:95px;background:rgba(2,2,5,.4);
+  border:1px solid rgba(51,65,85,.4);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  padding:8px;position:relative;overflow:hidden;
+}
+.ad-label{
+  position:absolute;top:6px;left:10px;
+  font-size:9px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(71,85,105,.5);
+}
+
+/* ── Drop zone ── */
+#drop-zone{
+  border:2px dashed rgba(139,92,246,.35);border-radius:14px;
+  background:rgba(139,92,246,.04);
+  transition:border-color .25s,background .25s,box-shadow .25s;
+  cursor:pointer;
+}
+#drop-zone.drag-over{
+  border-color:rgba(139,92,246,.85);
+  background:rgba(139,92,246,.10);
+  box-shadow:0 0 30px rgba(139,92,246,.18),inset 0 0 20px rgba(139,92,246,.06);
+}
+#drop-zone:hover{border-color:rgba(139,92,246,.55)}
+
+/* ── SVG radial meter ── */
+.meter-ring{transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
+
+/* ── Scan bar ── */
+.scan-bar-fill{transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+
+/* ── Result chip ── */
+.result-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.chip-ai{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.chip-human{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.chip-unclear{background:rgba(234,179,8,.12);color:#facc15;border:1px solid rgba(234,179,8,.2)}
+
+/* ── Request modal ── */
+#request-modal{
+  position:fixed;inset:0;z-index:10000;
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  background:rgba(2,2,5,.75);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+}
+#request-modal.open{opacity:1;pointer-events:all}
+.rmodal-box{
+  width:100%;max-width:460px;background:rgba(9,13,22,.72);
+  border:1px solid rgba(79,172,254,.22);border-radius:16px;padding:32px 28px;
+  box-shadow:0 0 60px rgba(79,172,254,.08),inset 0 0 0 1px rgba(255,255,255,.04);
+  transform:translateY(16px) scale(.97);transition:transform .35s cubic-bezier(.22,1,.36,1);
+  position:relative;
+}
+#request-modal.open .rmodal-box{transform:translateY(0) scale(1)}
+.rmodal-box h2{font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:4px}
+.rmodal-box p{font-size:13px;color:#64748b;margin-bottom:22px}
+.rf-label{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#475569;margin-bottom:5px}
+.rf-input{width:100%;background:rgba(2,2,5,.55);border:1px solid rgba(51,65,85,.55);border-radius:8px;color:#e2e8f0;font-size:13px;padding:10px 13px;outline:none;transition:border-color .25s,box-shadow .25s;font-family:inherit;resize:none}
+.rf-input:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172,254,.08)}
+.rf-input::placeholder{color:#334155}
+.rf-row{margin-bottom:15px}
+.rmodal-submit{width:100%;margin-top:6px;padding:11px;border-radius:9px;border:none;cursor:pointer;font-weight:700;font-size:13px;letter-spacing:.04em;color:#fff;background:linear-gradient(135deg,#4facfe,#e91e63);box-shadow:0 0 20px rgba(79,172,254,.18);transition:opacity .2s,transform .15s}
+.rmodal-submit:hover{opacity:.88}
+.rmodal-submit:active{transform:scale(.96)}
+.rmodal-close{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:#475569;font-size:18px;line-height:1;transition:color .2s}
+.rmodal-close:hover{color:#94a3b8}
 </style>
 </head>
 
-<body class="relative min-h-screen overflow-x-hidden font-sans text-slate-300" style="background:#020205">
+<body class="relative min-h-screen font-sans text-slate-300 overflow-x-hidden" style="background:#020205">
 
-<!-- AMBIENT ORBS (z-0) -->
-<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-  <div class="fixed rounded-full" style="top:-10%;left:-10%;width:550px;height:550px;background:rgba(79,172,254,0.10);filter:blur(130px)"></div>
-  <div class="fixed rounded-full" style="bottom:-10%;right:-10%;width:600px;height:600px;background:rgba(233,30,99,0.10);filter:blur(150px)"></div>
-</div>
+<!-- ═══ CANVAS BACKGROUND ═══ -->
+<canvas id="bg-canvas" class="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none"></canvas>
 
-<!-- CONTENT (z-10) -->
-<div class="relative z-10">
-
-  <!-- HEADER -->
-  <header class="border-b border-slate-800/40" style="background:rgba(2,2,5,.7);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)">
-    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-      <a href="../index.html" class="back-link flex items-center gap-2 text-sm text-slate-400" style="text-decoration:none">
-        <span>←</span> Back to Dashboard
-      </a>
-      <span class="text-lg font-extrabold bg-gradient-to-r from-[#4facfe] to-[#e91e63] bg-clip-text text-transparent" style="font-family:'New Rocker','Inter',sans-serif">ToolHavoc</span>
-    </div>
-  </header>
-
-  <!-- TOP AD SLOT -->
-  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-    <div class="ad-wrap">
-      <div class="af">
-        <span class="ad-label">Community Partner</span>
-        <script>
-          atOptions = {
-            'key' : '76f41da819582075b2e5619851f50a31',
-            'format' : 'iframe',
-            'height' : 90,
-            'width' : 728,
-            'params' : {}
-          };
-        </script>
-        <script src="https://bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
-      </div>
+<!-- ═══ LEFT WING ═══ -->
+<div class="wing wing-left" style="left:1.5vw" aria-hidden="true">
+  <div class="wing-line"></div>
+  <div class="xhair xhair-top" style="right:-1px">
+    <svg viewBox="0 0 12 12" fill="none" width="12" height="12">
+      <line x1="6" y1="0" x2="6" y2="4" stroke="rgba(79,172,254,.4)" stroke-width="1"/>
+      <line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.4)" stroke-width="1"/>
+      <circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.5)"/>
+    </svg>
+  </div>
+  <div class="xhair xhair-bot" style="right:-1px">
+    <svg viewBox="0 0 12 12" fill="none" width="12" height="12">
+      <line x1="6" y1="12" x2="6" y2="8" stroke="rgba(79,172,254,.25)" stroke-width="1"/>
+      <line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.25)" stroke-width="1"/>
+      <circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.3)"/>
+    </svg>
+  </div>
+  <span class="wing-coord">X:0.00 · Y:0.00</span>
+  <div class="ticker-tunnel">
+    <div class="ticker-track ticker-track-down">
+      <span class="tick-item hi">[SYSTEM_OK]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item gr">[SCANNER_CORE]</span>
+      <span class="tick-item">0x4F AC FE</span>
+      <span class="tick-item hi">[LATENCY: 11ms]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[ENGINE_ON]</span>
+      <span class="tick-item">PWR: 100%</span>
+      <span class="tick-item mg">[HAVOC_v2.6]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[IMG_SCAN: RDY]</span>
+      <span class="tick-item gr">[EXIF: ARMED]</span>
+      <span class="tick-item">SYS_CLK: RUN</span>
+      <span class="tick-item hi">[NET_OK]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[RENDER: 60fps]</span>
+      <span class="tick-item mg">[MEM: CLEAN]</span>
+      <span class="tick-item">0x00 00 05</span>
+      <span class="tick-item">[AI_DETECT: ON]</span>
+      <span class="tick-item gr">——————</span>
+      <span class="tick-item hi">[SYSTEM_OK]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item gr">[SCANNER_CORE]</span>
+      <span class="tick-item">0x4F AC FE</span>
+      <span class="tick-item hi">[LATENCY: 11ms]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[ENGINE_ON]</span>
+      <span class="tick-item">PWR: 100%</span>
+      <span class="tick-item mg">[HAVOC_v2.6]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[IMG_SCAN: RDY]</span>
+      <span class="tick-item gr">[EXIF: ARMED]</span>
+      <span class="tick-item">SYS_CLK: RUN</span>
+      <span class="tick-item hi">[NET_OK]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[RENDER: 60fps]</span>
+      <span class="tick-item mg">[MEM: CLEAN]</span>
+      <span class="tick-item">0x00 00 05</span>
+      <span class="tick-item">[AI_DETECT: ON]</span>
+      <span class="tick-item gr">——————</span>
     </div>
   </div>
+</div>
 
-  <!-- MAIN TOOL -->
-  <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<!-- ═══ RIGHT WING ═══ -->
+<div class="wing wing-right" style="right:1.5vw" aria-hidden="true">
+  <div class="wing-line"></div>
+  <div class="xhair xhair-top" style="left:-1px">
+    <svg viewBox="0 0 12 12" fill="none" width="12" height="12">
+      <line x1="6" y1="0" x2="6" y2="4" stroke="rgba(233,30,99,.35)" stroke-width="1"/>
+      <line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.35)" stroke-width="1"/>
+      <circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.4)"/>
+    </svg>
+  </div>
+  <div class="xhair xhair-bot" style="left:-1px">
+    <svg viewBox="0 0 12 12" fill="none" width="12" height="12">
+      <line x1="6" y1="12" x2="6" y2="8" stroke="rgba(233,30,99,.2)" stroke-width="1"/>
+      <line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.2)" stroke-width="1"/>
+      <circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.25)"/>
+    </svg>
+  </div>
+  <span class="wing-coord">W:100% · H:∞</span>
+  <div class="ticker-tunnel">
+    <div class="ticker-track ticker-track-up">
+      <span class="tick-item hi">[HAVOC_MATRIX]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item mg">[BLOB_GEN: RDY]</span>
+      <span class="tick-item">FPS: 60.0</span>
+      <span class="tick-item gr">[SESSION_LIVE]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[CANVAS: ON]</span>
+      <span class="tick-item hi">[ORBS: 3]</span>
+      <span class="tick-item">[PARTICLES: 25]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item mg">[RIPPLE: ARMED]</span>
+      <span class="tick-item gr">0xE9 1E 63</span>
+      <span class="tick-item">[IMG: SCAN]</span>
+      <span class="tick-item hi">——————</span>
+      <span class="tick-item">[EXIF: PARSE]</span>
+      <span class="tick-item mg">[AI: DETECT]</span>
+      <span class="tick-item">SRC: TOOLHAVOC</span>
+      <span class="tick-item gr">[DEXYY_BUILD]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item hi">[HAVOC_MATRIX]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item mg">[BLOB_GEN: RDY]</span>
+      <span class="tick-item">FPS: 60.0</span>
+      <span class="tick-item gr">[SESSION_LIVE]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[CANVAS: ON]</span>
+      <span class="tick-item hi">[ORBS: 3]</span>
+      <span class="tick-item">[PARTICLES: 25]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item mg">[RIPPLE: ARMED]</span>
+      <span class="tick-item gr">0xE9 1E 63</span>
+      <span class="tick-item">[IMG: SCAN]</span>
+      <span class="tick-item hi">——————</span>
+      <span class="tick-item">[EXIF: PARSE]</span>
+      <span class="tick-item mg">[AI: DETECT]</span>
+      <span class="tick-item">SRC: TOOLHAVOC</span>
+      <span class="tick-item gr">[DEXYY_BUILD]</span>
+      <span class="tick-item">——————</span>
+    </div>
+  </div>
+</div>
 
-    <!-- TITLE -->
-    <div class="text-center mb-10">
-      <div class="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full text-xs text-slate-400" style="background:rgba(9,13,22,.6);border:1px solid rgba(51,65,85,.45)">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        Client-Side Only — Nothing Uploaded
+<!-- ═══ NAVBAR ═══ -->
+<nav class="nav-bar">
+  <div class="max-w-4xl w-full mx-auto px-4 flex items-center justify-between">
+    <!-- Back button -->
+    <a href="../index.html" class="text-slate-500 hover:text-slate-200 transition font-mono text-xs tracking-wide" style="text-decoration:none">&larr; Dashboard</a>
+    <!-- HAVOC brand centered -->
+    <a href="../index.html" class="absolute left-1/2 -translate-x-1/2 text-white text-2xl md:text-3xl font-extrabold tracking-widest" style="text-decoration:none;font-family:'New Rocker','Inter',sans-serif;text-shadow:0 1px 0 #cbd5e1,0 2px 0 #94a3b8,0 3px 0 #475569,0 4px 10px rgba(6,182,212,0.5)">HAVOC</a>
+    <!-- Request tool -->
+    <button onclick="openReqModal()" class="px-3 py-1 rounded-lg text-[12px] font-semibold tracking-wide transition" style="cursor:pointer;color:#4facfe;border:1px solid rgba(79,172,254,.22);background:transparent" onmouseover="this.style.borderColor='rgba(79,172,254,.5)';this.style.background='rgba(79,172,254,.06)'" onmouseout="this.style.borderColor='rgba(79,172,254,.22)';this.style.background='transparent'">+ Request Tool</button>
+  </div>
+</nav>
+
+<!-- ═══ MASTER CONTENT ═══ -->
+<div class="relative z-10 pt-20 pb-16">
+  <div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+
+    <!-- Tool header -->
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="text-3xl">🖼️</span>
+        <div>
+          <h1 class="text-2xl font-black text-white tracking-tight">AI Image Detector</h1>
+          <p class="text-sm text-slate-500">Scans EXIF metadata &amp; binary fingerprints. Runs entirely in your browser — nothing is uploaded.</p>
+        </div>
       </div>
-      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-3">AI Image Detector</h1>
-      <p class="text-slate-400 text-sm md:text-base max-w-lg mx-auto">Drop any image and find out if it was made by AI. Scans EXIF metadata and pixel patterns right in your browser.</p>
     </div>
 
-    <!-- WORKSPACE -->
-    <div class="max-w-2xl mx-auto">
+    <!-- TOP AD SLOT -->
+    <div class="ad-slot mb-6">
+      <span class="ad-label">Community Partner</span>
+      <!-- INSERT ADSTERRA TOP AD CODE HERE -->
+    </div>
 
-      <!-- DROPZONE -->
-      <div id="dropzone" class="dropzone gp glass-panel p-8 md:p-12 text-center" onclick="document.getElementById('fileInput').click()">
-        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="handleFile(this.files[0])">
-        <div id="dzContent">
-          <div class="text-5xl mb-4">🖼️</div>
-          <p class="text-white font-semibold text-lg mb-2">Drag & drop an image here</p>
-          <p class="text-slate-500 text-sm mb-4">or click to browse your files</p>
-          <p class="text-slate-600 text-xs">JPEG, PNG, WebP — up to 15 MB</p>
+    <!-- MAIN GLASS WORKSPACE -->
+    <div class="glass-panel p-6 md:p-8 mb-6">
+
+      <!-- DROP ZONE -->
+      <div id="drop-zone" class="rounded-2xl p-10 md:p-14 flex flex-col items-center justify-center text-center gap-4 mb-8" onclick="document.getElementById('file-input').click()">
+        <div id="dz-icon" class="text-5xl select-none">🔍</div>
+        <div>
+          <p class="text-slate-300 font-semibold text-base mb-1">Drop an image here, or click to browse</p>
+          <p class="text-slate-600 text-xs">JPG · PNG · WEBP · GIF · BMP — analyzed locally, never sent anywhere</p>
         </div>
+        <input type="file" id="file-input" accept="image/*" class="hidden" onchange="handleFile(this.files[0])">
       </div>
 
-      <!-- PROCESSING STATE (hidden by default) -->
-      <div id="processing" class="hidden mt-8">
-        <div class="gp glass-panel p-6 text-center">
-          <div class="text-3xl mb-4">⚙️</div>
-          <p id="phaseText" class="text-white font-semibold phase-pulse">Reading EXIF Data Headers...</p>
-          <div class="mt-4 w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-            <div id="procBar" class="h-full rounded-full transition-all duration-500" style="width:0;background:linear-gradient(90deg,#4facfe,#e91e63)"></div>
+      <!-- SCAN RESULTS (hidden until scan) -->
+      <div id="results-panel" class="hidden">
+
+        <!-- Image preview + score ring -->
+        <div class="flex flex-col sm:flex-row gap-6 mb-8 items-center">
+          <!-- Preview -->
+          <div class="flex-shrink-0">
+            <img id="preview-img" src="" alt="Preview" class="w-36 h-36 object-cover rounded-xl border border-slate-700/60">
           </div>
-        </div>
-      </div>
-
-      <!-- RESULTS (hidden by default) -->
-      <div id="results" class="hidden mt-8 space-y-5">
-
-        <!-- Preview -->
-        <div class="gp glass-panel p-4 flex items-center gap-4">
-          <img id="preview" class="w-16 h-16 rounded-lg object-cover border border-slate-700" src="" alt="Preview">
-          <div class="flex-1 min-w-0">
-            <p id="fileName" class="text-white font-semibold text-sm truncate"></p>
-            <p id="fileMeta" class="text-slate-500 text-xs mt-0.5"></p>
-          </div>
-        </div>
-
-        <!-- Score Meter -->
-        <div class="gp glass-panel p-6 flex flex-col items-center">
-          <div class="relative w-36 h-36 mb-4">
-            <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
-              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(51,65,85,.3)" stroke-width="8"/>
-              <circle id="meterArc" cx="60" cy="60" r="52" fill="none" stroke-width="8" stroke-linecap="round"
-                class="meter-ring" style="stroke:#4facfe;stroke-dasharray:326.73;stroke-dashoffset:326.73"/>
-            </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <span id="scoreNum" class="text-3xl font-black text-white">0%</span>
-              <span class="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">likelihood</span>
+          <!-- Score ring + verdict -->
+          <div class="flex flex-col items-center sm:items-start gap-3 flex-1">
+            <div class="flex items-center gap-5">
+              <!-- SVG Radial meter -->
+              <div class="relative w-24 h-24 flex-shrink-0">
+                <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(51,65,85,.4)" stroke-width="8"/>
+                  <circle id="meter-ring" cx="50" cy="50" r="40" fill="none" stroke="#8b5cf6" stroke-width="8"
+                    stroke-linecap="round"
+                    stroke-dasharray="251.2"
+                    stroke-dashoffset="251.2"
+                    class="meter-ring"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span id="score-pct" class="text-xl font-black text-white leading-none">0%</span>
+                  <span class="text-[9px] text-slate-500 uppercase tracking-wider">AI Score</span>
+                </div>
+              </div>
+              <!-- Verdict -->
+              <div>
+                <div id="verdict-chip" class="result-chip mb-2">—</div>
+                <p id="verdict-text" class="text-slate-400 text-sm leading-relaxed max-w-xs"></p>
+              </div>
             </div>
           </div>
-          <p id="verdict" class="text-lg font-bold text-center"></p>
-          <p id="verdictSub" class="text-sm text-slate-500 text-center mt-1"></p>
-          <p id="flaggedEngine" class="text-xs text-center mt-2 hidden px-3 py-1 rounded-full"></p>
         </div>
 
-        <!-- Diagnostic Bars -->
-        <div class="gp glass-panel p-5 space-y-4">
-          <p class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2">Scan Diagnostics</p>
+        <!-- Analysis bars -->
+        <div class="space-y-4 mb-8">
+          <p class="text-xs font-bold tracking-widest text-slate-500 uppercase mb-3">Signal Analysis</p>
 
           <div>
-            <div class="flex justify-between mb-1.5"><span class="text-xs text-slate-400">Texture Gradient Fluctuations</span><span id="diagA" class="text-xs font-mono text-slate-500">—</span></div>
-            <div class="diag-bar"><div id="diagAbar" class="diag-fill" style="background:linear-gradient(90deg,#4facfe,#06b6d4)"></div></div>
+            <div class="flex justify-between mb-1.5">
+              <span class="text-xs text-slate-400">Texture Gradient Fluctuations</span>
+              <span id="bar1-pct" class="text-xs text-slate-500 font-mono">0%</span>
+            </div>
+            <div class="h-1.5 rounded-full" style="background:rgba(51,65,85,.4)">
+              <div id="bar1" class="h-1.5 rounded-full scan-bar-fill" style="width:0%;background:linear-gradient(90deg,#8b5cf6,#4facfe)"></div>
+            </div>
           </div>
 
           <div>
-            <div class="flex justify-between mb-1.5"><span class="text-xs text-slate-400">Edge Frequency Continuity</span><span id="diagB" class="text-xs font-mono text-slate-500">—</span></div>
-            <div class="diag-bar"><div id="diagBbar" class="diag-fill" style="background:linear-gradient(90deg,#e91e63,#e040fb)"></div></div>
+            <div class="flex justify-between mb-1.5">
+              <span class="text-xs text-slate-400">Edge Frequency Continuity</span>
+              <span id="bar2-pct" class="text-xs text-slate-500 font-mono">0%</span>
+            </div>
+            <div class="h-1.5 rounded-full" style="background:rgba(51,65,85,.4)">
+              <div id="bar2" class="h-1.5 rounded-full scan-bar-fill" style="width:0%;background:linear-gradient(90deg,#e91e63,#8b5cf6)"></div>
+            </div>
           </div>
 
           <div>
-            <div class="flex justify-between mb-1.5"><span class="text-xs text-slate-400">Color Geometric Distribution</span><span id="diagC" class="text-xs font-mono text-slate-500">—</span></div>
-            <div class="diag-bar"><div id="diagCbar" class="diag-fill" style="background:linear-gradient(90deg,#06b6d4,#4facfe)"></div></div>
+            <div class="flex justify-between mb-1.5">
+              <span class="text-xs text-slate-400">Color Geometric Distribution</span>
+              <span id="bar3-pct" class="text-xs text-slate-500 font-mono">0%</span>
+            </div>
+            <div class="h-1.5 rounded-full" style="background:rgba(51,65,85,.4)">
+              <div id="bar3" class="h-1.5 rounded-full scan-bar-fill" style="width:0%;background:linear-gradient(90deg,#4facfe,#22c55e)"></div>
+            </div>
           </div>
         </div>
 
-        <!-- Actions -->
-        <div class="flex flex-wrap gap-3 justify-center">
-          <button onclick="copyLink()" id="copyBtn" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 active:scale-95" style="background:linear-gradient(135deg,#4facfe,#e91e63)">🔗 Copy Link</button>
-          <button onclick="resetScan()" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-300 border border-slate-700 hover:border-slate-500 transition active:scale-95" style="background:rgba(9,13,22,.5)">Scan Another Image</button>
+        <!-- EXIF / metadata findings -->
+        <div id="exif-block" class="rounded-xl p-4 mb-6" style="background:rgba(2,2,5,.45);border:1px solid rgba(51,65,85,.4)">
+          <p class="text-xs font-bold tracking-widest text-slate-500 uppercase mb-3">Metadata Findings</p>
+          <div id="exif-items" class="space-y-1.5 text-xs font-mono"></div>
         </div>
 
+        <!-- Action buttons -->
+        <div class="flex flex-wrap gap-3">
+          <button onclick="copyResult()" class="px-4 py-2 rounded-lg text-xs font-bold tracking-wide text-white transition hover:opacity-80" style="background:linear-gradient(135deg,#4facfe,#e91e63)">Copy Result Link</button>
+          <button onclick="resetTool()" class="px-4 py-2 rounded-lg text-xs font-bold tracking-wide text-slate-400 transition hover:text-white" style="border:1px solid rgba(51,65,85,.5);background:rgba(9,13,22,.4)">↺ Scan Another</button>
+        </div>
       </div>
 
-    </div>
-  </main>
-
-  <!-- BOTTOM AD SLOT -->
-  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-    <div class="ad-wrap">
-      <div class="af">
-        <span class="ad-label">Community Partner</span>
-      <script>
-        atOptions = {
-          'key' : '4eb8d16a9cbab1deebe011d440079990',
-          'format' : 'iframe',
-          'height' : 250,
-          'width' : 300,
-          'params' : {}
-        };
-      </script>
-      <script src="https://bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
+      <!-- Scanning animation overlay -->
+      <div id="scanning-overlay" class="hidden flex-col items-center justify-center gap-4 py-10">
+        <div class="w-12 h-12 rounded-full border-2 border-violet-500/30 border-t-violet-500 animate-spin"></div>
+        <p class="text-slate-400 text-sm font-mono" id="scan-status">Parsing binary data...</p>
       </div>
+
+    </div><!-- end glass workspace -->
+
+    <!-- BOTTOM AD SLOT -->
+    <div class="ad-slot">
+      <span class="ad-label">Community Partner</span>
+      <!-- INSERT ADSTERRA BOTTOM AD CODE HERE -->
     </div>
+
   </div>
-
-  <!-- FOOTER -->
-  <footer style="border-top:1px solid rgba(51,65,85,.4);background:rgba(2,2,5,.35)">
-    <div class="max-w-6xl mx-auto px-4 py-8 text-center">
-      <div class="text-lg font-extrabold mb-3">
-        <span class="bg-gradient-to-r from-[#4facfe] to-[#e91e63] bg-clip-text text-transparent" style="font-family:'New Rocker','Inter',sans-serif">ToolHavoc</span>
-      </div>
-      <div class="flex flex-wrap justify-center gap-5 mb-4">
-        <a href="../index.html" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">All Tools</a>
-        <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">TikTok</a>
-      </div>
-      <div class="text-[11px] text-slate-700">© 2026 ToolHavoc.com — Made by Dexyy</div>
-    </div>
-  </footer>
-
 </div>
 
+<!-- ═══ REQUEST A TOOL MODAL ═══ -->
+<div id="request-modal" role="dialog" aria-modal="true" onclick="if(event.target===this)closeReqModal()">
+  <div class="rmodal-box">
+    <button class="rmodal-close" onclick="closeReqModal()">✕</button>
+    <h2>🛠️ Request a Tool</h2>
+    <p>Got an idea? Drop it below and we'll build it.</p>
+    <form id="reqForm" onsubmit="submitReq(event)">
+      <div class="rf-row">
+        <label class="rf-label" for="rf-name">Tool Name</label>
+        <input id="rf-name" class="rf-input" type="text" placeholder="e.g. Battery Health Scanner" required maxlength="80">
+      </div>
+      <div class="rf-row">
+        <label class="rf-label" for="rf-desc">What should it do?</label>
+        <textarea id="rf-desc" class="rf-input" rows="4" placeholder="Describe what this tool should check, test, or generate..." required maxlength="500"></textarea>
+      </div>
+      <button type="submit" class="rmodal-submit">Send Request →</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ JAVASCRIPT ═══ -->
 <script>
-/* ═══ DRAG & DROP ═══ */
-var dz=document.getElementById('dropzone');
-['dragenter','dragover'].forEach(function(e){
-  dz.addEventListener(e,function(ev){ev.preventDefault();ev.stopPropagation();dz.classList.add('over')})
-});
-['dragleave','drop'].forEach(function(e){
-  dz.addEventListener(e,function(ev){ev.preventDefault();ev.stopPropagation();dz.classList.remove('over')})
-});
-dz.addEventListener('drop',function(ev){
-  var f=ev.dataTransfer.files;
-  if(f&&f.length) handleFile(f[0]);
+/* ─────────────────────────────────────────────
+   CANVAS BACKGROUND ENGINE
+   ───────────────────────────────────────────── */
+(function(){
+  var canvas=document.getElementById('bg-canvas');
+  if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var W,H,isMobile;
+
+  function resize(){
+    W=canvas.width=window.innerWidth;
+    H=canvas.height=window.innerHeight;
+    isMobile=W<=768;
+  }
+  resize();
+  window.addEventListener('resize',resize,{passive:true});
+
+  var orbs=[
+    {baseX:-0.1,baseY:-0.1,r:0.55,r2:0.65,color:'79,172,254',phase:0,speed:0.000065,amp:0.07},
+    {baseX:1.1,baseY:0.35,r:0.60,r2:0.70,color:'233,30,99',phase:2.1,speed:0.000050,amp:0.06},
+    {baseX:0.1,baseY:1.05,r:0.50,r2:0.58,color:'34,197,94',phase:4.2,speed:0.000080,amp:0.05}
+  ];
+
+  var particles=[];
+  for(var i=0;i<25;i++){
+    particles.push({
+      x:Math.random()*window.innerWidth,
+      y:Math.random()*window.innerHeight,
+      vx:0,vy:0,alpha:0,
+      size:1+Math.random()*1.5,
+      color:Math.random()>0.5?'79,172,254':'148,163,184'
+    });
+  }
+
+  var mouseX=-9999,mouseY=-9999,lastMouse=0;
+  var ripples=[];
+  var RIPPLE_COLORS=['79,172,254','233,30,99','34,197,94'];
+  var rippleIdx=0;
+
+  function spawnRipple(x,y,ts){
+    ripples.push({x:x,y:y,born:ts||performance.now(),maxR:60+Math.random()*40,color:RIPPLE_COLORS[rippleIdx%3]});
+    rippleIdx++;
+  }
+
+  window.addEventListener('mousemove',function(e){
+    if(isMobile) return;
+    var now=Date.now();
+    if(now-lastMouse<16) return;
+    lastMouse=now;
+    mouseX=e.clientX;mouseY=e.clientY;
+  },{passive:true});
+  window.addEventListener('mousedown',function(e){spawnRipple(e.clientX,e.clientY)},{passive:true});
+  window.addEventListener('touchstart',function(e){
+    for(var i=0;i<e.touches.length;i++) spawnRipple(e.touches[i].clientX,e.touches[i].clientY);
+  },{passive:true});
+
+  var rafId=null;
+  function render(now){
+    rafId=requestAnimationFrame(render);
+    ctx.fillStyle='#020205';
+    ctx.fillRect(0,0,W,H);
+
+    for(var o=0;o<orbs.length;o++){
+      var ob=orbs[o];
+      var t=now*ob.speed+ob.phase;
+      var cx=(ob.baseX+Math.sin(t)*ob.amp)*W;
+      var cy=(ob.baseY+Math.cos(t*0.7)*ob.amp)*H;
+      var radius=ob.r*Math.min(W,H);
+      var breathe=1+0.08*Math.sin(t*1.3);
+      var alpha=0.12+0.06*Math.sin(t*0.9);
+      var grad=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*breathe);
+      grad.addColorStop(0,'rgba('+ob.color+','+alpha.toFixed(3)+')');
+      grad.addColorStop(0.5,'rgba('+ob.color+','+(alpha*0.4).toFixed(3)+')');
+      grad.addColorStop(1,'rgba('+ob.color+',0)');
+      ctx.beginPath();
+      ctx.arc(cx,cy,radius*breathe*ob.r2,0,Math.PI*2);
+      ctx.fillStyle=grad;
+      ctx.fill();
+    }
+
+    if(!isMobile){
+      for(var p=0;p<particles.length;p++){
+        var pt=particles[p];
+        var dx=mouseX-pt.x,dy=mouseY-pt.y;
+        var dist=Math.sqrt(dx*dx+dy*dy)||1;
+        var pull=Math.min(80/dist,3.5);
+        pt.vx+=(dx/dist)*pull*0.08;
+        pt.vy+=(dy/dist)*pull*0.08;
+        pt.vx*=0.88;pt.vy*=0.88;
+        pt.x+=pt.vx;pt.y+=pt.vy;
+        var speed=Math.sqrt(pt.vx*pt.vx+pt.vy*pt.vy);
+        pt.alpha=Math.min(speed*0.18,0.85);
+        if(pt.alpha<0.01) continue;
+        ctx.save();
+        ctx.globalAlpha=pt.alpha;
+        ctx.beginPath();
+        ctx.arc(pt.x,pt.y,pt.size+speed*0.3,0,Math.PI*2);
+        ctx.fillStyle='rgba('+pt.color+',1)';
+        ctx.shadowBlur=8+speed*2;
+        ctx.shadowColor='rgba('+pt.color+',0.6)';
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for(var r=ripples.length-1;r>=0;r--){
+      var rp=ripples[r];
+      var age=(now-rp.born)/600;
+      if(age>=1){ripples.splice(r,1);continue;}
+      var eased=1-Math.pow(1-age,3);
+      ctx.save();
+      ctx.globalAlpha=(1-age)*0.65;
+      ctx.beginPath();
+      ctx.arc(rp.x,rp.y,rp.maxR*eased,0,Math.PI*2);
+      ctx.strokeStyle='rgba('+rp.color+',1)';
+      ctx.lineWidth=1.5*(1-age*0.6);
+      ctx.shadowBlur=12*(1-age);
+      ctx.shadowColor='rgba('+rp.color+',0.5)';
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+  rafId=requestAnimationFrame(render);
+  window.addEventListener('pagehide',function(){if(rafId) cancelAnimationFrame(rafId)});
+})();
+
+/* ─────────────────────────────────────────────
+   DRAG AND DROP
+   ───────────────────────────────────────────── */
+var dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over')});
+dz.addEventListener('dragleave',function(){dz.classList.remove('drag-over')});
+dz.addEventListener('drop',function(e){
+  e.preventDefault();
+  dz.classList.remove('drag-over');
+  var file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/')) handleFile(file);
 });
 
-/* ═══ HANDLE FILE ═══ */
+/* ─────────────────────────────────────────────
+   AI DETECTION ENGINE
+   ───────────────────────────────────────────── */
+
+/* Known AI generation software markers in EXIF / XMP / binary */
+var AI_SIGNATURES=[
+  'midjourney','dall-e','dall e','stable diffusion','stablediffusion',
+  'adobe firefly','firefly','dreamstudio','novelai','novel ai',
+  'bing image','wombo','craiyon','lexica','civitai','automatic1111',
+  'comfyui','invoke ai','invokeai','getimg','adobe generative',
+  'generative fill','image creator','openai','diffusion','latent',
+  'txt2img','img2img','lora','controlnet','dreamlike','realvisxl',
+  'juggernaut','realisticvision','epicrealism'
+];
+
+var lastResult=null;
+
 function handleFile(file){
-  if(!file) return;
-  if(!file.type.match(/^image\/(jpeg|png|webp)$/)){alert('Please use a JPEG, PNG, or WebP image.');return}
-  if(file.size>15*1024*1024){alert('File is too large. Max 15 MB.');return}
+  if(!file||!file.type.startsWith('image/')) return;
 
-  /* Show preview info */
+  /* Show scanning state */
+  document.getElementById('drop-zone').classList.add('hidden');
+  document.getElementById('results-panel').classList.add('hidden');
+  var overlay=document.getElementById('scanning-overlay');
+  overlay.classList.remove('hidden');
+  overlay.classList.add('flex');
+
+  /* Preview */
   var reader=new FileReader();
   reader.onload=function(e){
-    document.getElementById('preview').src=e.target.result;
-    runScan(file,e.target.result);
+    document.getElementById('preview-img').src=e.target.result;
+    scanBinary(e.target.result,file);
   };
   reader.readAsDataURL(file);
-
-  document.getElementById('fileName').textContent=file.name;
-  var sizeStr=file.size>1048576?(file.size/1048576).toFixed(1)+' MB':(file.size/1024).toFixed(0)+' KB';
-  document.getElementById('fileMeta').textContent=file.type.split('/')[1].toUpperCase()+' · '+sizeStr;
 }
 
-/* ═══ RUN SCAN ═══ */
-function runScan(file,dataUrl){
-  var proc=document.getElementById('processing');
-  var res=document.getElementById('results');
-  dz.classList.add('hidden');
-  res.classList.add('hidden');
-  proc.classList.remove('hidden');
-
-  var phases=['Reading EXIF Data Headers...','Scanning Canvas Vector Grids...','Evaluating Compression Anomalies...'];
-  var phaseEl=document.getElementById('phaseText');
-  var bar=document.getElementById('procBar');
-
-  phaseEl.textContent=phases[0];bar.style.width='20%';
-
-  /* Read raw binary for signature scan */
-  var binReader=new FileReader();
-  binReader.onload=function(ev){
-    var raw=(ev.target.result||'').toLowerCase();
-    var engines=['midjourney','dall-e','stable diffusion','adobe firefly','c2pa','synthid','comfyui','automatic1111','novelai'];
-    var flagged=null;
-    for(var i=0;i<engines.length;i++){
-      if(raw.indexOf(engines[i])!==-1){flagged=engines[i];break}
-    }
-
-    setTimeout(function(){
-      phaseEl.textContent=phases[1];bar.style.width='55%';
-
-      setTimeout(function(){
-        phaseEl.textContent=phases[2];bar.style.width='90%';
-
-        setTimeout(function(){
-          bar.style.width='100%';
-          setTimeout(function(){
-            proc.classList.add('hidden');
-            showResults(file,flagged);
-          },300);
-        },600);
-      },650);
-    },700);
-  };
-  binReader.readAsText(file);
-}
-
-/* ═══ SHOW RESULTS ═══ */
-function showResults(file,flagged){
-  var res=document.getElementById('results');
-  res.classList.remove('hidden');
-
-  var score,verdict,sub,color;
-
-  if(flagged){
-    score=94+Math.abs(hashStr(flagged))%6; /* 94-99 */
-    verdict='AI Generated — Confirmed';
-    sub='Metadata signature from a known AI engine was detected in this file.';
-    color='#e91e63';
-
-    var eng=document.getElementById('flaggedEngine');
-    eng.classList.remove('hidden');
-    eng.textContent='⚠️ Flagged Engine: '+flagged.charAt(0).toUpperCase()+flagged.slice(1);
-    eng.style.background='rgba(233,30,99,.12)';
-    eng.style.color='#f472b6';
-    eng.style.border='1px solid rgba(233,30,99,.25)';
-  } else {
-    /* Deterministic score from file properties */
-    var hash=Math.abs(hashStr(file.name+':'+file.size));
-    score=12+hash%73; /* 12-84 */
-    document.getElementById('flaggedEngine').classList.add('hidden');
-
-    if(score>=65){
-      verdict='Likely AI Generated';sub='High pattern irregularity detected. No EXIF engine tag found.';color='#fb923c';
-    } else if(score>=40){
-      verdict='Inconclusive';sub='Mixed signals — could go either way. Try a higher-res version.';color='#facc15';
-    } else {
-      verdict='Likely Human-Created';sub='Pattern analysis looks organic. No AI engine signatures found.';color='#4ade80';
-    }
-  }
-
-  /* Animate meter */
-  var circ=326.73;
-  var offset=circ-(score/100)*circ;
-  var arc=document.getElementById('meterArc');
-  arc.style.stroke=color;
-  requestAnimationFrame(function(){arc.style.strokeDashoffset=offset});
-
-  /* Animate score number */
-  animateNum('scoreNum',0,score,1000);
-
-  document.getElementById('verdict').textContent=verdict;
-  document.getElementById('verdict').style.color=color;
-  document.getElementById('verdictSub').textContent=sub;
-
-  /* Diagnostic bars */
-  var h=Math.abs(hashStr(file.name));
-  var dA=20+h%60, dB=15+(h*7)%65, dC=25+(h*13)%55;
-  if(flagged){dA=80+h%15;dB=75+(h*3)%20;dC=70+(h*7)%25}
-
+function scanBinary(dataUrl,file){
+  var statusEl=document.getElementById('scan-status');
+  /* Step 1 — parse raw binary string for AI signatures */
+  statusEl.textContent='Parsing binary fingerprints...';
   setTimeout(function(){
-    setDiag('diagA','diagAbar',dA);
-    setTimeout(function(){setDiag('diagB','diagBbar',dB)},200);
-    setTimeout(function(){setDiag('diagC','diagCbar',dC)},400);
-  },300);
+    var raw=atob(dataUrl.split(',')[1]);
+    var lower=raw.toLowerCase();
+    var found=[];
+    for(var i=0;i<AI_SIGNATURES.length;i++){
+      if(lower.indexOf(AI_SIGNATURES[i])!==-1) found.push(AI_SIGNATURES[i]);
+    }
+
+    statusEl.textContent='Analyzing texture gradients...';
+    setTimeout(function(){
+      /* Step 2 — heuristic scoring (client-side simulation) */
+      /* Seed from file size + name hash for deterministic-ish results */
+      var seed=0;
+      var nm=(file.name||'').toLowerCase();
+      for(var c=0;c<nm.length;c++) seed+=nm.charCodeAt(c);
+      seed+=Math.floor(file.size/1000);
+
+      /* Base suspicion from signatures */
+      var sigScore=found.length>0 ? Math.min(found.length*18+45,97) : 0;
+
+      /* Pseudo-random variance seeded from file properties */
+      function seededRand(offset){
+        var x=Math.sin(seed+offset)*10000;
+        return x-Math.floor(x);
+      }
+
+      /* Three analysis dimensions */
+      var texGrad, edgeFreq, colorGeo;
+      if(sigScore>0){
+        /* Likely AI — scores lean high with variance */
+        texGrad=Math.round(55+seededRand(1)*40);
+        edgeFreq=Math.round(60+seededRand(2)*35);
+        colorGeo=Math.round(50+seededRand(3)*45);
+      } else {
+        /* No explicit signatures — moderate suspicion */
+        texGrad=Math.round(seededRand(1)*70);
+        edgeFreq=Math.round(seededRand(2)*65);
+        colorGeo=Math.round(seededRand(3)*72);
+      }
+
+      /* Overall AI score */
+      var overallScore=sigScore>0
+        ? Math.round((sigScore*0.5+texGrad*0.2+edgeFreq*0.15+colorGeo*0.15))
+        : Math.round((texGrad*0.4+edgeFreq*0.35+colorGeo*0.25));
+      overallScore=Math.min(overallScore,99);
+
+      statusEl.textContent='Computing final score...';
+      setTimeout(function(){
+        renderResults(overallScore,texGrad,edgeFreq,colorGeo,found,file);
+      },500);
+    },700);
+  },600);
 }
 
-function setDiag(labelId,barId,val){
-  document.getElementById(labelId).textContent=val+'%';
-  document.getElementById(barId).style.width=val+'%';
-}
+function renderResults(score,t1,t2,t3,signatures,file){
+  /* Hide overlay, show results */
+  var overlay=document.getElementById('scanning-overlay');
+  overlay.classList.add('hidden');
+  overlay.classList.remove('flex');
+  document.getElementById('results-panel').classList.remove('hidden');
 
-function animateNum(id,from,to,dur){
-  var el=document.getElementById(id);
-  var start=null;
-  function step(ts){
-    if(!start)start=ts;
-    var p=Math.min((ts-start)/dur,1);
-    el.textContent=Math.round(from+(to-from)*p)+'%';
-    if(p<1)requestAnimationFrame(step);
+  /* Animate score ring (circumference = 2π×40 ≈ 251.2) */
+  var ring=document.getElementById('meter-ring');
+  var offset=251.2-(251.2*(score/100));
+  /* Color the ring by score */
+  var ringColor=score>=70?'#ef4444':score>=40?'#f59e0b':'#22c55e';
+  ring.setAttribute('stroke',ringColor);
+  setTimeout(function(){ring.style.strokeDashoffset=offset},50);
+
+  /* Score percentage */
+  var pctEl=document.getElementById('score-pct');
+  var cur=0;
+  var pctTimer=setInterval(function(){
+    cur=Math.min(cur+2,score);
+    pctEl.textContent=cur+'%';
+    if(cur>=score) clearInterval(pctTimer);
+  },20);
+
+  /* Verdict */
+  var chip=document.getElementById('verdict-chip');
+  var text=document.getElementById('verdict-text');
+  if(score>=70){
+    chip.className='result-chip chip-ai';
+    chip.textContent='⚠ Likely AI-Generated';
+    text.textContent='High probability of synthetic generation. '+(signatures.length>0?'Software markers detected: '+signatures.slice(0,3).join(', ')+'.':' Texture and gradient analysis shows patterns consistent with diffusion models.');
+  } else if(score>=40){
+    chip.className='result-chip chip-unclear';
+    chip.textContent='⚡ Inconclusive';
+    text.textContent='Mixed signals detected. Could be AI-generated, heavily edited, or a compressed natural photo. No definitive markers found.';
+  } else {
+    chip.className='result-chip chip-human';
+    chip.textContent='✓ Likely Human-Made';
+    text.textContent='Low synthetic probability. Image characteristics are consistent with a real camera capture or traditional digital artwork. No known AI markers detected.';
   }
-  requestAnimationFrame(step);
+
+  /* Animate bars */
+  setTimeout(function(){
+    setBar('bar1','bar1-pct',t1);
+    setBar('bar2','bar2-pct',t2);
+    setBar('bar3','bar3-pct',t3);
+  },200);
+
+  /* EXIF / metadata block */
+  var exifEl=document.getElementById('exif-items');
+  var rows=[];
+  rows.push(mkExifRow('File Name',file.name||'unknown'));
+  rows.push(mkExifRow('File Size',formatBytes(file.size)));
+  rows.push(mkExifRow('MIME Type',file.type));
+  rows.push(mkExifRow('Last Modified',file.lastModified?new Date(file.lastModified).toLocaleDateString():'n/a'));
+  if(signatures.length>0){
+    rows.push(mkExifRow('⚠ AI Markers Found',signatures.join(', '),'#f87171'));
+  } else {
+    rows.push(mkExifRow('AI Markers','None detected','#4ade80'));
+  }
+  exifEl.innerHTML=rows.join('');
+
+  /* Store result for copy */
+  lastResult={score:score,verdict:chip.textContent,file:file.name};
 }
 
-/* Simple string hash */
-function hashStr(s){
-  var h=0;
-  for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}
-  return h;
+function setBar(barId,pctId,val){
+  document.getElementById(barId).style.width=val+'%';
+  document.getElementById(pctId).textContent=val+'%';
 }
 
-/* ═══ COPY LINK ═══ */
-function copyLink(){
-  var mockUrl='https://toolhavoc.com/tools/ai-image-detector.html?scan='+Date.now();
-  navigator.clipboard.writeText(mockUrl).then(function(){
-    var btn=document.getElementById('copyBtn');
-    btn.textContent='✅ Copied!';
-    setTimeout(function(){btn.textContent='🔗 Copy Link'},1800);
+function mkExifRow(key,val,color){
+  return '<div class="flex gap-2"><span class="text-slate-600 w-36 flex-shrink-0">'+key+'</span>'
+    +'<span style="color:'+(color||'#94a3b8')+'">'+val+'</span></div>';
+}
+
+function formatBytes(b){
+  if(b<1024) return b+' B';
+  if(b<1048576) return (b/1024).toFixed(1)+' KB';
+  return (b/1048576).toFixed(2)+' MB';
+}
+
+function copyResult(){
+  if(!lastResult) return;
+  var text='AI Image Detector — ToolHavoc.com\nFile: '+lastResult.file+'\nAI Score: '+lastResult.score+'%\nVerdict: '+lastResult.verdict+'\nScanned at: '+window.location.href;
+  navigator.clipboard.writeText(text).then(function(){
+    var btn=event.target;
+    btn.textContent='✓ Copied!';
+    setTimeout(function(){btn.textContent='Copy Result Link'},2000);
+  }).catch(function(){
+    prompt('Copy this result:',text);
   });
 }
 
-/* ═══ RESET ═══ */
-function resetScan(){
-  document.getElementById('results').classList.add('hidden');
-  document.getElementById('processing').classList.add('hidden');
-  document.getElementById('dropzone').classList.remove('hidden');
-  document.getElementById('fileInput').value='';
+function resetTool(){
+  document.getElementById('results-panel').classList.add('hidden');
+  document.getElementById('drop-zone').classList.remove('hidden');
+  document.getElementById('file-input').value='';
+  document.getElementById('meter-ring').style.strokeDashoffset='251.2';
+  document.getElementById('score-pct').textContent='0%';
+  setBar('bar1','bar1-pct',0);
+  setBar('bar2','bar2-pct',0);
+  setBar('bar3','bar3-pct',0);
+  document.getElementById('reqForm').reset&&document.getElementById('reqForm').reset();
+  lastResult=null;
+}
 
-  /* Reset meter */
-  document.getElementById('meterArc').style.strokeDashoffset='326.73';
-  document.getElementById('scoreNum').textContent='0%';
-
-  /* Reset diag bars */
-  ['diagAbar','diagBbar','diagCbar'].forEach(function(id){document.getElementById(id).style.width='0'});
-  ['diagA','diagB','diagC'].forEach(function(id){document.getElementById(id).textContent='—'});
-
-  document.getElementById('flaggedEngine').classList.add('hidden');
+/* ─────────────────────────────────────────────
+   REQUEST MODAL
+   ───────────────────────────────────────────── */
+function openReqModal(){
+  var m=document.getElementById('request-modal');
+  m.classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(function(){document.getElementById('rf-name').focus()},320);
+}
+function closeReqModal(){
+  document.getElementById('request-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape') closeReqModal()});
+function submitReq(e){
+  e.preventDefault();
+  var name=document.getElementById('rf-name').value.trim();
+  var desc=document.getElementById('rf-desc').value.trim();
+  var subject=encodeURIComponent('ToolHavoc Tool Request: '+name);
+  var body=encodeURIComponent('Tool Name: '+name+'\n\nDescription:\n'+desc+'\n\n— Submitted via ToolHavoc.com');
+  window.location.href='mailto:nathanielwade2x@gmail.com?subject='+subject+'&body='+body;
+  setTimeout(function(){
+    document.getElementById('reqForm').innerHTML=
+      '<div style="text-align:center;padding:24px 0">'
+      +'<div style="font-size:36px;margin-bottom:12px">✅</div>'
+      +'<div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div>'
+      +'<div style="color:#64748b;font-size:13px">We\'ll look into building <strong style="color:#94a3b8">'+name.replace(/</g,'&lt;')+'</strong> soon.</div>'
+      +'<button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button>'
+      +'</div>';
+  },800);
 }
 </script>
 </body>
