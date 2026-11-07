@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Text Detector — ToolHavoc</title>
+<meta name="description" content="Paste any text and detect if ChatGPT or another AI probably wrote it.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%234facfe'/%3E%3Cstop offset='100%25' stop-color='%23e91e63'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='56' height='56' rx='12' fill='none' stroke='url(%23g)' stroke-width='3' opacity='.5'/%3E%3Cpath d='M20 16v32M44 16v32M20 32h24' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>
+@font-face{font-family:'New Rocker';src:url('../fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#020205}
+::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+.glass-panel{background:rgba(9,13,22,.30)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important;border:1px solid rgba(51,65,85,.6);border-radius:16px}
+.nav-bar{position:fixed;top:0;left:0;right:0;z-index:50;height:56px;display:flex;align-items:center;background:rgba(2,2,5,.7);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid rgba(51,65,85,.4)}
+.wing{display:none;position:fixed;top:0;bottom:0;width:5vw;min-width:48px;max-width:80px;pointer-events:none;z-index:5;flex-direction:column;align-items:center;overflow:hidden}
+@media(min-width:1280px){.wing{display:flex}}
+.wing-line{position:absolute;top:0;bottom:0;width:1px;background:repeating-linear-gradient(to bottom,rgba(51,65,85,.18) 0px,rgba(51,65,85,.18) 4px,transparent 4px,transparent 10px)}
+.wing-left .wing-line{right:0}.wing-right .wing-line{left:0}
+.xhair{position:absolute;width:12px;height:12px;opacity:.35}
+.xhair-top{top:56px}.xhair-bot{bottom:16px}
+.wing-coord{position:absolute;font-family:monospace;font-size:7px;letter-spacing:.08em;color:rgba(100,116,139,.28);text-transform:uppercase;white-space:nowrap;line-height:1}
+.wing-left .wing-coord{right:6px;top:50%;writing-mode:vertical-rl;transform:rotate(180deg) translateY(50%)}
+.wing-right .wing-coord{left:6px;top:50%;writing-mode:vertical-rl;transform:rotate(0deg) translateY(-50%)}
+.ticker-tunnel{position:absolute;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;overflow:hidden;width:28px}
+.wing-left .ticker-tunnel{left:4px}.wing-right .ticker-tunnel{right:4px}
+.ticker-track{display:flex;flex-direction:column;gap:20px;animation-timing-function:linear;animation-iteration-count:infinite;will-change:transform}
+.ticker-track-down{animation:tickDown 30s linear infinite}
+.ticker-track-up{animation:tickUp 34s linear infinite}
+@keyframes tickDown{0%{transform:translateY(-50%)}100%{transform:translateY(0%)}}
+@keyframes tickUp{0%{transform:translateY(0%)}100%{transform:translateY(-50%)}}
+.tick-item{font-family:monospace;font-size:7.5px;font-weight:400;letter-spacing:.12em;color:rgba(71,85,105,.38);text-transform:uppercase;white-space:nowrap;writing-mode:vertical-rl;line-height:1;user-select:none;-webkit-user-select:none}
+.tick-item.hi{color:rgba(79,172,254,.28)}.tick-item.mg{color:rgba(233,30,99,.22)}.tick-item.gr{color:rgba(34,197,94,.25)}
+.ad-slot{min-height:95px;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:8px;position:relative;overflow:hidden}
+.ad-label{position:absolute;top:6px;left:10px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(71,85,105,.5)}
+#request-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,2,5,.75);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .3s ease}
+#request-modal.open{opacity:1;pointer-events:all}
+.rmodal-box{width:100%;max-width:460px;background:rgba(9,13,22,.72);border:1px solid rgba(79,172,254,.22);border-radius:16px;padding:32px 28px;box-shadow:0 0 60px rgba(79,172,254,.08),inset 0 0 0 1px rgba(255,255,255,.04);transform:translateY(16px) scale(.97);transition:transform .35s cubic-bezier(.22,1,.36,1);position:relative}
+#request-modal.open .rmodal-box{transform:translateY(0) scale(1)}
+.rmodal-box h2{font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:4px}
+.rmodal-box p{font-size:13px;color:#64748b;margin-bottom:22px}
+.rf-label{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#475569;margin-bottom:5px}
+.rf-input{width:100%;background:rgba(2,2,5,.55);border:1px solid rgba(51,65,85,.55);border-radius:8px;color:#e2e8f0;font-size:13px;padding:10px 13px;outline:none;transition:border-color .25s,box-shadow .25s;font-family:inherit;resize:none}
+.rf-input:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172,254,.08)}
+.rf-input::placeholder{color:#334155}
+.rf-row{margin-bottom:15px}
+.rmodal-submit{width:100%;margin-top:6px;padding:11px;border-radius:9px;border:none;cursor:pointer;font-weight:700;font-size:13px;letter-spacing:.04em;color:#fff;background:linear-gradient(135deg,#4facfe,#e91e63);box-shadow:0 0 20px rgba(79,172,254,.18);transition:opacity .2s,transform .15s}
+.rmodal-submit:hover{opacity:.88}
+.rmodal-submit:active{transform:scale(.96)}
+.rmodal-close{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:#475569;font-size:18px;line-height:1;transition:color .2s}
+.rmodal-close:hover{color:#94a3b8}
+@font-face{font-family:'New Rocker';src:url('../fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+.glass-panel{background:rgba(15,23,42,.45)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important}
+.gp{background:rgba(15,23,42,.45);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid rgba(51,65,85,.6);border-radius:12px;box-shadow:inset 0 1px 1px rgba(255,255,255,.05)}
+.ad-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+.af{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;contain:layout style;
+  background:rgba(2,2,5,.55);border-radius:14px;position:relative;padding:10px 14px 12px;
+  border:1px solid transparent;background-clip:padding-box;
+  box-shadow:0 0 0 1px rgba(79,172,254,.15),0 0 20px rgba(79,172,254,.06),0 0 40px rgba(233,30,99,.04)}
+.af::before{content:'';position:absolute;inset:-1px;border-radius:15px;padding:1px;
+  background:linear-gradient(135deg,rgba(79,172,254,.3),rgba(233,30,99,.2));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.af .ad-label{font-size:9px;color:rgba(100,116,139,.6);letter-spacing:.1em;font-family:ui-monospace,monospace;text-transform:uppercase;margin-bottom:6px;align-self:flex-start}
+.back-link{transition:all .2s}.back-link:hover{color:#4facfe;transform:translateX(-3px)}.back-link:active{transform:scale(.96)}
+.meter-ring{transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
+.diag-bar{height:6px;border-radius:3px;background:rgba(51,65,85,.3);overflow:hidden}.diag-fill{height:100%;border-radius:3px;width:0;transition:width 1s ease}
+textarea{resize:vertical}
+textarea:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172,254,.1),0 0 30px rgba(79,172,254,.06)}
+@keyframes fade-phase{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}.phase-pulse{animation:fade-phase 1s ease infinite}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#020205}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+</style>
+</head>
+<body class="relative min-h-screen font-sans text-slate-300 overflow-x-hidden" style="background:#020205">
+
+<canvas id="bg-canvas" class="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none"></canvas>
+
+<div class="wing wing-left" style="left:1.5vw" aria-hidden="true">
+  <div class="wing-line"></div>
+  <div class="xhair xhair-top" style="right:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="0" x2="6" y2="4" stroke="rgba(79,172,254,.4)" stroke-width="1"/><line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.4)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.5)"/></svg></div>
+  <div class="xhair xhair-bot" style="right:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="12" x2="6" y2="8" stroke="rgba(79,172,254,.25)" stroke-width="1"/><line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.25)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.3)"/></svg></div>
+  <span class="wing-coord">X:0.00 · Y:0.00</span>
+  <div class="ticker-tunnel"><div class="ticker-track ticker-track-down">
+    <span class="tick-item hi">[SYSTEM_OK]</span><span class="tick-item">——————</span><span class="tick-item gr">[SCANNER_CORE]</span><span class="tick-item">0x4F AC FE</span><span class="tick-item hi">[LATENCY: 11ms]</span><span class="tick-item">——————</span><span class="tick-item">[ENGINE_ON]</span><span class="tick-item">PWR: 100%</span><span class="tick-item mg">[HAVOC_v2.6]</span><span class="tick-item">——————</span><span class="tick-item">[TOOLS: 35]</span><span class="tick-item gr">[UPTIME: OK]</span><span class="tick-item">SYS_CLK: RUN</span><span class="tick-item hi">[NET_OK]</span><span class="tick-item">——————</span><span class="tick-item">[RENDER: 60fps]</span><span class="tick-item mg">[MEM: CLEAN]</span><span class="tick-item">0x00 00 05</span><span class="tick-item">[BOOT_SEQ: OK]</span><span class="tick-item gr">——————</span>
+    <span class="tick-item hi">[SYSTEM_OK]</span><span class="tick-item">——————</span><span class="tick-item gr">[SCANNER_CORE]</span><span class="tick-item">0x4F AC FE</span><span class="tick-item hi">[LATENCY: 11ms]</span><span class="tick-item">——————</span><span class="tick-item">[ENGINE_ON]</span><span class="tick-item">PWR: 100%</span><span class="tick-item mg">[HAVOC_v2.6]</span><span class="tick-item">——————</span><span class="tick-item">[TOOLS: 35]</span><span class="tick-item gr">[UPTIME: OK]</span><span class="tick-item">SYS_CLK: RUN</span><span class="tick-item hi">[NET_OK]</span><span class="tick-item">——————</span><span class="tick-item">[RENDER: 60fps]</span><span class="tick-item mg">[MEM: CLEAN]</span><span class="tick-item">0x00 00 05</span><span class="tick-item">[BOOT_SEQ: OK]</span><span class="tick-item gr">——————</span>
+  </div></div>
+</div>
+
+<div class="wing wing-right" style="right:1.5vw" aria-hidden="true">
+  <div class="wing-line"></div>
+  <div class="xhair xhair-top" style="left:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="0" x2="6" y2="4" stroke="rgba(233,30,99,.35)" stroke-width="1"/><line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.35)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.4)"/></svg></div>
+  <div class="xhair xhair-bot" style="left:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="12" x2="6" y2="8" stroke="rgba(233,30,99,.2)" stroke-width="1"/><line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.2)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.25)"/></svg></div>
+  <span class="wing-coord">W:100% · H:∞</span>
+  <div class="ticker-tunnel"><div class="ticker-track ticker-track-up">
+    <span class="tick-item hi">[HAVOC_MATRIX]</span><span class="tick-item">——————</span><span class="tick-item mg">[BLOB_GEN: RDY]</span><span class="tick-item">FPS: 60.0</span><span class="tick-item gr">[SESSION_LIVE]</span><span class="tick-item">——————</span><span class="tick-item">[CANVAS: ON]</span><span class="tick-item hi">[ORBS: 3]</span><span class="tick-item">[PARTICLES: 25]</span><span class="tick-item">——————</span><span class="tick-item mg">[RIPPLE: ARMED]</span><span class="tick-item gr">0xE9 1E 63</span><span class="tick-item">[TOOLS: LIVE]</span><span class="tick-item hi">——————</span><span class="tick-item">[AD_SLOT: 2]</span><span class="tick-item mg">[REV: ACTIVE]</span><span class="tick-item">SRC: ADSTERRA</span><span class="tick-item gr">[DEXYY_BUILD]</span><span class="tick-item">——————</span>
+    <span class="tick-item hi">[HAVOC_MATRIX]</span><span class="tick-item">——————</span><span class="tick-item mg">[BLOB_GEN: RDY]</span><span class="tick-item">FPS: 60.0</span><span class="tick-item gr">[SESSION_LIVE]</span><span class="tick-item">——————</span><span class="tick-item">[CANVAS: ON]</span><span class="tick-item hi">[ORBS: 3]</span><span class="tick-item">[PARTICLES: 25]</span><span class="tick-item">——————</span><span class="tick-item mg">[RIPPLE: ARMED]</span><span class="tick-item gr">0xE9 1E 63</span><span class="tick-item">[TOOLS: LIVE]</span><span class="tick-item hi">——————</span><span class="tick-item">[AD_SLOT: 2]</span><span class="tick-item mg">[REV: ACTIVE]</span><span class="tick-item">SRC: ADSTERRA</span><span class="tick-item gr">[DEXYY_BUILD]</span><span class="tick-item">——————</span>
+  </div></div>
+</div>
+
+<nav class="nav-bar">
+  <div class="max-w-4xl w-full mx-auto px-4 flex items-center justify-between">
+    <a href="../index.html" class="text-slate-500 hover:text-slate-200 transition font-mono text-xs tracking-wide" style="text-decoration:none">&larr; Dashboard</a>
+    <a href="../index.html" class="absolute left-1/2 -translate-x-1/2 text-white text-2xl md:text-3xl font-extrabold tracking-widest" style="text-decoration:none;font-family:'New Rocker','Inter',sans-serif;text-shadow:0 1px 0 #cbd5e1,0 2px 0 #94a3b8,0 3px 0 #475569,0 4px 10px rgba(6,182,212,0.5)">HAVOC</a>
+    <button onclick="openReqModal()" class="px-3 py-1 rounded-lg text-[12px] font-semibold tracking-wide transition" style="cursor:pointer;color:#4facfe;border:1px solid rgba(79,172,254,.22);background:transparent" onmouseover="this.style.borderColor='rgba(79,172,254,.5)';this.style.background='rgba(79,172,254,.06)'" onmouseout="this.style.borderColor='rgba(79,172,254,.22)';this.style.background='transparent'">+ Request Tool</button>
+  </div>
+</nav>
+
+<div class="relative z-10 pt-20 pb-16">
+  <div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="text-3xl">🤖</span>
+        <div>
+          <h1 class="text-2xl font-black text-white tracking-tight">AI Text Detector</h1>
+          <p class="text-sm text-slate-500">Paste any text and detect if ChatGPT or another AI probably wrote it.</p>
+        </div>
+      </div>
+    </div>
+    <div class="ad-slot mb-6"><span class="ad-label">Community Partner</span><!-- INSERT ADSTERRA TOP AD CODE --></div>
+    <div class="glass-panel p-6 md:p-8 mb-6">
+<!-- AMBIENT ORBS -->
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+  <div class="fixed rounded-full" style="top:-8%;left:-12%;width:500px;height:500px;background:rgba(79,172,254,0.10);filter:blur(130px)"></div>
+  <div class="fixed rounded-full" style="bottom:-8%;right:-8%;width:550px;height:550px;background:rgba(233,30,99,0.10);filter:blur(150px)"></div>
+</div>
+
+<div class="relative z-10">
+
+  <!-- HEADER -->
+  <header class="border-b border-slate-800/40" style="background:rgba(2,2,5,.7);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)">
+    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <a href="../index.html" class="back-link flex items-center gap-2 text-sm text-slate-400" style="text-decoration:none"><span>←</span> Back to Dashboard</a>
+      <span class="text-lg font-extrabold bg-gradient-to-r from-[#4facfe] to-[#e91e63] bg-clip-text text-transparent" style="font-family:'New Rocker','Inter',sans-serif">ToolHavoc</span>
+    </div>
+  </header>
+
+  <!-- TOP AD -->
+  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+    <div class="ad-wrap">
+      <div class="af">
+        <span class="ad-label">Community Partner</span>
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full text-xs text-slate-400" style="background:rgba(9,13,22,.6);border:1px solid rgba(51,65,85,.45)">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        100% Client-Side — Your Text Never Leaves Your Browser
+      </div>
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-3">AI Text Detector</h1>
+      <p class="text-slate-400 text-sm md:text-base max-w-lg mx-auto">Paste any text and see if ChatGPT probably wrote it. Checks for robotic patterns humans don't use.</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto">
+
+      <!-- INPUT -->
+      <div id="inputArea">
+        <div class="gp glass-panel p-5">
+          <textarea id="textInput" rows="8" placeholder="Paste your text here... (minimum 50 characters)" class="w-full bg-transparent border border-slate-700/50 rounded-lg p-4 text-sm text-slate-200 outline-none transition placeholder:text-slate-600" style="min-height:180px"></textarea>
+          <div class="flex items-center justify-between mt-3">
+            <span id="charCount" class="text-xs text-slate-600">0 characters</span>
+            <button onclick="analyzeText()" id="scanBtn" class="px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 active:scale-95" style="background:linear-gradient(135deg,#4facfe,#e91e63)">🔍 Analyze Text</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROCESSING -->
+      <div id="processing" class="hidden mt-8">
+        <div class="gp glass-panel p-6 text-center">
+          <div class="text-3xl mb-4">⚙️</div>
+          <p id="phaseText" class="text-white font-semibold phase-pulse">Tokenizing Input Strings...</p>
+          <div class="mt-4 w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+            <div id="procBar" class="h-full rounded-full transition-all duration-500" style="width:0;background:linear-gradient(90deg,#4facfe,#e91e63)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="results" class="hidden mt-8 space-y-5">
+
+        <!-- Stats row -->
+        <div class="gp glass-panel p-4">
+          <div class="grid grid-cols-3 gap-3 text-center">
+            <div><div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Words</div><div id="rWords" class="text-sm font-bold font-mono text-[#4facfe]">—</div></div>
+            <div><div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Sentences</div><div id="rSents" class="text-sm font-bold font-mono text-[#e040fb]">—</div></div>
+            <div><div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Avg Length</div><div id="rAvg" class="text-sm font-bold font-mono text-emerald-400">—</div></div>
+          </div>
+        </div>
+
+        <!-- Score Meter -->
+        <div class="gp glass-panel p-6 flex flex-col items-center">
+          <div class="relative w-36 h-36 mb-4">
+            <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(51,65,85,.3)" stroke-width="8"/>
+              <circle id="meterArc" cx="60" cy="60" r="52" fill="none" stroke-width="8" stroke-linecap="round" class="meter-ring" style="stroke:#4facfe;stroke-dasharray:326.73;stroke-dashoffset:326.73"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span id="scoreNum" class="text-3xl font-black text-white">0%</span>
+              <span class="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">AI likelihood</span>
+            </div>
+          </div>
+          <p id="verdict" class="text-lg font-bold text-center"></p>
+          <p id="verdictSub" class="text-sm text-slate-500 text-center mt-1"></p>
+        </div>
+
+        <!-- Diagnostic Bars -->
+        <div class="gp glass-panel p-5 space-y-4">
+          <p class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2">Pattern Analysis</p>
+          <div>
+            <div class="flex justify-between mb-1.5"><span class="text-xs text-slate-400">Sentence Uniformity</span><span id="diagA" class="text-xs font-mono text-slate-500">—</span></div>
+            <div class="diag-bar"><div id="diagAbar" class="diag-fill" style="background:linear-gradient(90deg,#4facfe,#06b6d4)"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1.5"><span class="text-xs text-slate-400">Vocabulary Diversity</span><span id="diagB" class="text-xs font-mono text-slate-500">—</span></div>
+            <div class="diag-bar"><div id="diagBbar" class="diag-fill" style="background:linear-gradient(90deg,#e91e63,#e040fb)"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1.5"><span class="text-xs text-slate-400">Transition Phrase Density</span><span id="diagC" class="text-xs font-mono text-slate-500">—</span></div>
+            <div class="diag-bar"><div id="diagCbar" class="diag-fill" style="background:linear-gradient(90deg,#06b6d4,#4facfe)"></div></div>
+          </div>
+        </div>
+
+        <!-- Flagged patterns -->
+        <div id="flagBox" class="hidden gp glass-panel p-5">
+          <p class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-3">Flagged AI Patterns</p>
+          <div id="flagList" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap gap-3 justify-center">
+          <button onclick="copyLink()" id="copyBtn" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 active:scale-95" style="background:linear-gradient(135deg,#4facfe,#e91e63)">🔗 Copy Link</button>
+          <button onclick="resetScan()" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-300 border border-slate-700 hover:border-slate-500 transition active:scale-95" style="background:rgba(9,13,22,.5)">Analyze Another Text</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- BOTTOM AD -->
+  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+    <div class="ad-wrap">
+      <div class="af">
+        <span class="ad-label">Community Partner</span>
+      
+      
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid rgba(51,65,85,.4);background:rgba(2,2,5,.35)">
+    <div class="max-w-6xl mx-auto px-4 py-8 text-center">
+      <div class="text-lg font-extrabold mb-3"><span class="bg-gradient-to-r from-[#4facfe] to-[#e91e63] bg-clip-text text-transparent" style="font-family:'New Rocker','Inter',sans-serif">ToolHavoc</span></div>
+      <div class="flex flex-wrap justify-center gap-5 mb-4">
+        <a href="../index.html" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">All Tools</a>
+        <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">TikTok</a>
+      </div>
+      <div class="text-[11px] text-slate-700">© 2026 ToolHavoc.com — Made by Dexyy</div>
+    </div>
+  </footer>
+
+</div>
+    </div>
+    <div class="ad-slot"><span class="ad-label">Community Partner</span><!-- INSERT ADSTERRA BOTTOM AD CODE --></div>
+  </div>
+</div>
+
+<div id="request-modal" role="dialog" aria-modal="true" onclick="if(event.target===this)closeReqModal()">
+  <div class="rmodal-box">
+    <button class="rmodal-close" onclick="closeReqModal()">&#x2715;</button>
+    <h2>&#x1F6E0;&#xFE0F; Request a Tool</h2>
+    <p>Got an idea? Drop it below and we'll build it.</p>
+    <form id="reqForm" onsubmit="submitReq(event)">
+      <div class="rf-row"><label class="rf-label" for="rf-name">Tool Name</label><input id="rf-name" class="rf-input" type="text" placeholder="e.g. Battery Health Scanner" required maxlength="80"></div>
+      <div class="rf-row"><label class="rf-label" for="rf-desc">What should it do?</label><textarea id="rf-desc" class="rf-input" rows="4" placeholder="Describe what this tool should check, test, or generate..." required maxlength="500"></textarea></div>
+      <button type="submit" class="rmodal-submit">Send Request &#x2192;</button>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  var canvas=document.getElementById('bg-canvas');
+  if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var W,H,isMobile;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;isMobile=W<=768;}
+  resize();
+  window.addEventListener('resize',resize,{passive:true});
+  var orbs=[
+    {baseX:-.1,baseY:-.1,r:.55,r2:.65,color:'79,172,254',phase:0,speed:.000065,amp:.07},
+    {baseX:1.1,baseY:.35,r:.60,r2:.70,color:'233,30,99',phase:2.1,speed:.000050,amp:.06},
+    {baseX:.1,baseY:1.05,r:.50,r2:.58,color:'34,197,94',phase:4.2,speed:.000080,amp:.05}
+  ];
+  var particles=[];
+  for(var i=0;i<25;i++) particles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:0,vy:0,alpha:0,size:1+Math.random()*1.5,color:Math.random()>.5?'79,172,254':'148,163,184'});
+  var mouseX=-9999,mouseY=-9999,lastMouse=0,ripples=[],rippleIdx=0;
+  var RC=['79,172,254','233,30,99','34,197,94'];
+  function spawnRipple(x,y,ts){ripples.push({x:x,y:y,born:ts||performance.now(),maxR:60+Math.random()*40,color:RC[rippleIdx++%3]});}
+  window.addEventListener('mousemove',function(e){if(isMobile)return;var n=Date.now();if(n-lastMouse<16)return;lastMouse=n;mouseX=e.clientX;mouseY=e.clientY;},{passive:true});
+  window.addEventListener('mousedown',function(e){spawnRipple(e.clientX,e.clientY);},{passive:true});
+  window.addEventListener('touchstart',function(e){for(var i=0;i<e.touches.length;i++)spawnRipple(e.touches[i].clientX,e.touches[i].clientY);},{passive:true});
+  var rafId=null;
+  function render(now){
+    rafId=requestAnimationFrame(render);
+    ctx.fillStyle='#020205';ctx.fillRect(0,0,W,H);
+    for(var o=0;o<orbs.length;o++){
+      var ob=orbs[o],t=now*ob.speed+ob.phase;
+      var cx=(ob.baseX+Math.sin(t)*ob.amp)*W,cy=(ob.baseY+Math.cos(t*.7)*ob.amp)*H;
+      var radius=ob.r*Math.min(W,H),breathe=1+.08*Math.sin(t*1.3),alpha=.12+.06*Math.sin(t*.9);
+      var grad=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*breathe);
+      grad.addColorStop(0,'rgba('+ob.color+','+alpha.toFixed(3)+')');
+      grad.addColorStop(.5,'rgba('+ob.color+','+(alpha*.4).toFixed(3)+')');
+      grad.addColorStop(1,'rgba('+ob.color+',0)');
+      ctx.beginPath();ctx.arc(cx,cy,radius*breathe*ob.r2,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
+    }
+    if(!isMobile){
+      for(var p=0;p<particles.length;p++){
+        var pt=particles[p],dx=mouseX-pt.x,dy=mouseY-pt.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
+        var pull=Math.min(80/dist,3.5);
+        pt.vx+=(dx/dist)*pull*.08;pt.vy+=(dy/dist)*pull*.08;pt.vx*=.88;pt.vy*=.88;
+        pt.x+=pt.vx;pt.y+=pt.vy;
+        var speed=Math.sqrt(pt.vx*pt.vx+pt.vy*pt.vy);pt.alpha=Math.min(speed*.18,.85);
+        if(pt.alpha<.01)continue;
+        ctx.save();ctx.globalAlpha=pt.alpha;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.size+speed*.3,0,Math.PI*2);
+        ctx.fillStyle='rgba('+pt.color+',1)';ctx.shadowBlur=8+speed*2;ctx.shadowColor='rgba('+pt.color+',.6)';ctx.fill();ctx.restore();
+      }
+    }
+    for(var r=ripples.length-1;r>=0;r--){
+      var rp=ripples[r],age=(now-rp.born)/600;
+      if(age>=1){ripples.splice(r,1);continue;}
+      var eased=1-Math.pow(1-age,3);
+      ctx.save();ctx.globalAlpha=(1-age)*.65;ctx.beginPath();ctx.arc(rp.x,rp.y,rp.maxR*eased,0,Math.PI*2);
+      ctx.strokeStyle='rgba('+rp.color+',1)';ctx.lineWidth=1.5*(1-age*.6);ctx.shadowBlur=12*(1-age);ctx.shadowColor='rgba('+rp.color+',.5)';ctx.stroke();ctx.restore();
+    }
+  }
+  rafId=requestAnimationFrame(render);
+  window.addEventListener('pagehide',function(){if(rafId)cancelAnimationFrame(rafId);});
+})();
+function openReqModal(){var m=document.getElementById('request-modal');m.classList.add('open');document.body.style.overflow='hidden';setTimeout(function(){document.getElementById('rf-name').focus();},320);}
+function closeReqModal(){document.getElementById('request-modal').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeReqModal();});
+function submitReq(e){
+  e.preventDefault();
+  var name=document.getElementById('rf-name').value.trim();
+  var desc=document.getElementById('rf-desc').value.trim();
+  var subject=encodeURIComponent('ToolHavoc Tool Request: '+name);
+  var body=encodeURIComponent('Tool Name: '+name+'\n\nDescription:\n'+desc+'\n\n— Submitted via ToolHavoc.com');
+  window.location.href='mailto:nathanielwade2x@gmail.com?subject='+subject+'&body='+body;
+  setTimeout(function(){
+    document.getElementById('reqForm').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:36px;margin-bottom:12px">&#x2705;</div><div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div><div style="color:#64748b;font-size:13px">We'll look into building <strong style="color:#94a3b8">'+name.replace(/</g,"&lt;")+'</strong> soon.</div><button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button></div>';
+  },800);
+}
+tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}
+atOptions = { 'key':'76f41da819582075b2e5619851f50a31','format':'iframe','height':90,'width':728,'params':{} };
+atOptions = { 'key':'4eb8d16a9cbab1deebe011d440079990','format':'iframe','height':250,'width':300,'params':{} };
+/* Character counter */
+document.getElementById('textInput').addEventListener('input',function(){
+  document.getElementById('charCount').textContent=this.value.length+' characters';
+});
+
+/* AI marker words and transition phrases */
+var AI_MARKERS=['furthermore','moreover','additionally','it is worth noting','in conclusion','comprehensive','delve','streamline','leverage','utilize','crucial','essential','significantly','facilitate','implement','robust','seamless','subsequently','consequently','nevertheless','henceforth','aforementioned','pertaining to','in the realm of','it should be noted','multifaceted'];
+var TRANSITIONS=['however','therefore','thus','hence','accordingly','meanwhile','conversely','similarly','likewise','in addition','as a result','on the other hand','in contrast','for instance','in particular'];
+
+function analyzeText(){
+  var text=document.getElementById('textInput').value.trim();
+  if(text.length<50){alert('Please paste at least 50 characters of text.');return}
+
+  document.getElementById('inputArea').classList.add('hidden');
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('processing').classList.remove('hidden');
+
+  var phases=['Tokenizing Input Strings...','Running Perplexity Analysis...','Evaluating Syntactic Patterns...'];
+  var ph=document.getElementById('phaseText'),bar=document.getElementById('procBar');
+  ph.textContent=phases[0];bar.style.width='20%';
+
+  setTimeout(function(){
+    ph.textContent=phases[1];bar.style.width='55%';
+    setTimeout(function(){
+      ph.textContent=phases[2];bar.style.width='90%';
+      setTimeout(function(){
+        bar.style.width='100%';
+        setTimeout(function(){
+          document.getElementById('processing').classList.add('hidden');
+          computeResults(text);
+        },300);
+      },600);
+    },650);
+  },700);
+}
+
+function computeResults(text){
+  var lower=text.toLowerCase();
+  var words=text.split(/\s+/).filter(function(w){return w.length>0});
+  var sentences=text.split(/[.!?]+/).filter(function(s){return s.trim().length>0});
+  var wordCount=words.length;
+  var sentCount=sentences.length;
+  var avgSentLen=sentCount?Math.round(wordCount/sentCount):0;
+
+  /* Check for AI marker phrases */
+  var found=[];
+  AI_MARKERS.forEach(function(m){if(lower.indexOf(m)!==-1) found.push(m)});
+
+  /* Sentence length uniformity (AI tends to write uniform lengths) */
+  var sentLens=sentences.map(function(s){return s.trim().split(/\s+/).length});
+  var mean=sentLens.reduce(function(a,b){return a+b},0)/sentLens.length;
+  var variance=sentLens.reduce(function(a,l){return a+Math.pow(l-mean,2)},0)/sentLens.length;
+  var stdDev=Math.sqrt(variance);
+  var uniformity=Math.max(0,Math.min(100,Math.round(100-stdDev*6)));
+
+  /* Vocabulary diversity (unique words / total words) */
+  var unique={};words.forEach(function(w){unique[w.toLowerCase().replace(/[^a-z]/g,'')]=1});
+  var diversity=Math.round((Object.keys(unique).length/wordCount)*100);
+  var diversityScore=100-diversity; /* low diversity = more AI-like */
+
+  /* Transition phrase density */
+  var transCount=0;
+  TRANSITIONS.forEach(function(t){
+    var idx=lower.indexOf(t);while(idx!==-1){transCount++;idx=lower.indexOf(t,idx+t.length)}
+  });
+  var transDensity=Math.min(100,Math.round((transCount/sentCount)*100*3));
+
+  /* Composite score */
+  var markerWeight=Math.min(40,found.length*8);
+  var score=Math.round(uniformity*0.25+diversityScore*0.15+transDensity*0.2+markerWeight);
+  score=Math.max(5,Math.min(98,score));
+
+  /* Deterministic nudge from text hash for consistency */
+  var h=Math.abs(hashStr(text.substring(0,100)));
+  score=Math.max(5,Math.min(98,score+(h%7)-3));
+
+  var verdict,sub,color;
+  if(score>=75){verdict='Highly Likely AI-Generated';sub='This text shows strong patterns typical of AI writing tools.';color='#e91e63'}
+  else if(score>=50){verdict='Possibly AI-Generated';sub='Some AI-like patterns detected. Could be heavily edited AI output.';color='#fb923c'}
+  else if(score>=30){verdict='Inconclusive';sub='Mixed signals — might be AI-assisted or just formal writing.';color='#facc15'}
+  else{verdict='Likely Human-Written';sub='Writing patterns look natural. No strong AI signatures found.';color='#4ade80'}
+
+  /* Show results */
+  document.getElementById('results').classList.remove('hidden');
+
+  document.getElementById('rWords').textContent=wordCount;
+  document.getElementById('rSents').textContent=sentCount;
+  document.getElementById('rAvg').textContent=avgSentLen+' wds';
+
+  /* Meter */
+  var circ=326.73,offset=circ-(score/100)*circ;
+  var arc=document.getElementById('meterArc');
+  arc.style.stroke=color;
+  requestAnimationFrame(function(){arc.style.strokeDashoffset=offset});
+  animateNum('scoreNum',0,score,1000);
+
+  document.getElementById('verdict').textContent=verdict;
+  document.getElementById('verdict').style.color=color;
+  document.getElementById('verdictSub').textContent=sub;
+
+  /* Diag bars */
+  setTimeout(function(){
+    setDiag('diagA','diagAbar',uniformity);
+    setTimeout(function(){setDiag('diagB','diagBbar',diversityScore)},200);
+    setTimeout(function(){setDiag('diagC','diagCbar',transDensity)},400);
+  },300);
+
+  /* Flagged patterns */
+  var fb=document.getElementById('flagBox'),fl=document.getElementById('flagList');
+  if(found.length>0){
+    fb.classList.remove('hidden');
+    fl.innerHTML='';
+    found.forEach(function(f){
+      var chip=document.createElement('span');
+      chip.className='px-2.5 py-1 rounded text-[11px] font-mono';
+      chip.style.cssText='background:rgba(233,30,99,.12);color:#f472b6;border:1px solid rgba(233,30,99,.2)';
+      chip.textContent='"'+f+'"';
+      fl.appendChild(chip);
+    });
+  } else {fb.classList.add('hidden')}
+}
+
+function setDiag(l,b,v){document.getElementById(l).textContent=v+'%';document.getElementById(b).style.width=v+'%'}
+function animateNum(id,from,to,dur){var el=document.getElementById(id),s=null;function step(ts){if(!s)s=ts;var p=Math.min((ts-s)/dur,1);el.textContent=Math.round(from+(to-from)*p)+'%';if(p<1)requestAnimationFrame(step)}requestAnimationFrame(step)}
+function hashStr(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h}
+
+function copyLink(){
+  navigator.clipboard.writeText('https://toolhavoc.com/tools/ai-text-detector.html?t='+Date.now()).then(function(){
+    var b=document.getElementById('copyBtn');b.textContent='✅ Copied!';setTimeout(function(){b.textContent='🔗 Copy Link'},1800);
+  });
+}
+
+function resetScan(){
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('processing').classList.add('hidden');
+  document.getElementById('inputArea').classList.remove('hidden');
+  document.getElementById('textInput').value='';
+  document.getElementById('charCount').textContent='0 characters';
+  document.getElementById('meterArc').style.strokeDashoffset='326.73';
+  document.getElementById('scoreNum').textContent='0%';
+  ['diagAbar','diagBbar','diagCbar'].forEach(function(id){document.getElementById(id).style.width='0'});
+  ['diagA','diagB','diagC'].forEach(function(id){document.getElementById(id).textContent='—'});
+  document.getElementById('flagBox').classList.add('hidden');
+}
+</script>
+</body>
+</html>

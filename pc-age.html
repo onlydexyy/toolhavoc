@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Old Is My PC? — ToolHavoc</title>
+<meta name="description" content="Scans your GPU, CPU cores, and RAM to estimate your device's age.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%234facfe'/%3E%3Cstop offset='100%25' stop-color='%23e91e63'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='56' height='56' rx='12' fill='none' stroke='url(%23g)' stroke-width='3' opacity='.5'/%3E%3Cpath d='M20 16v32M44 16v32M20 32h24' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>
+@font-face{font-family:'New Rocker';src:url('../fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#020205}
+::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+.glass-panel{background:rgba(9,13,22,.30)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important;border:1px solid rgba(51,65,85,.6);border-radius:16px}
+.nav-bar{position:fixed;top:0;left:0;right:0;z-index:50;height:56px;display:flex;align-items:center;background:rgba(2,2,5,.7);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid rgba(51,65,85,.4)}
+.wing{display:none;position:fixed;top:0;bottom:0;width:5vw;min-width:48px;max-width:80px;pointer-events:none;z-index:5;flex-direction:column;align-items:center;overflow:hidden}
+@media(min-width:1280px){.wing{display:flex}}
+.wing-line{position:absolute;top:0;bottom:0;width:1px;background:repeating-linear-gradient(to bottom,rgba(51,65,85,.18) 0px,rgba(51,65,85,.18) 4px,transparent 4px,transparent 10px)}
+.wing-left .wing-line{right:0}.wing-right .wing-line{left:0}
+.xhair{position:absolute;width:12px;height:12px;opacity:.35}
+.xhair-top{top:56px}.xhair-bot{bottom:16px}
+.wing-coord{position:absolute;font-family:monospace;font-size:7px;letter-spacing:.08em;color:rgba(100,116,139,.28);text-transform:uppercase;white-space:nowrap;line-height:1}
+.wing-left .wing-coord{right:6px;top:50%;writing-mode:vertical-rl;transform:rotate(180deg) translateY(50%)}
+.wing-right .wing-coord{left:6px;top:50%;writing-mode:vertical-rl;transform:rotate(0deg) translateY(-50%)}
+.ticker-tunnel{position:absolute;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;overflow:hidden;width:28px}
+.wing-left .ticker-tunnel{left:4px}.wing-right .ticker-tunnel{right:4px}
+.ticker-track{display:flex;flex-direction:column;gap:20px;animation-timing-function:linear;animation-iteration-count:infinite;will-change:transform}
+.ticker-track-down{animation:tickDown 30s linear infinite}
+.ticker-track-up{animation:tickUp 34s linear infinite}
+@keyframes tickDown{0%{transform:translateY(-50%)}100%{transform:translateY(0%)}}
+@keyframes tickUp{0%{transform:translateY(0%)}100%{transform:translateY(-50%)}}
+.tick-item{font-family:monospace;font-size:7.5px;font-weight:400;letter-spacing:.12em;color:rgba(71,85,105,.38);text-transform:uppercase;white-space:nowrap;writing-mode:vertical-rl;line-height:1;user-select:none;-webkit-user-select:none}
+.tick-item.hi{color:rgba(79,172,254,.28)}.tick-item.mg{color:rgba(233,30,99,.22)}.tick-item.gr{color:rgba(34,197,94,.25)}
+.ad-slot{min-height:95px;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:8px;position:relative;overflow:hidden}
+.ad-label{position:absolute;top:6px;left:10px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(71,85,105,.5)}
+#request-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,2,5,.75);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .3s ease}
+#request-modal.open{opacity:1;pointer-events:all}
+.rmodal-box{width:100%;max-width:460px;background:rgba(9,13,22,.72);border:1px solid rgba(79,172,254,.22);border-radius:16px;padding:32px 28px;box-shadow:0 0 60px rgba(79,172,254,.08),inset 0 0 0 1px rgba(255,255,255,.04);transform:translateY(16px) scale(.97);transition:transform .35s cubic-bezier(.22,1,.36,1);position:relative}
+#request-modal.open .rmodal-box{transform:translateY(0) scale(1)}
+.rmodal-box h2{font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:4px}
+.rmodal-box p{font-size:13px;color:#64748b;margin-bottom:22px}
+.rf-label{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#475569;margin-bottom:5px}
+.rf-input{width:100%;background:rgba(2,2,5,.55);border:1px solid rgba(51,65,85,.55);border-radius:8px;color:#e2e8f0;font-size:13px;padding:10px 13px;outline:none;transition:border-color .25s,box-shadow .25s;font-family:inherit;resize:none}
+.rf-input:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172,254,.08)}
+.rf-input::placeholder{color:#334155}
+.rf-row{margin-bottom:15px}
+.rmodal-submit{width:100%;margin-top:6px;padding:11px;border-radius:9px;border:none;cursor:pointer;font-weight:700;font-size:13px;letter-spacing:.04em;color:#fff;background:linear-gradient(135deg,#4facfe,#e91e63);box-shadow:0 0 20px rgba(79,172,254,.18);transition:opacity .2s,transform .15s}
+.rmodal-submit:hover{opacity:.88}
+.rmodal-submit:active{transform:scale(.96)}
+.rmodal-close{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:#475569;font-size:18px;line-height:1;transition:color .2s}
+.rmodal-close:hover{color:#94a3b8}
+:root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--accent2:#8b5cf6;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s}
+nav a:hover{color:var(--text)}
+.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.container{max-width:700px;margin:0 auto;padding:80px 20px 40px}
+
+.hero{text-align:center;margin-bottom:40px}
+.hero h1{font-size:clamp(28px,5vw,42px);font-weight:900;letter-spacing:-1px;margin-bottom:8px}
+.hero h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--text2);font-size:16px}
+
+.scan-btn{
+  display:block;width:100%;max-width:400px;margin:0 auto 40px;
+  padding:16px;border-radius:14px;border:none;
+  background:var(--gradient);color:#fff;font-family:'Inter',sans-serif;
+  font-size:18px;font-weight:700;cursor:pointer;transition:all 0.3s;
+  box-shadow:0 0 30px rgba(99,102,241,0.2);
+}
+.scan-btn:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(99,102,241,0.3)}
+.scan-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+/* Progress */
+.progress-wrap{display:none;margin-bottom:32px}
+.progress-bar{height:4px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;width:0;background:var(--gradient);border-radius:4px;transition:width 0.3s}
+.progress-status{font-size:13px;color:var(--text2);text-align:center}
+
+/* Results */
+.results{display:none}
+.grade-card{
+  text-align:center;padding:40px 20px;border-radius:20px;margin-bottom:24px;
+  background:var(--card);border:1px solid var(--card-border);position:relative;overflow:hidden;
+}
+.grade-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gradient)}
+.grade-letter{font-size:80px;font-weight:900;line-height:1;margin-bottom:4px}
+.grade-label{font-size:20px;font-weight:700;margin-bottom:8px}
+.grade-age{font-size:15px;color:var(--text2)}
+.grade-roast{font-size:16px;color:var(--text2);margin-top:16px;line-height:1.6;max-width:500px;margin-left:auto;margin-right:auto}
+
+.specs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.spec-card{
+  background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:16px;
+  transition:all 0.3s;
+}
+.spec-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px)}
+.spec-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.spec-value{font-size:15px;font-weight:600}
+
+.share-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.share-btn{
+  padding:10px 20px;border-radius:10px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;
+  font-weight:600;cursor:pointer;transition:all 0.3s;
+}
+.share-btn:hover{border-color:var(--accent1);background:rgba(99,102,241,0.1)}
+
+/* Ad slot */
+.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
+</style>
+</head>
+<body class="relative min-h-screen font-sans text-slate-300 overflow-x-hidden" style="background:#020205">
+
+<canvas id="bg-canvas" class="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none"></canvas>
+
+<div class="wing wing-left" style="left:1.5vw" aria-hidden="true">
+  <div class="wing-line"></div>
+  <div class="xhair xhair-top" style="right:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="0" x2="6" y2="4" stroke="rgba(79,172,254,.4)" stroke-width="1"/><line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.4)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.5)"/></svg></div>
+  <div class="xhair xhair-bot" style="right:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="12" x2="6" y2="8" stroke="rgba(79,172,254,.25)" stroke-width="1"/><line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.25)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.3)"/></svg></div>
+  <span class="wing-coord">X:0.00 · Y:0.00</span>
+  <div class="ticker-tunnel"><div class="ticker-track ticker-track-down">
+    <span class="tick-item hi">[SYSTEM_OK]</span><span class="tick-item">——————</span><span class="tick-item gr">[SCANNER_CORE]</span><span class="tick-item">0x4F AC FE</span><span class="tick-item hi">[LATENCY: 11ms]</span><span class="tick-item">——————</span><span class="tick-item">[ENGINE_ON]</span><span class="tick-item">PWR: 100%</span><span class="tick-item mg">[HAVOC_v2.6]</span><span class="tick-item">——————</span><span class="tick-item">[TOOLS: 35]</span><span class="tick-item gr">[UPTIME: OK]</span><span class="tick-item">SYS_CLK: RUN</span><span class="tick-item hi">[NET_OK]</span><span class="tick-item">——————</span><span class="tick-item">[RENDER: 60fps]</span><span class="tick-item mg">[MEM: CLEAN]</span><span class="tick-item">0x00 00 05</span><span class="tick-item">[BOOT_SEQ: OK]</span><span class="tick-item gr">——————</span>
+    <span class="tick-item hi">[SYSTEM_OK]</span><span class="tick-item">——————</span><span class="tick-item gr">[SCANNER_CORE]</span><span class="tick-item">0x4F AC FE</span><span class="tick-item hi">[LATENCY: 11ms]</span><span class="tick-item">——————</span><span class="tick-item">[ENGINE_ON]</span><span class="tick-item">PWR: 100%</span><span class="tick-item mg">[HAVOC_v2.6]</span><span class="tick-item">——————</span><span class="tick-item">[TOOLS: 35]</span><span class="tick-item gr">[UPTIME: OK]</span><span class="tick-item">SYS_CLK: RUN</span><span class="tick-item hi">[NET_OK]</span><span class="tick-item">——————</span><span class="tick-item">[RENDER: 60fps]</span><span class="tick-item mg">[MEM: CLEAN]</span><span class="tick-item">0x00 00 05</span><span class="tick-item">[BOOT_SEQ: OK]</span><span class="tick-item gr">——————</span>
+  </div></div>
+</div>
+
+<div class="wing wing-right" style="right:1.5vw" aria-hidden="true">
+  <div class="wing-line"></div>
+  <div class="xhair xhair-top" style="left:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="0" x2="6" y2="4" stroke="rgba(233,30,99,.35)" stroke-width="1"/><line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.35)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.4)"/></svg></div>
+  <div class="xhair xhair-bot" style="left:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="12" x2="6" y2="8" stroke="rgba(233,30,99,.2)" stroke-width="1"/><line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.2)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.25)"/></svg></div>
+  <span class="wing-coord">W:100% · H:∞</span>
+  <div class="ticker-tunnel"><div class="ticker-track ticker-track-up">
+    <span class="tick-item hi">[HAVOC_MATRIX]</span><span class="tick-item">——————</span><span class="tick-item mg">[BLOB_GEN: RDY]</span><span class="tick-item">FPS: 60.0</span><span class="tick-item gr">[SESSION_LIVE]</span><span class="tick-item">——————</span><span class="tick-item">[CANVAS: ON]</span><span class="tick-item hi">[ORBS: 3]</span><span class="tick-item">[PARTICLES: 25]</span><span class="tick-item">——————</span><span class="tick-item mg">[RIPPLE: ARMED]</span><span class="tick-item gr">0xE9 1E 63</span><span class="tick-item">[TOOLS: LIVE]</span><span class="tick-item hi">——————</span><span class="tick-item">[AD_SLOT: 2]</span><span class="tick-item mg">[REV: ACTIVE]</span><span class="tick-item">SRC: ADSTERRA</span><span class="tick-item gr">[DEXYY_BUILD]</span><span class="tick-item">——————</span>
+    <span class="tick-item hi">[HAVOC_MATRIX]</span><span class="tick-item">——————</span><span class="tick-item mg">[BLOB_GEN: RDY]</span><span class="tick-item">FPS: 60.0</span><span class="tick-item gr">[SESSION_LIVE]</span><span class="tick-item">——————</span><span class="tick-item">[CANVAS: ON]</span><span class="tick-item hi">[ORBS: 3]</span><span class="tick-item">[PARTICLES: 25]</span><span class="tick-item">——————</span><span class="tick-item mg">[RIPPLE: ARMED]</span><span class="tick-item gr">0xE9 1E 63</span><span class="tick-item">[TOOLS: LIVE]</span><span class="tick-item hi">——————</span><span class="tick-item">[AD_SLOT: 2]</span><span class="tick-item mg">[REV: ACTIVE]</span><span class="tick-item">SRC: ADSTERRA</span><span class="tick-item gr">[DEXYY_BUILD]</span><span class="tick-item">——————</span>
+  </div></div>
+</div>
+
+<nav class="nav-bar">
+  <div class="max-w-4xl w-full mx-auto px-4 flex items-center justify-between">
+    <a href="../index.html" class="text-slate-500 hover:text-slate-200 transition font-mono text-xs tracking-wide" style="text-decoration:none">&larr; Dashboard</a>
+    <a href="../index.html" class="absolute left-1/2 -translate-x-1/2 text-white text-2xl md:text-3xl font-extrabold tracking-widest" style="text-decoration:none;font-family:'New Rocker','Inter',sans-serif;text-shadow:0 1px 0 #cbd5e1,0 2px 0 #94a3b8,0 3px 0 #475569,0 4px 10px rgba(6,182,212,0.5)">HAVOC</a>
+    <button onclick="openReqModal()" class="px-3 py-1 rounded-lg text-[12px] font-semibold tracking-wide transition" style="cursor:pointer;color:#4facfe;border:1px solid rgba(79,172,254,.22);background:transparent" onmouseover="this.style.borderColor='rgba(79,172,254,.5)';this.style.background='rgba(79,172,254,.06)'" onmouseout="this.style.borderColor='rgba(79,172,254,.22)';this.style.background='transparent'">+ Request Tool</button>
+  </div>
+</nav>
+
+<div class="relative z-10 pt-20 pb-16">
+  <div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="text-3xl">💻</span>
+        <div>
+          <h1 class="text-2xl font-black text-white tracking-tight">How Old Is My PC?</h1>
+          <p class="text-sm text-slate-500">Scans your GPU, CPU cores, and RAM to estimate your device's age.</p>
+        </div>
+      </div>
+    </div>
+    <div class="ad-slot mb-6"><span class="ad-label">Community Partner</span><!-- INSERT ADSTERRA TOP AD CODE --></div>
+    <div class="glass-panel p-6 md:p-8 mb-6">
+<div class="container">
+  <div class="hero">
+    <h1>How Old Is <span>Your PC</span>?</h1>
+    <p>We scan your GPU, CPU, and RAM to find out — then roast you for it.</p>
+  </div>
+
+  <button class="scan-btn" id="scanBtn" onclick="startScan()">🔍 Scan My Device</button>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-status" id="progressStatus">Initializing scan...</div>
+  </div>
+
+  <div class="ad-slot" style="text-align:center;padding:20px 0;margin:20px 0;overflow:hidden">
+
+<div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
+</div>
+
+<div class="ad-slot" style="text-align:center;padding:20px 0;margin:20px 0;overflow:hidden">
+
+
+</div>
+
+  <div class="results" id="results">
+    <div class="grade-card" id="gradeCard">
+      <div class="grade-letter" id="gradeLetter">?</div>
+      <div class="grade-label" id="gradeLabel"></div>
+      <div class="grade-age" id="gradeAge"></div>
+      <div class="grade-roast" id="gradeRoast"></div>
+    </div>
+
+    <div class="specs-grid" id="specsGrid"></div>
+
+    <div class="share-row">
+      <button class="share-btn" onclick="shareResult('twitter')">Share on X</button>
+      <button class="share-btn" onclick="shareResult('copy')">📋 Copy Result</button>
+      <button class="share-btn" onclick="shareResult('native')">📤 Share</button>
+    </div>
+  </div>
+
+  <div class="ad-slot" style="text-align:center;padding:20px 0;margin:20px 0;overflow:hidden">
+
+<div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
+</div>
+
+<div class="ad-slot" style="text-align:center;padding:20px 0;margin:20px 0;overflow:hidden">
+
+
+</div>
+</div>
+    </div>
+    <div class="ad-slot"><span class="ad-label">Community Partner</span><!-- INSERT ADSTERRA BOTTOM AD CODE --></div>
+  </div>
+</div>
+
+<div id="request-modal" role="dialog" aria-modal="true" onclick="if(event.target===this)closeReqModal()">
+  <div class="rmodal-box">
+    <button class="rmodal-close" onclick="closeReqModal()">&#x2715;</button>
+    <h2>&#x1F6E0;&#xFE0F; Request a Tool</h2>
+    <p>Got an idea? Drop it below and we'll build it.</p>
+    <form id="reqForm" onsubmit="submitReq(event)">
+      <div class="rf-row"><label class="rf-label" for="rf-name">Tool Name</label><input id="rf-name" class="rf-input" type="text" placeholder="e.g. Battery Health Scanner" required maxlength="80"></div>
+      <div class="rf-row"><label class="rf-label" for="rf-desc">What should it do?</label><textarea id="rf-desc" class="rf-input" rows="4" placeholder="Describe what this tool should check, test, or generate..." required maxlength="500"></textarea></div>
+      <button type="submit" class="rmodal-submit">Send Request &#x2192;</button>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  var canvas=document.getElementById('bg-canvas');
+  if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var W,H,isMobile;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;isMobile=W<=768;}
+  resize();
+  window.addEventListener('resize',resize,{passive:true});
+  var orbs=[
+    {baseX:-.1,baseY:-.1,r:.55,r2:.65,color:'79,172,254',phase:0,speed:.000065,amp:.07},
+    {baseX:1.1,baseY:.35,r:.60,r2:.70,color:'233,30,99',phase:2.1,speed:.000050,amp:.06},
+    {baseX:.1,baseY:1.05,r:.50,r2:.58,color:'34,197,94',phase:4.2,speed:.000080,amp:.05}
+  ];
+  var particles=[];
+  for(var i=0;i<25;i++) particles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:0,vy:0,alpha:0,size:1+Math.random()*1.5,color:Math.random()>.5?'79,172,254':'148,163,184'});
+  var mouseX=-9999,mouseY=-9999,lastMouse=0,ripples=[],rippleIdx=0;
+  var RC=['79,172,254','233,30,99','34,197,94'];
+  function spawnRipple(x,y,ts){ripples.push({x:x,y:y,born:ts||performance.now(),maxR:60+Math.random()*40,color:RC[rippleIdx++%3]});}
+  window.addEventListener('mousemove',function(e){if(isMobile)return;var n=Date.now();if(n-lastMouse<16)return;lastMouse=n;mouseX=e.clientX;mouseY=e.clientY;},{passive:true});
+  window.addEventListener('mousedown',function(e){spawnRipple(e.clientX,e.clientY);},{passive:true});
+  window.addEventListener('touchstart',function(e){for(var i=0;i<e.touches.length;i++)spawnRipple(e.touches[i].clientX,e.touches[i].clientY);},{passive:true});
+  var rafId=null;
+  function render(now){
+    rafId=requestAnimationFrame(render);
+    ctx.fillStyle='#020205';ctx.fillRect(0,0,W,H);
+    for(var o=0;o<orbs.length;o++){
+      var ob=orbs[o],t=now*ob.speed+ob.phase;
+      var cx=(ob.baseX+Math.sin(t)*ob.amp)*W,cy=(ob.baseY+Math.cos(t*.7)*ob.amp)*H;
+      var radius=ob.r*Math.min(W,H),breathe=1+.08*Math.sin(t*1.3),alpha=.12+.06*Math.sin(t*.9);
+      var grad=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*breathe);
+      grad.addColorStop(0,'rgba('+ob.color+','+alpha.toFixed(3)+')');
+      grad.addColorStop(.5,'rgba('+ob.color+','+(alpha*.4).toFixed(3)+')');
+      grad.addColorStop(1,'rgba('+ob.color+',0)');
+      ctx.beginPath();ctx.arc(cx,cy,radius*breathe*ob.r2,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
+    }
+    if(!isMobile){
+      for(var p=0;p<particles.length;p++){
+        var pt=particles[p],dx=mouseX-pt.x,dy=mouseY-pt.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
+        var pull=Math.min(80/dist,3.5);
+        pt.vx+=(dx/dist)*pull*.08;pt.vy+=(dy/dist)*pull*.08;pt.vx*=.88;pt.vy*=.88;
+        pt.x+=pt.vx;pt.y+=pt.vy;
+        var speed=Math.sqrt(pt.vx*pt.vx+pt.vy*pt.vy);pt.alpha=Math.min(speed*.18,.85);
+        if(pt.alpha<.01)continue;
+        ctx.save();ctx.globalAlpha=pt.alpha;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.size+speed*.3,0,Math.PI*2);
+        ctx.fillStyle='rgba('+pt.color+',1)';ctx.shadowBlur=8+speed*2;ctx.shadowColor='rgba('+pt.color+',.6)';ctx.fill();ctx.restore();
+      }
+    }
+    for(var r=ripples.length-1;r>=0;r--){
+      var rp=ripples[r],age=(now-rp.born)/600;
+      if(age>=1){ripples.splice(r,1);continue;}
+      var eased=1-Math.pow(1-age,3);
+      ctx.save();ctx.globalAlpha=(1-age)*.65;ctx.beginPath();ctx.arc(rp.x,rp.y,rp.maxR*eased,0,Math.PI*2);
+      ctx.strokeStyle='rgba('+rp.color+',1)';ctx.lineWidth=1.5*(1-age*.6);ctx.shadowBlur=12*(1-age);ctx.shadowColor='rgba('+rp.color+',.5)';ctx.stroke();ctx.restore();
+    }
+  }
+  rafId=requestAnimationFrame(render);
+  window.addEventListener('pagehide',function(){if(rafId)cancelAnimationFrame(rafId);});
+})();
+function openReqModal(){var m=document.getElementById('request-modal');m.classList.add('open');document.body.style.overflow='hidden';setTimeout(function(){document.getElementById('rf-name').focus();},320);}
+function closeReqModal(){document.getElementById('request-modal').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeReqModal();});
+function submitReq(e){
+  e.preventDefault();
+  var name=document.getElementById('rf-name').value.trim();
+  var desc=document.getElementById('rf-desc').value.trim();
+  var subject=encodeURIComponent('ToolHavoc Tool Request: '+name);
+  var body=encodeURIComponent('Tool Name: '+name+'\n\nDescription:\n'+desc+'\n\n— Submitted via ToolHavoc.com');
+  window.location.href='mailto:nathanielwade2x@gmail.com?subject='+subject+'&body='+body;
+  setTimeout(function(){
+    document.getElementById('reqForm').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:36px;margin-bottom:12px">&#x2705;</div><div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div><div style="color:#64748b;font-size:13px">We'll look into building <strong style="color:#94a3b8">'+name.replace(/</g,"&lt;")+'</strong> soon.</div><button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button></div>';
+  },800);
+}
+atOptions = {
+    'key' : '4eb8d16a9cbab1deebe011d440079990',
+    'format' : 'iframe',
+    'height' : 250,
+    'width' : 300,
+    'params' : {}
+  };
+atOptions = {
+    'key' : '4eb8d16a9cbab1deebe011d440079990',
+    'format' : 'iframe',
+    'height' : 250,
+    'width' : 300,
+    'params' : {}
+  };
+// GPU database: name pattern → release year
+const gpuDB = [
+  // NVIDIA RTX 50 series
+  [/RTX\s*50\d0/i, 2025],
+  // NVIDIA RTX 40 series
+  [/RTX\s*40\d0/i, 2022], [/RTX\s*4060/i, 2023], [/RTX\s*4070/i, 2023],
+  // NVIDIA RTX 30 series
+  [/RTX\s*30\d0/i, 2020], [/RTX\s*3060/i, 2021], [/RTX\s*3050/i, 2022],
+  // NVIDIA RTX 20 series
+  [/RTX\s*20\d0/i, 2018], [/RTX\s*2060/i, 2019],
+  // NVIDIA GTX 16 series
+  [/GTX\s*16\d0/i, 2019],
+  // NVIDIA GTX 10 series
+  [/GTX\s*10\d0/i, 2016], [/GTX\s*1050/i, 2016], [/GTX\s*1060/i, 2016], [/GTX\s*1070/i, 2016], [/GTX\s*1080/i, 2016],
+  // NVIDIA GTX 9 series
+  [/GTX\s*9\d0/i, 2014], [/GTX\s*960/i, 2015], [/GTX\s*950/i, 2015],
+  // NVIDIA GTX 7 series
+  [/GTX\s*7\d0/i, 2013],
+  // NVIDIA GTX 6 series
+  [/GTX\s*6\d0/i, 2012],
+  // NVIDIA MX series (laptop)
+  [/MX\s*5\d0/i, 2023], [/MX\s*4\d0/i, 2021], [/MX\s*3\d0/i, 2019], [/MX\s*2\d0/i, 2017], [/MX\s*1\d0/i, 2017],
+  // AMD RX 9000 series
+  [/RX\s*9\d{3}/i, 2025],
+  // AMD RX 7000 series
+  [/RX\s*7\d{3}/i, 2022], [/RX\s*7600/i, 2023], [/RX\s*7700/i, 2023], [/RX\s*7800/i, 2023],
+  // AMD RX 6000 series
+  [/RX\s*6\d{3}/i, 2020], [/RX\s*6600/i, 2021], [/RX\s*6500/i, 2022],
+  // AMD RX 5000 series
+  [/RX\s*5\d{3}/i, 2019],
+  // AMD RX 500 series
+  [/RX\s*5[89]0/i, 2017], [/RX\s*5[67]0/i, 2017],
+  // AMD RX 400 series
+  [/RX\s*4[89]0/i, 2016], [/RX\s*4[67]0/i, 2016],
+  // AMD Vega
+  [/Vega/i, 2017],
+  // Intel Arc
+  [/Arc\s*B\d{3}/i, 2024], [/Arc\s*A\d{3}/i, 2022],
+  // Intel integrated
+  [/Iris\s*Xe/i, 2020], [/UHD\s*7\d0/i, 2020], [/UHD\s*6\d0/i, 2017], [/UHD\s*Graphics/i, 2017],
+  [/Iris\s*Plus/i, 2019], [/Iris\s*Pro/i, 2015], [/HD\s*Graphics\s*[56]\d0/i, 2015], [/HD\s*Graphics\s*[34]\d0/i, 2013],
+  [/HD\s*Graphics/i, 2012],
+  // Apple Silicon
+  [/Apple\s*M4/i, 2024], [/Apple\s*M3/i, 2023], [/Apple\s*M2/i, 2022], [/Apple\s*M1/i, 2020],
+  [/Apple\s*GPU/i, 2020],
+  // Qualcomm (mobile/ARM laptops)
+  [/Adreno\s*7/i, 2022], [/Adreno\s*6/i, 2019], [/Adreno\s*5/i, 2016],
+  // Mali (mobile)
+  [/Mali-G[78]/i, 2020], [/Mali-G[56]/i, 2017], [/Mali/i, 2015],
+];
+
+function detectGPU() {
+  try {
+    const c = document.createElement('canvas');
+    const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+    if (!gl) return {name:'Unknown',year:null};
+    const ext = gl.getExtension('WEBGL_debug_renderer_info');
+    if (!ext) return {name:'Unknown (blocked)',year:null};
+    const renderer = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
+    let year = null;
+    for (const [pattern, y] of gpuDB) {
+      if (pattern.test(renderer)) { year = y; break; }
+    }
+    return {name: renderer, year};
+  } catch(e) { return {name:'Error detecting',year:null}; }
+}
+
+function detectSpecs() {
+  const gpu = detectGPU();
+  return {
+    gpu: gpu.name,
+    gpuYear: gpu.year,
+    cores: navigator.hardwareConcurrency || null,
+    ram: navigator.deviceMemory || null,
+    screenW: screen.width,
+    screenH: screen.height,
+    pixelRatio: window.devicePixelRatio || 1,
+    colorDepth: screen.colorDepth,
+    browser: (() => {
+      const ua = navigator.userAgent;
+      if (ua.includes('Edg/')) return 'Edge';
+      if (ua.includes('Chrome/')) return 'Chrome';
+      if (ua.includes('Firefox/')) return 'Firefox';
+      if (ua.includes('Safari/') && !ua.includes('Chrome')) return 'Safari';
+      return 'Unknown';
+    })(),
+    os: (() => {
+      const p = navigator.platform || '';
+      const ua = navigator.userAgent;
+      if (ua.includes('Windows')) return 'Windows';
+      if (ua.includes('Mac')) return 'macOS';
+      if (ua.includes('Linux')) return 'Linux';
+      if (ua.includes('Android')) return 'Android';
+      if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
+      if (ua.includes('CrOS')) return 'ChromeOS';
+      return p || 'Unknown';
+    })(),
+    touchscreen: navigator.maxTouchPoints > 0,
+  };
+}
+
+function estimateAge(specs) {
+  const currentYear = new Date().getFullYear();
+  let estimatedYear = null;
+
+  // Primary: GPU year
+  if (specs.gpuYear) {
+    estimatedYear = specs.gpuYear;
+  }
+
+  // Fallback heuristics
+  if (!estimatedYear) {
+    const cores = specs.cores;
+    const ram = specs.ram;
+    if (cores && ram) {
+      if (cores >= 16 && ram >= 8) estimatedYear = currentYear - 1;
+      else if (cores >= 8 && ram >= 8) estimatedYear = currentYear - 3;
+      else if (cores >= 8) estimatedYear = currentYear - 4;
+      else if (cores >= 4 && ram >= 4) estimatedYear = currentYear - 5;
+      else if (cores >= 4) estimatedYear = currentYear - 6;
+      else if (cores >= 2) estimatedYear = currentYear - 8;
+      else estimatedYear = currentYear - 10;
+    } else if (cores) {
+      if (cores >= 16) estimatedYear = currentYear - 2;
+      else if (cores >= 8) estimatedYear = currentYear - 4;
+      else if (cores >= 4) estimatedYear = currentYear - 6;
+      else estimatedYear = currentYear - 9;
+    } else {
+      estimatedYear = currentYear - 5; // total fallback
+    }
+  }
+
+  const age = currentYear - estimatedYear;
+  return { year: estimatedYear, age: Math.max(0, age) };
+}
+
+function getGrade(age) {
+  if (age <= 1) return {letter:'S', label:'Brand New Beast', color:'#22c55e'};
+  if (age <= 2) return {letter:'A', label:'Modern Powerhouse', color:'#4ade80'};
+  if (age <= 4) return {letter:'B', label:'Still Got It', color:'#6366f1'};
+  if (age <= 6) return {letter:'C', label:'Showing Its Age', color:'#f59e0b'};
+  if (age <= 8) return {letter:'D', label:'Veteran Machine', color:'#f97316'};
+  return {letter:'F', label:'Digital Fossil', color:'#ef4444'};
+}
+
+function getRoast(grade, specs) {
+  const roasts = {
+    S: [
+      "Your PC is so new it still has that fresh silicon smell. Flex on 'em. 💪",
+      "This thing is younger than most TikTok trends. You're literally living in the future.",
+      "NASA called — they want their hardware back. This machine is absurd.",
+    ],
+    A: [
+      "Solid setup. Your PC can handle anything you throw at it — except maybe your life choices.",
+      "This is a respectable machine. Your PC has more power than some people's personalities.",
+      "Not bad at all. You could run Cyberpunk on this. Whether you SHOULD is another question.",
+    ],
+    B: [
+      "Your PC is like a reliable Honda Civic — it gets the job done but nobody's impressed.",
+      "Still kicking! But it sweats a little when you open too many Chrome tabs. Don't we all.",
+      "Mid-tier legend. Your PC peaked a few years ago, just like most of us.",
+    ],
+    C: [
+      "Your PC is old enough to have a driver's permit in some states. Time to think about an upgrade?",
+      "This PC has been through things. It's seen Windows updates that broke it and lived to tell the tale.",
+      "Your computer runs like it's remembering the good old days instead of living in them.",
+    ],
+    D: [
+      "Your PC belongs in a museum right next to the dinosaur bones. Literally ancient.",
+      "I've seen calculators with more processing power. This thing is running on hopes and prayers.",
+      "Your PC is so old, it probably remembers when Internet Explorer was the default browser. Unironically.",
+    ],
+    F: [
+      "I'm genuinely impressed this thing turned on. Did you find it at a yard sale? In 2015?",
+      "Your PC is a certified relic. Archaeologists are interested. Seriously.",
+      "This computer has no business being on the internet in the current year. It deserves retirement.",
+    ],
+  };
+  const arr = roasts[grade] || roasts.C;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+async function startScan() {
+  const btn = document.getElementById('scanBtn');
+  const prog = document.getElementById('progressWrap');
+  const fill = document.getElementById('progressFill');
+  const status = document.getElementById('progressStatus');
+  const results = document.getElementById('results');
+
+  btn.disabled = true;
+  prog.style.display = 'block';
+  results.style.display = 'none';
+
+  const steps = [
+    {pct:15, msg:'Detecting GPU...'},
+    {pct:35, msg:'Reading CPU cores...'},
+    {pct:55, msg:'Checking memory...'},
+    {pct:75, msg:'Analyzing screen...'},
+    {pct:90, msg:'Calculating device age...'},
+    {pct:100, msg:'Generating roast...'},
+  ];
+
+  for (const step of steps) {
+    fill.style.width = step.pct + '%';
+    status.textContent = step.msg;
+    await new Promise(r => setTimeout(r, 400 + Math.random()*300));
+  }
+
+  const specs = detectSpecs();
+  const {year, age} = estimateAge(specs);
+  const grade = getGrade(age);
+  const roast = getRoast(grade.letter, specs);
+
+  // Show results
+  await new Promise(r => setTimeout(r, 300));
+  prog.style.display = 'none';
+  results.style.display = 'block';
+
+  document.getElementById('gradeLetter').textContent = grade.letter;
+  document.getElementById('gradeLetter').style.color = grade.color;
+  document.getElementById('gradeLabel').textContent = grade.label;
+  document.getElementById('gradeAge').textContent = `Estimated: ~${year} (${age === 0 ? 'less than 1 year old' : age + ' year' + (age===1?'':'s') + ' old'})`;
+  document.getElementById('gradeRoast').textContent = roast;
+
+  // Specs grid
+  const grid = document.getElementById('specsGrid');
+  grid.innerHTML = '';
+  const specItems = [
+    {label:'GPU', value:specs.gpu.length > 40 ? specs.gpu.substring(0,40)+'…' : specs.gpu},
+    {label:'CPU Cores', value:specs.cores ? specs.cores + ' threads' : 'Hidden by browser'},
+    {label:'RAM', value:specs.ram ? specs.ram + ' GB (browser limit)' : 'Hidden by browser'},
+    {label:'Screen', value:`${specs.screenW}×${specs.screenH} @${specs.pixelRatio}x`},
+    {label:'Browser', value:specs.browser},
+    {label:'OS', value:specs.os},
+    {label:'Color Depth', value:specs.colorDepth + '-bit'},
+    {label:'Touch', value:specs.touchscreen ? 'Yes' : 'No'},
+  ];
+  specItems.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'spec-card';
+    card.innerHTML = `<div class="spec-label">${s.label}</div><div class="spec-value">${s.value}</div>`;
+    grid.appendChild(card);
+  });
+
+  btn.disabled = false;
+  btn.textContent = '🔄 Scan Again';
+
+  // Store for sharing
+  window._scanResult = {grade, age, year, specs, roast};
+}
+
+function shareResult(platform) {
+  if (!window._scanResult) return;
+  const r = window._scanResult;
+  const text = `My PC got a ${r.grade.letter} grade — "${r.grade.label}" (est. ~${r.year})\n\n${r.roast}\n\nScan yours: toolhavoc.com/tools/pc-age.html`;
+
+  if (platform === 'twitter') {
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+  } else if (platform === 'copy') {
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = event.target;
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => btn.textContent = '📋 Copy Result', 2000);
+    });
+  } else if (platform === 'native' && navigator.share) {
+    navigator.share({title:'My PC Age — ToolHavoc', text}).catch(()=>{});
+  }
+}
+</script>
+</body>
+</html>
