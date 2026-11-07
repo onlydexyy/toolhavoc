@@ -49,7 +49,6 @@ html{scroll-behavior:smooth}
 /* ══════════════════════════════════════════
    GLASS CARDS
    ══════════════════════════════════════════ */
-/* Safari-safe glass panel base */
 .glass-panel{
   background:rgba(9,13,22,.35)!important;
   -webkit-backdrop-filter:blur(24px)!important;
@@ -72,7 +71,6 @@ html{scroll-behavior:smooth}
 .gc h3{color:#f1f5f9;font-weight:600;font-size:17px;line-height:1.3;margin-bottom:6px;transition:color .3s}
 .gc:hover h3{color:#4facfe}
 .gc p{color:#94a3b8;font-size:13px;line-height:1.7;margin-top:4px}
-/* Featured trending cards span 2 columns on desktop */
 .gc-featured{grid-column:span 1}
 @media(min-width:1024px){.gc-featured{grid-column:span 2;padding:28px 32px}}
 .gc-featured h3{font-size:20px}
@@ -140,62 +138,324 @@ html{scroll-behavior:smooth}
 ::-webkit-scrollbar-thumb:hover{background:#334155}
 
 /* ══════════════════════════════════════════
-   NEBULA BREATHING + PARTICLES
+   BLUEPRINT WING SYSTEM (xl+ only)
    ══════════════════════════════════════════ */
-@keyframes nebula-breath{
-  0%  {transform:scale(1) rotate(0deg);    opacity:.08}
-  25% {transform:scale(1.08) rotate(2deg); opacity:.15}
-  50% {transform:scale(1.15) rotate(5deg); opacity:.18}
-  75% {transform:scale(1.06) rotate(2deg); opacity:.12}
-  100%{transform:scale(1) rotate(0deg);    opacity:.08}
+
+/* Wing containers — invisible on mobile / laptop */
+.wing{
+  display:none;
+  position:fixed;top:0;bottom:0;width:5vw;min-width:48px;max-width:80px;
+  pointer-events:none;z-index:5;flex-direction:column;align-items:center;
+  overflow:hidden;
 }
-.orb-breath{
-  will-change:transform,opacity;
-  animation:nebula-breath 16s ease-in-out infinite;
+@media(min-width:1280px){.wing{display:flex}}
+
+/* The dashed 1px guide line running full height */
+.wing-line{
+  position:absolute;top:0;bottom:0;width:1px;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(51,65,85,.18) 0px,
+    rgba(51,65,85,.18) 4px,
+    transparent 4px,
+    transparent 10px
+  );
 }
-.orb-breath-delay{
-  will-change:transform,opacity;
-  animation:nebula-breath 16s ease-in-out infinite;
-  animation-delay:-6s;
+.wing-left .wing-line{right:0}
+.wing-right .wing-line{left:0}
+
+/* Corner crosshair SVG marks */
+.xhair{
+  position:absolute;width:12px;height:12px;
+  opacity:.35;flex-shrink:0;
 }
-.orb-breath-delay2{
-  will-change:transform,opacity;
-  animation:nebula-breath 20s ease-in-out infinite;
-  animation-delay:-12s;
+.xhair-top{top:56px}
+.xhair-bot{bottom:16px}
+
+/* Rotated coordinate readout label */
+.wing-coord{
+  position:absolute;
+  font-family:monospace;font-size:7px;letter-spacing:.08em;
+  color:rgba(100,116,139,.28);text-transform:uppercase;white-space:nowrap;
+  line-height:1;
 }
-.star-particle{
-  position:absolute;width:1.5px;height:1.5px;border-radius:50%;
-  background:rgba(148,163,184,.35);
+.wing-left .wing-coord{
+  right:6px;top:50%;
+  writing-mode:vertical-rl;
+  transform:rotate(180deg) translateY(50%);
+}
+.wing-right .wing-coord{
+  left:6px;top:50%;
+  writing-mode:vertical-rl;
+  transform:rotate(0deg) translateY(-50%);
+}
+
+/* ═══ REQUEST MODAL ═══ */
+#request-modal{
+  position:fixed;inset:0;z-index:10000;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  background:rgba(2,2,5,.75);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+#request-modal.open{opacity:1;pointer-events:all}
+.rmodal-box{
+  width:100%;max-width:460px;
+  background:rgba(9,13,22,.72);
+  border:1px solid rgba(79,172,254,.22);
+  border-radius:16px;padding:32px 28px;
+  box-shadow:0 0 60px rgba(79,172,254,.08),0 0 0 1px rgba(255,255,255,.04) inset;
+  transform:translateY(16px) scale(.97);
+  transition:transform .35s cubic-bezier(.22,1,.36,1);
+  position:relative;
+}
+#request-modal.open .rmodal-box{transform:translateY(0) scale(1)}
+.rmodal-box h2{font-size:20px;font-weight:800;color:#f1f5f9;letter-spacing:-.01em;margin-bottom:4px}
+.rmodal-box p{font-size:13px;color:#64748b;margin-bottom:22px}
+.rf-label{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#475569;margin-bottom:5px}
+.rf-input{
+  width:100%;background:rgba(2,2,5,.55);
+  border:1px solid rgba(51,65,85,.55);border-radius:8px;
+  color:#e2e8f0;font-size:13px;padding:10px 13px;outline:none;
+  transition:border-color .25s,box-shadow .25s;
+  font-family:inherit;resize:none;
+}
+.rf-input:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172,254,.08)}
+.rf-input::placeholder{color:#334155}
+.rf-row{margin-bottom:15px}
+.rmodal-submit{
+  width:100%;margin-top:6px;padding:11px;border-radius:9px;border:none;cursor:pointer;
+  font-weight:700;font-size:13px;letter-spacing:.04em;color:#fff;
+  background:linear-gradient(135deg,#4facfe,#e91e63);
+  box-shadow:0 0 20px rgba(79,172,254,.18);
+  transition:opacity .2s,transform .15s;
+}
+.rmodal-submit:hover{opacity:.88}
+.rmodal-submit:active{transform:scale(.96);transition-duration:.08s}
+.rmodal-close{
+  position:absolute;top:14px;right:16px;
+  background:none;border:none;cursor:pointer;
+  color:#475569;font-size:18px;line-height:1;
+  transition:color .2s;
+}
+.rmodal-close:hover{color:#94a3b8}
+/* Mobile floating pill */
+.req-fab{
+  display:none;
+  position:fixed;bottom:72px;right:16px;z-index:200;
+  padding:9px 16px;border-radius:50px;border:none;cursor:pointer;
+  font-size:12px;font-weight:700;letter-spacing:.05em;color:#fff;
+  background:linear-gradient(135deg,#4facfe,#e91e63);
+  box-shadow:0 4px 20px rgba(79,172,254,.25);
+  transition:transform .15s,opacity .2s;
+}
+.req-fab:active{transform:scale(.93)}
+@media(max-width:767px){.req-fab{display:block}}
+
+/* ── Vertical Ticker Tunnel columns ── */
+.ticker-tunnel{
+  position:absolute;top:0;bottom:0;
+  display:flex;flex-direction:column;align-items:center;
+  overflow:hidden;
+  width:28px;
+}
+.wing-left .ticker-tunnel{left:4px}
+.wing-right .ticker-tunnel{right:4px}
+
+/* The scrolling track — duplicated content for seamless loop */
+.ticker-track{
+  display:flex;flex-direction:column;gap:20px;
+  animation-timing-function:linear;
+  animation-iteration-count:infinite;
   will-change:transform;
-  pointer-events:none;
 }
-@keyframes star-drift{
-  0%{transform:translateY(0) translateX(0);opacity:.15}
-  50%{opacity:.4}
-  100%{transform:translateY(100vh) translateX(20px);opacity:.1}
+/* Left scrolls DOWN (positive Y direction) */
+.ticker-track-down{animation:tickDown 30s linear infinite}
+/* Right scrolls UP (negative Y direction) */
+.ticker-track-up{animation:tickUp 34s linear infinite}
+
+@keyframes tickDown{
+  0%  {transform:translateY(-50%)}
+  100%{transform:translateY(0%)}
 }
-@media(max-width:768px){
-  .star-particle{display:none}
+@keyframes tickUp{
+  0%  {transform:translateY(0%)}
+  100%{transform:translateY(-50%)}
 }
+
+/* Individual data log entries */
+.tick-item{
+  font-family:monospace;font-size:7.5px;font-weight:400;letter-spacing:.12em;
+  color:rgba(71,85,105,.38);text-transform:uppercase;white-space:nowrap;
+  writing-mode:vertical-rl;line-height:1;
+  user-select:none;-webkit-user-select:none;
+}
+/* Accent colour overrides */
+.tick-item.hi{color:rgba(79,172,254,.28)}
+.tick-item.mg{color:rgba(233,30,99,.22)}
+.tick-item.gr{color:rgba(34,197,94,.25)}
 </style>
 </head>
 
-<!-- ══════════════════════════════════════════════════════
-     BODY — bg-[#020205] base + relative wrapper
-     ══════════════════════════════════════════════════════ -->
 <body class="relative min-h-screen overflow-x-hidden font-sans text-slate-300" style="background:#020205">
 
 <!-- ┌─────────────────────────────────────────┐
-     │  FIXED AMBIENT SPACE CANVAS (z-0)       │
+     │  CANVAS BACKGROUND ENGINE (z-0)        │
      └─────────────────────────────────────────┘ -->
-<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none" id="bgCanvas">
-  <!-- Orb 1: Top Left — breathing cycle -->
-  <div class="fixed rounded-full orb-breath" id="orb1" style="top:-10%;left:-10%;width:600px;height:600px;background:rgba(79,172,254,0.25);filter:blur(160px)"></div>
-  <!-- Orb 2: Center Right — breathing cycle, phase-shifted -->
-  <div class="fixed rounded-full orb-breath-delay" id="orb2" style="top:25%;right:-15%;width:650px;height:650px;background:rgba(233,30,99,0.25);filter:blur(170px)"></div>
-  <!-- Orb 3: Bottom Left — slower breathing cycle -->
-  <div class="fixed rounded-full orb-breath-delay2" id="orb3" style="bottom:-10%;left:5%;width:550px;height:550px;background:rgba(6,182,212,0.15);filter:blur(140px)"></div>
-  <!-- Particles injected here by JS -->
+<canvas id="bg-canvas" class="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none" style="background:#020205"></canvas>
+
+<!-- ┌──────────────────────────────────────────────┐
+     │  LEFT BLUEPRINT WING  (xl+ desktop only)    │
+     └──────────────────────────────────────────────┘ -->
+<div class="wing wing-left" style="left:1.5vw" aria-hidden="true">
+  <!-- Full-height dashed guide line -->
+  <div class="wing-line"></div>
+
+  <!-- Top crosshair mark -->
+  <div class="xhair xhair-top" style="right:-1px">
+    <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
+      <line x1="6" y1="0" x2="6" y2="4" stroke="rgba(79,172,254,.4)" stroke-width="1"/>
+      <line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.4)" stroke-width="1"/>
+      <circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.5)"/>
+    </svg>
+  </div>
+
+  <!-- Bottom crosshair mark -->
+  <div class="xhair xhair-bot" style="right:-1px">
+    <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
+      <line x1="6" y1="12" x2="6" y2="8" stroke="rgba(79,172,254,.25)" stroke-width="1"/>
+      <line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.25)" stroke-width="1"/>
+      <circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.3)"/>
+    </svg>
+  </div>
+
+  <!-- Vertical coordinate label -->
+  <span class="wing-coord">X:0.00 · Y:0.00</span>
+
+  <!-- Ticker tunnel — data stream scrolls DOWN -->
+  <div class="ticker-tunnel">
+    <div class="ticker-track ticker-track-down">
+      <!-- Block A (original) -->
+      <span class="tick-item hi">[SYSTEM_OK]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item gr">[SCANNER_CORE_01]</span>
+      <span class="tick-item">0x4F AC FE</span>
+      <span class="tick-item hi">[LATENCY: 11ms]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[ENGINE_ACTIVE]</span>
+      <span class="tick-item">PWR: 100%</span>
+      <span class="tick-item mg">[HAVOC_v2.6]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[TOOLS: 35]</span>
+      <span class="tick-item gr">[UPTIME: OK]</span>
+      <span class="tick-item">SYS_CLK: RUN</span>
+      <span class="tick-item hi">[NET_OK]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[RENDER: 60fps]</span>
+      <span class="tick-item mg">[MEM: CLEAN]</span>
+      <span class="tick-item">0x00 00 05</span>
+      <span class="tick-item">[BOOT_SEQ: OK]</span>
+      <span class="tick-item gr">——————</span>
+      <!-- Block B (seamless duplicate) -->
+      <span class="tick-item hi">[SYSTEM_OK]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item gr">[SCANNER_CORE_01]</span>
+      <span class="tick-item">0x4F AC FE</span>
+      <span class="tick-item hi">[LATENCY: 11ms]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[ENGINE_ACTIVE]</span>
+      <span class="tick-item">PWR: 100%</span>
+      <span class="tick-item mg">[HAVOC_v2.6]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[TOOLS: 35]</span>
+      <span class="tick-item gr">[UPTIME: OK]</span>
+      <span class="tick-item">SYS_CLK: RUN</span>
+      <span class="tick-item hi">[NET_OK]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[RENDER: 60fps]</span>
+      <span class="tick-item mg">[MEM: CLEAN]</span>
+      <span class="tick-item">0x00 00 05</span>
+      <span class="tick-item">[BOOT_SEQ: OK]</span>
+      <span class="tick-item gr">——————</span>
+    </div>
+  </div>
+</div>
+
+<!-- ┌──────────────────────────────────────────────┐
+     │  RIGHT BLUEPRINT WING  (xl+ desktop only)   │
+     └──────────────────────────────────────────────┘ -->
+<div class="wing wing-right" style="right:1.5vw" aria-hidden="true">
+  <!-- Full-height dashed guide line -->
+  <div class="wing-line"></div>
+
+  <!-- Top crosshair mark -->
+  <div class="xhair xhair-top" style="left:-1px">
+    <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
+      <line x1="6" y1="0" x2="6" y2="4" stroke="rgba(233,30,99,.35)" stroke-width="1"/>
+      <line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.35)" stroke-width="1"/>
+      <circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.4)"/>
+    </svg>
+  </div>
+
+  <!-- Bottom crosshair mark -->
+  <div class="xhair xhair-bot" style="left:-1px">
+    <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
+      <line x1="6" y1="12" x2="6" y2="8" stroke="rgba(233,30,99,.2)" stroke-width="1"/>
+      <line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.2)" stroke-width="1"/>
+      <circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.25)"/>
+    </svg>
+  </div>
+
+  <!-- Vertical coordinate label -->
+  <span class="wing-coord">W:100% · H:∞</span>
+
+  <!-- Ticker tunnel — data stream scrolls UP -->
+  <div class="ticker-tunnel">
+    <div class="ticker-track ticker-track-up">
+      <!-- Block A (original) -->
+      <span class="tick-item hi">[HAVOC_MATRIX]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item mg">[BLOB_GEN: READY]</span>
+      <span class="tick-item">FPS: 60.0</span>
+      <span class="tick-item gr">[SESSION_LIVE]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[CANVAS: ON]</span>
+      <span class="tick-item hi">[ORBS: 3]</span>
+      <span class="tick-item">[PARTICLES: 33]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item mg">[RIPPLE: ARMED]</span>
+      <span class="tick-item gr">0xE9 1E 63</span>
+      <span class="tick-item">[TOOLS: LIVE]</span>
+      <span class="tick-item hi">——————</span>
+      <span class="tick-item">[AD_SLOT: 3]</span>
+      <span class="tick-item mg">[REV: ACTIVE]</span>
+      <span class="tick-item">SRC: ADSTERRA</span>
+      <span class="tick-item gr">[DEXYY_BUILD]</span>
+      <span class="tick-item">——————</span>
+      <!-- Block B (seamless duplicate) -->
+      <span class="tick-item hi">[HAVOC_MATRIX]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item mg">[BLOB_GEN: READY]</span>
+      <span class="tick-item">FPS: 60.0</span>
+      <span class="tick-item gr">[SESSION_LIVE]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item">[CANVAS: ON]</span>
+      <span class="tick-item hi">[ORBS: 3]</span>
+      <span class="tick-item">[PARTICLES: 33]</span>
+      <span class="tick-item">——————</span>
+      <span class="tick-item mg">[RIPPLE: ARMED]</span>
+      <span class="tick-item gr">0xE9 1E 63</span>
+      <span class="tick-item">[TOOLS: LIVE]</span>
+      <span class="tick-item hi">——————</span>
+      <span class="tick-item">[AD_SLOT: 3]</span>
+      <span class="tick-item mg">[REV: ACTIVE]</span>
+      <span class="tick-item">SRC: ADSTERRA</span>
+      <span class="tick-item gr">[DEXYY_BUILD]</span>
+      <span class="tick-item">——————</span>
+    </div>
+  </div>
 </div>
 
 <!-- ┌─────────────────────────────────────────┐
@@ -220,33 +480,34 @@ html{scroll-behavior:smooth}
        ═══════════════════════════════════════ -->
   <nav class="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/40" style="background:rgba(2,2,5,.7);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)">
     <div class="max-w-7xl mx-auto px-4 h-14 flex items-center relative">
-      <!-- LEFT: burger (mobile) / empty spacer (desktop) -->
+      <!-- LEFT: burger (mobile) / nav links (desktop) -->
       <div class="flex items-center w-1/3">
         <button class="md:hidden text-slate-400 text-xl" onclick="document.getElementById('mob').classList.toggle('hide')">☰</button>
-        <!-- Desktop left links -->
         <div class="hidden md:flex items-center gap-0">
           <a href="#tools" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white border-r border-slate-800/40 transition" style="text-decoration:none">Tools</a>
           <a href="#tools" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white border-r border-slate-800/40 transition" style="text-decoration:none" onclick="event.preventDefault();fTrending();document.getElementById('tools').scrollIntoView({behavior:'smooth'})">Trending</a>
         </div>
       </div>
-      <!-- CENTER: HAVOC branding — absolute center -->
+      <!-- CENTER: HAVOC branding — dead centered via flex-1 -->
       <div class="flex-1 flex justify-center">
         <a href="#" class="text-white text-2xl md:text-3xl font-extrabold tracking-widest" style="text-decoration:none;font-family:'New Rocker','Inter',sans-serif;text-shadow:0 1px 0 #cbd5e1,0 2px 0 #94a3b8,0 3px 0 #475569,0 4px 10px rgba(6,182,212,0.5);filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8))">HAVOC</a>
       </div>
-      <!-- RIGHT: Live Matrix (sm only) / TikTok link (desktop) -->
+      <!-- RIGHT: Live Matrix (sm only) / TikTok (desktop) -->
       <div class="flex items-center justify-end w-1/3">
-        <!-- Live Matrix capsule — small-screen only (sm ≤ md) -->
         <div class="hidden sm:inline-flex md:hidden lg:hidden items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] text-slate-400 font-mono tracking-widest uppercase" style="background:rgba(9,13,22,.6);border:1px solid rgba(51,65,85,.8)">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           Live Matrix
         </div>
-        <!-- Desktop right link -->
-        <div class="hidden md:flex items-center">
+        <div class="hidden md:flex items-center gap-1">
           <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white transition" style="text-decoration:none">TikTok</a>
+          <button onclick="openReqModal()" class="px-3 py-1 rounded-lg text-[12px] font-semibold tracking-wide transition" style="cursor:pointer;color:#4facfe;border:1px solid rgba(79,172,254,.22);background:transparent" onmouseover="this.style.borderColor='rgba(79,172,254,.5)';this.style.background='rgba(79,172,254,.06)'" onmouseout="this.style.borderColor='rgba(79,172,254,.22)';this.style.background='transparent'">+ Request Tool</button>
         </div>
       </div>
     </div>
   </nav>
+
+  <!-- Mobile floating action pill -->
+  <button class="req-fab" onclick="openReqModal()">+ Request Tool</button>
 
   <!-- Mobile Menu -->
   <div id="mob" class="hide fixed top-14 left-0 right-0 z-40 border-b border-slate-800/40" style="background:rgba(2,2,5,.95);backdrop-filter:blur(20px)">
@@ -260,7 +521,6 @@ html{scroll-behavior:smooth}
   <!-- ═══════════════════════════════════════
        SLOT A: TOP LEADERBOARD AD
        ═══════════════════════════════════════ -->
-  <!-- ADSTERRA BANNER PLACEMENT -->
   <div class="pt-20 pb-2">
     <div class="max-w-7xl mx-auto px-4 my-6">
       <div class="af af-top mx-auto">
@@ -326,7 +586,7 @@ html{scroll-behavior:smooth}
     <div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="toolGrid">
 
-        <!-- ── TRENDING / NEW ── -->
+        <!-- ── TRENDING / BREAKOUT ── -->
         <a href="tools/ai-image-detector.html" class="gc gc-featured" data-cat="utility" data-s="ai image detector fake photo exif metadata scan">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖼️</span><span class="chip chip-brk">Breakout</span></div>
           <h3>AI Image Detector</h3>
@@ -389,7 +649,6 @@ html{scroll-behavior:smooth}
         </a>
 
         <!-- ═══ SLOT B: MID-GRID NATIVE AD ═══ -->
-        <!-- ADSTERRA BANNER PLACEMENT -->
         <div class="gc glass-panel flex flex-col items-center justify-center min-h-[280px] sm:col-span-2 lg:col-span-1" style="cursor:default;contain:layout style" data-cat="all">
           <span class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2 block self-start">Community Partner</span>
           <div class="flex items-center justify-center flex-1 w-full">
@@ -546,7 +805,7 @@ html{scroll-behavior:smooth}
   </section>
 
   <!-- ═══════════════════════════════════════
-       LIVE STATS GRID (Moonbeam-style)
+       LIVE STATS GRID
        ═══════════════════════════════════════ -->
   <div style="border-top:1px solid rgba(51,65,85,.4);background:rgba(2,2,5,.45);backdrop-filter:blur(10px)">
     <div class="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8" style="border-left:1px solid rgba(51,65,85,.4)">
@@ -604,12 +863,31 @@ html{scroll-behavior:smooth}
     </div>
   </footer>
 
+  <!-- ═══ REQUEST A TOOL MODAL ═══ -->
+  <div id="request-modal" role="dialog" aria-modal="true" aria-labelledby="rmodal-title" onclick="if(event.target===this)closeReqModal()">
+    <div class="rmodal-box">
+      <button class="rmodal-close" onclick="closeReqModal()" aria-label="Close">✕</button>
+      <h2 id="rmodal-title">🛠️ Request a Tool</h2>
+      <p>Got an idea? Drop it below and we'll build it.</p>
+      <form id="reqForm" onsubmit="submitReq(event)">
+        <div class="rf-row">
+          <label class="rf-label" for="rf-name">Tool Name</label>
+          <input id="rf-name" class="rf-input" type="text" placeholder="e.g. Battery Health Scanner" required maxlength="80">
+        </div>
+        <div class="rf-row">
+          <label class="rf-label" for="rf-desc">What should it do?</label>
+          <textarea id="rf-desc" class="rf-input" rows="4" placeholder="Describe what this tool should check, test, or generate..." required maxlength="500"></textarea>
+        </div>
+        <button type="submit" class="rmodal-submit">Send Request →</button>
+      </form>
+    </div>
+  </div>
+
 </div><!-- end z-10 master -->
 
 <!-- ═══════════════════════════════════════
      SLOT C: BOTTOM STICKY DISMISSIBLE AD
      ═══════════════════════════════════════ -->
-<!-- ADSTERRA BANNER PLACEMENT -->
 <div id="stickyAd" class="stk">
   <div class="af-sticky flex items-center justify-center py-2 relative max-w-7xl mx-auto px-4">
     <button onclick="document.getElementById('stickyAd').classList.add('off')" class="absolute top-1 right-4 text-slate-600 hover:text-slate-300 text-xs font-bold z-10 cursor-pointer" aria-label="Close ad">✕</button>
@@ -650,7 +928,6 @@ html{scroll-behavior:smooth}
     while(rc<sr&&rc<lc){lt[rc].classList.add('on');rc++}
     if(p<1){animationFrameId=requestAnimationFrame(t)}
     else{
-      /* Kill the rAF loop immediately to free main thread */
       if(animationFrameId){cancelAnimationFrame(animationFrameId);animationFrameId=null}
       setTimeout(function(){
         hv.style.transition='opacity .6s,transform .6s';
@@ -660,7 +937,6 @@ html{scroll-behavior:smooth}
         setTimeout(function(){
           pt.style.transform='translateY(-100%)';
           pb.style.transform='translateY(100%)';
-          /* Clean remove from DOM to free RAM */
           setTimeout(function(){sp.remove()},900);
         },300);
       },250);
@@ -669,7 +945,243 @@ html{scroll-behavior:smooth}
   animationFrameId=requestAnimationFrame(t);
 })();
 
-/* ═══ TRENDING FILTER (nav link) ═══ */
+/* ═══════════════════════════════════════════════════════════════
+   CANVAS BACKGROUND ENGINE
+   — Nebula gradient breathing (all viewports)
+   — Stardust mouse trail with velocity friction (desktop ≥769px)
+   — Edge-drifting autonomous particles in outer 15% margins (xl)
+   — Tap/click ripple waves (all viewports)
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+  var canvas=document.getElementById('bg-canvas');
+  if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var W,H,isMobile,isXL;
+
+  /* ── Resize handler ── */
+  function resize(){
+    W=canvas.width=window.innerWidth;
+    H=canvas.height=window.innerHeight;
+    isMobile=W<=768;
+    isXL=W>=1280;
+  }
+  resize();
+  window.addEventListener('resize',resize,{passive:true});
+
+  /* ── Three nebula orbs (sine-wave breathing positions & opacity) ── */
+  var orbs=[
+    {baseX:-0.1, baseY:-0.1, r:0.55, r2:0.65, color:'79,172,254', phase:0,    speed:0.000065, amp:0.07},
+    {baseX:1.1,  baseY:0.35, r:0.60, r2:0.70, color:'233,30,99',  phase:2.1,  speed:0.000050, amp:0.06},
+    {baseX:0.1,  baseY:1.05, r:0.50, r2:0.58, color:'34,197,94',  phase:4.2,  speed:0.000080, amp:0.05}
+  ];
+
+  /* ── Centre stardust particles (25) — mouse-trail, desktop only ── */
+  var PARTICLE_COUNT=25;
+  var particles=[];
+  for(var i=0;i<PARTICLE_COUNT;i++){
+    particles.push({
+      x:Math.random()*window.innerWidth,
+      y:Math.random()*window.innerHeight,
+      vx:0,vy:0,
+      alpha:0,
+      size:1+Math.random()*1.5,
+      color:Math.random()>0.5?'79,172,254':'148,163,184'
+    });
+  }
+
+  /* ── Edge-drifting particles (8) — 4 left margin + 4 right margin ──
+     These roam autonomously within the outer 15% of the viewport width.
+     They appear even with no mouse movement, enriching the wing zone.   */
+  var EDGE_COLORS=['79,172,254','233,30,99','34,197,94','148,163,184'];
+  var edgeParticles=[];
+  for(var ei=0;ei<8;ei++){
+    var side=ei<4?'left':'right';
+    var ex=side==='left'
+      ? Math.random()*0.14*window.innerWidth
+      : (0.86+Math.random()*0.14)*window.innerWidth;
+    edgeParticles.push({
+      x:ex,
+      y:Math.random()*window.innerHeight,
+      vx:(Math.random()-0.5)*0.28,          /* very slow horizontal drift */
+      vy:(side==='left'?1:-1)*(0.15+Math.random()*0.25), /* gentle vertical flow */
+      baseAlpha:0.18+Math.random()*0.28,
+      size:0.9+Math.random()*1.1,
+      color:EDGE_COLORS[ei%4],
+      side:side,
+      phase:Math.random()*Math.PI*2,        /* sine phase for alpha breathe */
+      speedT:0.000035+Math.random()*0.000025 /* very slow time scale */
+    });
+  }
+
+  var mouseX=-9999,mouseY=-9999;
+  var lastMouse=0;
+
+  /* ── Ripple pool ── */
+  var ripples=[];
+
+  /* ── Main rAF render loop ── */
+  var rafId=null;
+  function render(now){
+    rafId=requestAnimationFrame(render);
+
+    /* Clear to deep-space base */
+    ctx.fillStyle='#020205';
+    ctx.fillRect(0,0,W,H);
+
+    /* ── Nebula gradient orbs ── */
+    for(var o=0;o<orbs.length;o++){
+      var ob=orbs[o];
+      var t=now*ob.speed+ob.phase;
+      var cx=(ob.baseX+Math.sin(t)*ob.amp)*W;
+      var cy=(ob.baseY+Math.cos(t*0.7)*ob.amp)*H;
+      var radius=ob.r*Math.min(W,H);
+      var breathe=1+0.08*Math.sin(t*1.3);
+      var grad=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*breathe);
+      var alpha=0.12+0.06*Math.sin(t*0.9);
+      grad.addColorStop(0,'rgba('+ob.color+','+alpha.toFixed(3)+')');
+      grad.addColorStop(0.5,'rgba('+ob.color+','+(alpha*0.4).toFixed(3)+')');
+      grad.addColorStop(1,'rgba('+ob.color+',0)');
+      ctx.beginPath();
+      ctx.arc(cx,cy,radius*breathe*ob.r2,0,Math.PI*2);
+      ctx.fillStyle=grad;
+      ctx.fill();
+    }
+
+    /* ── Edge-drifting particles (xl desktop, outer margins) ── */
+    if(isXL){
+      for(var ei=0;ei<edgeParticles.length;ei++){
+        var ep=edgeParticles[ei];
+        var et=now*ep.speedT+ep.phase;
+        /* Gentle position drift */
+        ep.x+=ep.vx+Math.sin(et*1.1)*0.12;
+        ep.y+=ep.vy;
+        /* Bounce off top/bottom viewport edges */
+        if(ep.y<0){ep.y=0;ep.vy*=-1;}
+        if(ep.y>H){ep.y=H;ep.vy*=-1;}
+        /* Clamp X within side's outer 15% band and bounce inward */
+        var xMin=ep.side==='left'?0:W*0.86;
+        var xMax=ep.side==='left'?W*0.14:W;
+        if(ep.x<xMin){ep.x=xMin;ep.vx=Math.abs(ep.vx);}
+        if(ep.x>xMax){ep.x=xMax;ep.vx=-Math.abs(ep.vx);}
+        /* Breathe alpha on slow sine */
+        var drawAlpha=ep.baseAlpha*(0.55+0.45*Math.sin(et*2.1));
+        if(drawAlpha<0.04) continue;
+        ctx.save();
+        ctx.globalAlpha=drawAlpha;
+        ctx.beginPath();
+        ctx.arc(ep.x,ep.y,ep.size,0,Math.PI*2);
+        ctx.fillStyle='rgba('+ep.color+',1)';
+        ctx.shadowBlur=10+4*Math.sin(et);
+        ctx.shadowColor='rgba('+ep.color+',0.5)';
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    /* ── Centre stardust mouse-trail (desktop ≥769px only) ── */
+    if(!isMobile){
+      for(var p=0;p<particles.length;p++){
+        var pt=particles[p];
+        /* Gravitate toward mouse with inverse-distance pull */
+        var dx=mouseX-pt.x;
+        var dy=mouseY-pt.y;
+        var dist=Math.sqrt(dx*dx+dy*dy)||1;
+        var pull=Math.min(80/dist,3.5);
+        pt.vx+=(dx/dist)*pull*0.08;
+        pt.vy+=(dy/dist)*pull*0.08;
+        pt.vx*=0.88;  /* friction damping */
+        pt.vy*=0.88;
+        pt.x+=pt.vx;
+        pt.y+=pt.vy;
+        /* Fade based on velocity magnitude */
+        var speed=Math.sqrt(pt.vx*pt.vx+pt.vy*pt.vy);
+        pt.alpha=Math.min(speed*0.18,0.85);
+        if(pt.alpha<0.01) continue;
+        /* Draw glowing dot */
+        ctx.save();
+        ctx.globalAlpha=pt.alpha;
+        ctx.beginPath();
+        ctx.arc(pt.x,pt.y,pt.size+speed*0.3,0,Math.PI*2);
+        ctx.fillStyle='rgba('+pt.color+',1)';
+        ctx.shadowBlur=8+speed*2;
+        ctx.shadowColor='rgba('+pt.color+',0.6)';
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    /* ── Click / tap ripple rings ── */
+    for(var r=ripples.length-1;r>=0;r--){
+      var rp=ripples[r];
+      var age=(now-rp.born)/600;  /* 0 → 1 over 600ms */
+      if(age>=1){ripples.splice(r,1);continue;}
+      var eased=1-Math.pow(1-age,3);  /* ease-out cubic */
+      var radius2=rp.maxR*eased;
+      var opacity=1-age;
+      ctx.save();
+      ctx.globalAlpha=opacity*0.65;
+      ctx.beginPath();
+      ctx.arc(rp.x,rp.y,radius2,0,Math.PI*2);
+      ctx.strokeStyle='rgba('+rp.color+',1)';
+      ctx.lineWidth=1.5*(1-age*0.6);
+      ctx.shadowBlur=12*opacity;
+      ctx.shadowColor='rgba('+rp.color+',0.5)';
+      ctx.stroke();
+      /* Second inner ring, slightly delayed */
+      if(age>0.1){
+        var age2=(age-0.1)/0.9;
+        var r2=rp.maxR*0.6*(1-Math.pow(1-age2,3));
+        ctx.globalAlpha=(1-age2)*0.35;
+        ctx.beginPath();
+        ctx.arc(rp.x,rp.y,r2,0,Math.PI*2);
+        ctx.lineWidth=1*(1-age2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+  rafId=requestAnimationFrame(render);
+
+  /* ── Mouse position tracking (desktop) ── */
+  window.addEventListener('mousemove',function(e){
+    if(isMobile) return;
+    var now=Date.now();
+    if(now-lastMouse<16) return;
+    lastMouse=now;
+    mouseX=e.clientX;
+    mouseY=e.clientY;
+  },{passive:true});
+
+  /* ── Ripple spawner ── */
+  var RIPPLE_COLORS=['79,172,254','233,30,99','34,197,94'];
+  var rippleColorIndex=0;
+  function spawnRipple(x,y,ts){
+    ripples.push({
+      x:x,y:y,
+      born:ts||performance.now(),
+      maxR:60+Math.random()*40,
+      color:RIPPLE_COLORS[rippleColorIndex%3]
+    });
+    rippleColorIndex++;
+  }
+
+  window.addEventListener('mousedown',function(e){
+    spawnRipple(e.clientX,e.clientY);
+  },{passive:true});
+
+  window.addEventListener('touchstart',function(e){
+    for(var i=0;i<e.touches.length;i++){
+      spawnRipple(e.touches[i].clientX,e.touches[i].clientY);
+    }
+  },{passive:true});
+
+  /* ── Kill rAF on page unload to free GPU ── */
+  window.addEventListener('pagehide',function(){
+    if(rafId) cancelAnimationFrame(rafId);
+  });
+})();
+
+/* ═══ TRENDING FILTER ═══ */
 function fTrending(){
   document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active')});
   document.getElementById('searchInput').value='';
@@ -679,7 +1191,6 @@ function fTrending(){
     var match=trending.some(function(t){return href.indexOf(t)!==-1});
     if(match){g.classList.remove('hide')}else{g.classList.add('hide')}
   });
-  /* Keep the Community Partner ad visible */
   document.querySelectorAll('[data-cat="all"]').forEach(function(a){a.classList.remove('hide')});
 }
 
@@ -705,80 +1216,45 @@ function filterTools(){
   });
 }
 
+/* ═══ REQUEST MODAL ═══ */
+function openReqModal(){
+  var m=document.getElementById('request-modal');
+  m.classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(function(){document.getElementById('rf-name').focus()},320);
+}
+function closeReqModal(){
+  document.getElementById('request-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeReqModal();
+});
+function submitReq(e){
+  e.preventDefault();
+  var name=document.getElementById('rf-name').value.trim();
+  var desc=document.getElementById('rf-desc').value.trim();
+  var subject=encodeURIComponent('ToolHavoc Tool Request: '+name);
+  var body=encodeURIComponent('Tool Name: '+name+'\n\nDescription:\n'+desc+'\n\n— Submitted via ToolHavoc.com');
+  window.location.href='mailto:nathanielwade2x@gmail.com?subject='+subject+'&body='+body;
+  setTimeout(function(){
+    document.getElementById('reqForm').innerHTML=
+      '<div style="text-align:center;padding:24px 0">'
+      +'<div style="font-size:36px;margin-bottom:12px">✅</div>'
+      +'<div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div>'
+      +'<div style="color:#64748b;font-size:13px">We\'ll look into building <strong style="color:#94a3b8">'+name.replace(/</g,'&lt;')+'</strong> soon.</div>'
+      +'<button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button>'
+      +'</div>';
+  },800);
+}
+
 /* ═══ SMOOTH SCROLL ═══ */
 document.querySelectorAll('a[href^="#"]').forEach(function(a){
   a.addEventListener('click',function(e){
-    var t=document.querySelector(this.getAttribute('href'));
-    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}
+    var target=document.querySelector(this.getAttribute('href'));
+    if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'})}
   });
 });
-
-/* ═══ MICRO-PARTICLE STAR FIELD ═══ */
-(function(){
-  if(window.innerWidth<=768) return; /* skip on mobile */
-  var canvas=document.getElementById('bgCanvas');
-  if(!canvas) return;
-  var count=25;
-  for(var i=0;i<count;i++){
-    var p=document.createElement('div');
-    p.className='star-particle';
-    /* Place particles in the outer margins (left 0-15% or right 85-100%) */
-    var side=Math.random()>.5;
-    var xPos=side?(85+Math.random()*14):(Math.random()*14);
-    p.style.left=xPos+'%';
-    p.style.top=(Math.random()*100)+'%';
-    var dur=12+Math.random()*18;
-    p.style.animation='star-drift '+dur+'s linear infinite';
-    p.style.animationDelay=(-Math.random()*dur)+'s';
-    /* Vary sizes slightly */
-    var sz=1+Math.random()*1.2;
-    p.style.width=sz+'px';p.style.height=sz+'px';
-    /* Some cyan-tinted */
-    if(Math.random()>.6) p.style.background='rgba(79,172,254,.3)';
-    canvas.appendChild(p);
-  }
-})();
-
-/* ═══ MOUSE PARALLAX (desktop only) ═══ */
-(function(){
-  if(window.innerWidth<=768) return;
-  var orb1=document.getElementById('orb1'),
-      orb2=document.getElementById('orb2'),
-      orb3=document.getElementById('orb3'),
-      particles=document.querySelectorAll('.star-particle'),
-      cx=window.innerWidth/2,cy=window.innerHeight/2,
-      tx=0,ty=0,ax=0,ay=0,raf=null;
-
-  function lerp(){
-    ax+=(tx-ax)*0.04;
-    ay+=(ty-ay)*0.04;
-    if(orb1) orb1.style.transform='translate('+(-ax*0.02)+'px,'+(-ay*0.015)+'px)';
-    if(orb2) orb2.style.transform='translate('+(ax*0.018)+'px,'+(ay*0.012)+'px)';
-    if(orb3) orb3.style.transform='translate('+(-ax*0.01)+'px,'+(ay*0.02)+'px)';
-    for(var i=0;i<particles.length;i++){
-      var factor=0.008+(i%5)*0.004;
-      particles[i].style.transform='translate('+(ax*factor)+'px,'+(ay*factor)+'px)';
-    }
-    raf=requestAnimationFrame(lerp);
-  }
-  raf=requestAnimationFrame(lerp);
-
-  var lastMove=0;
-  window.addEventListener('mousemove',function(e){
-    var now=Date.now();
-    if(now-lastMove<16) return; /* ~60fps throttle */
-    lastMove=now;
-    tx=e.clientX-cx;
-    ty=e.clientY-cy;
-  },{passive:true});
-
-  /* Recalculate center on resize */
-  window.addEventListener('resize',function(){
-    cx=window.innerWidth/2;cy=window.innerHeight/2;
-    /* Kill parallax if window shrinks to mobile */
-    if(window.innerWidth<=768&&raf){cancelAnimationFrame(raf);raf=null}
-  });
-})();
 </script>
 </body>
 </html>
