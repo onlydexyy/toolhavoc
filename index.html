@@ -185,7 +185,7 @@ html{scroll-behavior:smooth}
       </a>
       <div class="hidden md:flex items-center gap-0">
         <a href="#tools" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white border-r border-slate-800/40 transition" style="text-decoration:none">Tools</a>
-        <a href="#trending" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white border-r border-slate-800/40 transition" style="text-decoration:none">Trending</a>
+        <a href="#tools" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white border-r border-slate-800/40 transition" style="text-decoration:none" onclick="event.preventDefault();fTrending();document.getElementById('tools').scrollIntoView({behavior:'smooth'})">Trending</a>
         <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white transition" style="text-decoration:none">TikTok</a>
       </div>
       <button class="md:hidden text-slate-400 text-xl" onclick="document.getElementById('mob').classList.toggle('hide')">☰</button>
@@ -196,7 +196,7 @@ html{scroll-behavior:smooth}
   <div id="mob" class="hide fixed top-14 left-0 right-0 z-40 border-b border-slate-800/40" style="background:rgba(2,2,5,.95);backdrop-filter:blur(20px)">
     <div class="p-4 flex flex-col gap-2 max-w-7xl mx-auto">
       <a href="#tools" class="px-4 py-2.5 text-sm text-slate-400 hover:text-white rounded border border-slate-800/40 transition" style="text-decoration:none" onclick="document.getElementById('mob').classList.add('hide')">Tools</a>
-      <a href="#trending" class="px-4 py-2.5 text-sm text-slate-400 hover:text-white rounded border border-slate-800/40 transition" style="text-decoration:none" onclick="document.getElementById('mob').classList.add('hide')">Trending</a>
+      <a href="#tools" class="px-4 py-2.5 text-sm text-slate-400 hover:text-white rounded border border-slate-800/40 transition" style="text-decoration:none" onclick="event.preventDefault();document.getElementById('mob').classList.add('hide');fTrending();document.getElementById('tools').scrollIntoView({behavior:'smooth'})">Trending</a>
       <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 text-sm text-slate-400 hover:text-white rounded border border-slate-800/40 transition" style="text-decoration:none">TikTok</a>
     </div>
   </div>
@@ -268,7 +268,7 @@ html{scroll-behavior:smooth}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="toolGrid">
 
         <!-- ── TRENDING / NEW ── -->
-        <a href="tools/ai-image-detector.html" class="gc gc-featured" data-cat="utility" data-s="ai image detector fake photo exif metadata scan" id="trending">
+        <a href="tools/ai-image-detector.html" class="gc gc-featured" data-cat="utility" data-s="ai image detector fake photo exif metadata scan">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖼️</span><span class="chip chip-brk">Breakout</span></div>
           <h3>AI Image Detector</h3>
           <p>Drop any image and find out if it's AI-generated. Scans EXIF data and pixel patterns — no uploads, runs locally.</p>
@@ -609,6 +609,20 @@ html{scroll-behavior:smooth}
   }
   animationFrameId=requestAnimationFrame(t);
 })();
+
+/* ═══ TRENDING FILTER (nav link) ═══ */
+function fTrending(){
+  document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active')});
+  document.getElementById('searchInput').value='';
+  var trending=['ai-image-detector','ai-text-detector','citation-generator','pdf-link-generator'];
+  document.querySelectorAll('.gc').forEach(function(g){
+    var href=g.getAttribute('href')||'';
+    var match=trending.some(function(t){return href.indexOf(t)!==-1});
+    if(match){g.classList.remove('hide')}else{g.classList.add('hide')}
+  });
+  /* Keep the Community Partner ad visible */
+  document.querySelectorAll('[data-cat="all"]').forEach(function(a){a.classList.remove('hide')});
+}
 
 /* ═══ CATEGORY FILTER ═══ */
 function fCat(c,b){
