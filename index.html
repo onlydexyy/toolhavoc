@@ -24,8 +24,8 @@ html{scroll-behavior:smooth}
 /* ══════════════════════════════════════════
    SPLASH LOADER
    ══════════════════════════════════════════ */
-#splash-screen{position:fixed;inset:0;z-index:9999;pointer-events:none;will-change:opacity}
-.sp-panel{position:absolute;left:0;right:0;height:50%;background:#000;will-change:transform;transition:transform .7s cubic-bezier(.77,0,.175,1)}
+#splash-screen{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;pointer-events:none;will-change:opacity;overflow:hidden}
+.sp-panel{position:absolute;left:0;right:0;height:50%;background:#000;will-change:transform;transform:translateZ(0);-webkit-transform:translateZ(0);transition:transform .7s cubic-bezier(.77,0,.175,1)}
 .sp-top{top:0}
 .sp-bot{bottom:0}
 .sp-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
@@ -49,12 +49,18 @@ html{scroll-behavior:smooth}
 /* ══════════════════════════════════════════
    GLASS CARDS
    ══════════════════════════════════════════ */
+/* Safari-safe glass panel base */
+.glass-panel{
+  background:rgba(9,13,22,.35)!important;
+  -webkit-backdrop-filter:blur(24px)!important;
+  backdrop-filter:blur(24px)!important;
+}
 .gc{
-  background:rgba(9,13,22,.3);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:rgba(9,13,22,.35);
+  -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
   border:1px solid rgba(51,65,85,.6);border-radius:12px;padding:24px;
   box-shadow:inset 0 1px 1px rgba(255,255,255,.05);
-  transition:border-color .3s,box-shadow .3s,transform .3s;
+  transition:border-color .3s,box-shadow .3s,transform .15s ease;
   cursor:pointer;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between;color:inherit;
 }
 .gc:hover{
@@ -62,9 +68,15 @@ html{scroll-behavior:smooth}
   box-shadow:0 0 25px rgba(79,172,254,.15),inset 0 1px 1px rgba(255,255,255,.05);
   transform:translateY(-3px);
 }
+.gc:active{transform:scale(.97);transition-duration:.08s}
 .gc h3{color:#f1f5f9;font-weight:600;font-size:17px;line-height:1.3;margin-bottom:6px;transition:color .3s}
 .gc:hover h3{color:#4facfe}
 .gc p{color:#94a3b8;font-size:13px;line-height:1.7;margin-top:4px}
+/* Featured trending cards span 2 columns on desktop */
+.gc-featured{grid-column:span 1}
+@media(min-width:1024px){.gc-featured{grid-column:span 2;padding:28px 32px}}
+.gc-featured h3{font-size:20px}
+@media(min-width:1024px){.gc-featured h3{font-size:22px}}
 
 /* ══════════════════════════════════════════
    TAG CHIPS
@@ -87,6 +99,7 @@ html{scroll-behavior:smooth}
   border:1px solid rgba(51,65,85,.45);background:rgba(9,13,22,.4);color:#94a3b8;
   cursor:pointer;transition:all .25s;white-space:nowrap}
 .pill:hover{border-color:rgba(79,172,254,.35);color:#e2e8f0}
+.pill:active{transform:scale(.94);transition-duration:.08s}
 .pill.active{background:linear-gradient(135deg,#4facfe,#e91e63);border-color:transparent;color:#fff;
   box-shadow:0 0 18px rgba(79,172,254,.2)}
 
@@ -101,10 +114,10 @@ html{scroll-behavior:smooth}
 /* ══════════════════════════════════════════
    AD FRAMES
    ══════════════════════════════════════════ */
-.af{display:flex;align-items:center;justify-content:center;overflow:hidden}
-.af-top{height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px;backdrop-filter:blur(12px)}
-.af-grid{min-height:250px;background:rgba(9,13,22,.2);border:1px solid rgba(51,65,85,.4);border-radius:12px}
-.af-sticky{min-height:70px}
+.af{display:flex;align-items:center;justify-content:center;overflow:hidden;contain:layout style}
+.af-top{height:95px;min-height:90px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.af-grid{min-height:250px;background:rgba(9,13,22,.2);border:1px solid rgba(51,65,85,.4);border-radius:12px;contain:layout style}
+.af-sticky{min-height:70px;contain:layout style}
 
 /* ══════════════════════════════════════════
    STICKY BANNER
@@ -212,7 +225,7 @@ html{scroll-behavior:smooth}
   <!-- ═══════════════════════════════════════
        HERO
        ═══════════════════════════════════════ -->
-  <section class="py-16 md:py-24 px-4">
+  <section class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 py-16 md:py-24">
     <div class="max-w-3xl mx-auto text-center">
       <div class="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full text-xs text-slate-400" style="background:rgba(9,13,22,.6);border:1px solid rgba(51,65,85,.45)">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -233,8 +246,8 @@ html{scroll-behavior:smooth}
   <!-- ═══════════════════════════════════════
        CATEGORY PILLS
        ═══════════════════════════════════════ -->
-  <section class="px-4 mb-10" id="tools">
-    <div class="max-w-6xl mx-auto border-b border-slate-800/40 pb-6">
+  <section class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-10" id="tools">
+    <div class="border-b border-slate-800/40 pb-6">
       <div class="flex flex-wrap gap-2 justify-center" id="pillWrap">
         <button class="pill active" onclick="fCat('all',this)">All Tools</button>
         <button class="pill" onclick="fCat('computer',this)">💻 Computer</button>
@@ -250,33 +263,33 @@ html{scroll-behavior:smooth}
   <!-- ═══════════════════════════════════════
        TOOL GRID
        ═══════════════════════════════════════ -->
-  <section class="px-4 pb-10">
-    <div class="max-w-6xl mx-auto">
+  <section class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+    <div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="toolGrid">
 
         <!-- ── TRENDING / NEW ── -->
-        <a href="tools/ai-image-detector.html" class="gc" data-cat="utility" data-s="ai image detector fake photo exif metadata scan" id="trending">
+        <a href="tools/ai-image-detector.html" class="gc gc-featured" data-cat="utility" data-s="ai image detector fake photo exif metadata scan" id="trending">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖼️</span><span class="chip chip-brk">Breakout</span></div>
           <h3>AI Image Detector</h3>
-          <p>Drag and drop any image to run a client-side EXIF metadata and pattern scan to evaluate artificial generation likelihood.</p>
+          <p>Drop any image and find out if it's AI-generated. Scans EXIF data and pixel patterns — no uploads, runs locally.</p>
         </a>
 
-        <a href="tools/ai-text-detector.html" class="gc" data-cat="utility" data-s="ai text detector gpt chatgpt writing check">
+        <a href="tools/ai-text-detector.html" class="gc gc-featured" data-cat="utility" data-s="ai text detector gpt chatgpt writing check">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🤖</span><span class="chip chip-pop">Popular</span></div>
           <h3>AI Text Detector</h3>
-          <p>Paste copy to analyze syntactic perplexity patterns and track potential AI writing markers.</p>
+          <p>Paste any text and see if ChatGPT probably wrote it. Checks for robotic patterns humans don't use.</p>
         </a>
 
         <a href="tools/citation-generator.html" class="gc" data-cat="utility" data-s="apa mla citation generator bibliography reference">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📚</span><span class="chip chip-util">Utility</span></div>
           <h3>APA & MLA Citation Generator</h3>
-          <p>Instantly format websites, publications, and research into correct scholastic citation strings.</p>
+          <p>Plug in a URL or book title and get a perfect APA or MLA citation. Copy-paste ready.</p>
         </a>
 
         <a href="tools/pdf-link-generator.html" class="gc" data-cat="utility" data-s="pdf link generator share document url">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📄</span><span class="chip chip-util">Utility</span></div>
           <h3>PDF Link Generator</h3>
-          <p>Convert local documents into web-accessible object URLs entirely in your browser without file uploads.</p>
+          <p>Turn any PDF on your device into a shareable link. Works offline, nothing gets uploaded.</p>
         </a>
 
         <!-- ── COMPUTER ── -->
@@ -327,7 +340,7 @@ html{scroll-behavior:smooth}
         <a href="tools/device-info.html" class="gc" data-cat="phone" data-s="device info phone scanner specs">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📱</span><span class="chip chip-phone">Phone</span></div>
           <h3>Device Scanner</h3>
-          <p>Detect your phone model, screen size, pixel ratio, browser, and OS version.</p>
+          <p>Tells you exactly what phone you have — model, screen size, OS, browser. The works.</p>
         </a>
 
         <a href="tools/touch-test.html" class="gc" data-cat="phone" data-s="touchscreen tester touch test phone tablet">
@@ -339,7 +352,7 @@ html{scroll-behavior:smooth}
         <a href="tools/gyroscope-test.html" class="gc" data-cat="phone" data-s="gyroscope accelerometer sensor test phone">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🧭</span><span class="chip chip-phone">Phone</span></div>
           <h3>Gyroscope Tester</h3>
-          <p>Visualize your phone's motion sensors in real time. Tilt and watch it respond.</p>
+          <p>Tilt your phone around and watch the sensor data move in real time. Oddly satisfying.</p>
         </a>
 
         <a href="tools/vibration-test.html" class="gc" data-cat="phone" data-s="vibration motor test phone android">
@@ -364,7 +377,7 @@ html{scroll-behavior:smooth}
         <a href="tools/screen-resolution.html" class="gc" data-cat="internet" data-s="what is my screen resolution display size">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📐</span><span class="chip chip-net">Internet</span></div>
           <h3>Screen Resolution</h3>
-          <p>Shows your exact screen resolution, pixel ratio, and color depth.</p>
+          <p>Quick readout of your exact screen resolution, pixel ratio, and color depth.</p>
         </a>
 
         <a href="tools/password-checker.html" class="gc" data-cat="internet" data-s="password strength checker security test">
@@ -383,13 +396,13 @@ html{scroll-behavior:smooth}
         <a href="tools/word-counter.html" class="gc" data-cat="utility" data-s="word counter character count text">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📝</span><span class="chip chip-util">Utility</span></div>
           <h3>Word & Character Counter</h3>
-          <p>Paste text to count words, characters, sentences, and reading time.</p>
+          <p>Paste your text — get word count, character count, sentences, and reading time. That's it.</p>
         </a>
 
         <a href="tools/color-picker.html" class="gc" data-cat="utility" data-s="color picker palette generator hex rgb">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎨</span><span class="chip chip-util">Utility</span></div>
           <h3>Color Picker</h3>
-          <p>Pick colors, get hex/RGB codes, and generate matching palettes.</p>
+          <p>Pick any color, grab the hex/RGB code, and build a matching palette around it.</p>
         </a>
 
         <a href="tools/text-converter.html" class="gc" data-cat="utility" data-s="text case converter uppercase lowercase title">
@@ -408,7 +421,7 @@ html{scroll-behavior:smooth}
         <a href="tools/hacker-terminal.html" class="gc" data-cat="fun" data-s="hacker terminal simulator typing matrix">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖥️</span><span class="chip chip-viral">🔥 Viral</span></div>
           <h3>Hacker Terminal</h3>
-          <p>Type anything and look like you're hacking the mainframe. Matrix vibes.</p>
+          <p>Type literally anything and look like you're hacking NASA. Full Matrix vibes.</p>
         </a>
 
         <a href="tools/typing-test.html" class="gc" data-cat="fun" data-s="typing speed test wpm roast fast slow">
@@ -420,7 +433,7 @@ html{scroll-behavior:smooth}
         <a href="tools/wifi-names.html" class="gc" data-cat="fun" data-s="wifi name generator funny network ssid">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📶</span><span class="chip chip-fun">Fun</span></div>
           <h3>WiFi Name Generator</h3>
-          <p>Generate hilarious WiFi network names by category. Copy with one click.</p>
+          <p>Get WiFi names that'll make your neighbors question everything. One-tap copy.</p>
         </a>
 
         <a href="tools/hacker-name.html" class="gc" data-cat="fun" data-s="hacker name generator alias cyber identity">
@@ -439,7 +452,7 @@ html{scroll-behavior:smooth}
         <a href="tools/fake-error.html" class="gc" data-cat="prank" data-s="fake error message generator windows prank">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">⚠️</span><span class="chip chip-prank">Prank</span></div>
           <h3>Fake Error Generator</h3>
-          <p>Create realistic-looking error messages to prank your friends.</p>
+          <p>Build a fake error popup that looks 100% real. Watch the panic unfold.</p>
         </a>
 
         <a href="tools/fake-bsod.html" class="gc" data-cat="prank" data-s="fake blue screen of death bsod windows prank">
@@ -465,7 +478,7 @@ html{scroll-behavior:smooth}
     <div class="max-w-lg mx-auto text-center">
       <div class="mx-auto mb-6" style="width:50px;height:1px;background:linear-gradient(90deg,transparent,#4facfe,transparent)"></div>
       <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">More Tools Shipping Every Week</h2>
-      <p class="text-slate-500 text-sm mb-8">Bookmark ToolHavoc and check back — we're always adding new tools.</p>
+      <p class="text-slate-500 text-sm mb-8">Bookmark this page. New tools drop every week.</p>
       <a href="#tools" class="inline-block px-7 py-3 rounded-lg font-bold text-sm text-white transition hover:opacity-90" style="background:linear-gradient(135deg,#4facfe,#e91e63);text-decoration:none;box-shadow:0 0 20px rgba(79,172,254,.18)">Browse All Tools</a>
     </div>
   </section>
@@ -563,7 +576,8 @@ html{scroll-behavior:smooth}
       lt=hv.querySelectorAll('span'),
       pt=document.getElementById('spTop'),
       pb=document.getElementById('spBot'),
-      s=null,d=1500,lc=lt.length,rc=0;
+      s=null,d=1500,lc=lt.length,rc=0,
+      animationFrameId=null;
 
   function t(ts){
     if(!s) s=ts;
@@ -572,8 +586,10 @@ html{scroll-behavior:smooth}
     hv.style.transform='scale('+(0.88+p*0.14)+')';
     var lp=Math.min(p/0.55,1),sr=Math.floor(lp*lc);
     while(rc<sr&&rc<lc){lt[rc].classList.add('on');rc++}
-    if(p<1){requestAnimationFrame(t)}
+    if(p<1){animationFrameId=requestAnimationFrame(t)}
     else{
+      /* Kill the rAF loop immediately to free main thread */
+      if(animationFrameId){cancelAnimationFrame(animationFrameId);animationFrameId=null}
       setTimeout(function(){
         hv.style.transition='opacity .6s,transform .6s';
         pct.style.transition='opacity .5s';
@@ -582,12 +598,13 @@ html{scroll-behavior:smooth}
         setTimeout(function(){
           pt.style.transform='translateY(-100%)';
           pb.style.transform='translateY(100%)';
+          /* Clean remove from DOM to free RAM */
           setTimeout(function(){sp.remove()},900);
         },300);
       },250);
     }
   }
-  requestAnimationFrame(t);
+  animationFrameId=requestAnimationFrame(t);
 })();
 
 /* ═══ CATEGORY FILTER ═══ */
