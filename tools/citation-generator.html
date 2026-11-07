@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Citation Generator — ToolHavoc</title>
+<meta name="description" content="Generate perfectly formatted APA, MLA, and Chicago citations from a URL or manual entry. 100% free, runs in your browser.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%234facfe'/%3E%3Cstop offset='100%25' stop-color='%23e91e63'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='56' height='56' rx='12' fill='none' stroke='url(%23g)' stroke-width='3' opacity='.5'/%3E%3Cpath d='M20 16v32M44 16v32M20 32h24' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>
+@font-face{font-family:'New Rocker';src:url('../fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+.glass-panel{background:rgba(15,23,42,.45)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important}
+.gp{background:rgba(15,23,42,.45);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid rgba(51,65,85,.6);border-radius:12px;box-shadow:inset 0 1px 1px rgba(255,255,255,.05)}
+.ad-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+.af{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;contain:layout style;
+  background:rgba(2,2,5,.55);border-radius:14px;position:relative;padding:10px 14px 12px;
+  border:1px solid transparent;background-clip:padding-box;
+  box-shadow:0 0 0 1px rgba(79,172,254,.15),0 0 20px rgba(79,172,254,.06),0 0 40px rgba(233,30,99,.04)}
+.af::before{content:'';position:absolute;inset:-1px;border-radius:15px;padding:1px;
+  background:linear-gradient(135deg,rgba(79,172,254,.3),rgba(233,30,99,.2));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.af .ad-label{font-size:9px;color:rgba(100,116,139,.6);letter-spacing:.1em;font-family:ui-monospace,monospace;text-transform:uppercase;margin-bottom:6px;align-self:flex-start}
+.back-link{transition:all .2s}.back-link:hover{color:#4facfe;transform:translateX(-3px)}.back-link:active{transform:scale(.96)}
+.tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid transparent;color:#94a3b8}
+.tab:hover{color:#e2e8f0}
+.tab.active{background:rgba(79,172,254,.12);color:#4facfe;border-color:rgba(79,172,254,.25)}
+.tab:active{transform:scale(.96)}
+.field-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:6px}
+.field-input{width:100%;background:rgba(2,2,5,.5);border:1px solid rgba(51,65,85,.5);border-radius:8px;padding:10px 12px;color:#e2e8f0;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
+.field-input:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172,254,.1)}
+.field-input::placeholder{color:#475569}
+.cite-out{background:rgba(2,2,5,.5);border:1px solid rgba(51,65,85,.4);border-radius:8px;padding:14px 16px;font-size:14px;line-height:1.7;color:#cbd5e1;position:relative;min-height:60px;cursor:text;user-select:all}
+.cite-out i{font-style:italic}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#020205}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+</style>
+</head>
+<body class="relative min-h-screen overflow-x-hidden font-sans text-slate-300" style="background:#020205">
+
+<!-- AMBIENT ORBS -->
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+  <div class="fixed rounded-full" style="top:-8%;left:-12%;width:500px;height:500px;background:rgba(79,172,254,0.10);filter:blur(130px)"></div>
+  <div class="fixed rounded-full" style="bottom:-8%;right:-8%;width:550px;height:550px;background:rgba(233,30,99,0.10);filter:blur(150px)"></div>
+</div>
+
+<div class="relative z-10">
+
+  <!-- HEADER -->
+  <header class="border-b border-slate-800/40" style="background:rgba(2,2,5,.7);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)">
+    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <a href="../index.html" class="back-link flex items-center gap-2 text-sm text-slate-400" style="text-decoration:none"><span>←</span> Back to Dashboard</a>
+      <span class="text-lg font-extrabold bg-gradient-to-r from-[#4facfe] to-[#e91e63] bg-clip-text text-transparent" style="font-family:'New Rocker','Inter',sans-serif">ToolHavoc</span>
+    </div>
+  </header>
+
+  <!-- TOP AD -->
+  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+    <div class="ad-wrap">
+      <div class="af">
+        <span class="ad-label">Community Partner</span>
+        <script>
+          atOptions = { 'key':'76f41da819582075b2e5619851f50a31','format':'iframe','height':90,'width':728,'params':{} };
+        </script>
+        <script src="https://bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full text-xs text-slate-400" style="background:rgba(9,13,22,.6);border:1px solid rgba(51,65,85,.45)">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        APA 7th · MLA 9th · Chicago 17th
+      </div>
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-3">Citation Generator</h1>
+      <p class="text-slate-400 text-sm md:text-base max-w-lg mx-auto">Fill in the fields. Get a citation you can copy straight into your paper. No sign-up, no paywall.</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto space-y-6">
+
+      <!-- SOURCE TYPE -->
+      <div class="gp glass-panel p-5">
+        <p class="field-label mb-3">Source Type</p>
+        <div class="flex flex-wrap gap-2" id="srcTabs">
+          <button class="tab active" data-src="website" onclick="setSrc(this)">Website</button>
+          <button class="tab" data-src="book" onclick="setSrc(this)">Book</button>
+          <button class="tab" data-src="journal" onclick="setSrc(this)">Journal Article</button>
+        </div>
+      </div>
+
+      <!-- FORMAT TABS -->
+      <div class="gp glass-panel p-5">
+        <p class="field-label mb-3">Citation Format</p>
+        <div class="flex flex-wrap gap-2" id="fmtTabs">
+          <button class="tab active" data-fmt="apa" onclick="setFmt(this)">APA</button>
+          <button class="tab" data-fmt="mla" onclick="setFmt(this)">MLA</button>
+          <button class="tab" data-fmt="chicago" onclick="setFmt(this)">Chicago</button>
+        </div>
+      </div>
+
+      <!-- INPUT FIELDS -->
+      <div class="gp glass-panel p-5 space-y-4" id="fields">
+        <!-- Website fields (default) -->
+        <div data-field="author"><p class="field-label">Author(s)</p><input class="field-input" id="fAuthor" placeholder="Last, First M."></div>
+        <div data-field="title"><p class="field-label">Page / Article Title</p><input class="field-input" id="fTitle" placeholder="Title of the web page or article"></div>
+        <div data-field="site"><p class="field-label">Website Name</p><input class="field-input" id="fSite" placeholder="e.g. The New York Times"></div>
+        <div data-field="publisher" class="hidden"><p class="field-label">Publisher</p><input class="field-input" id="fPublisher" placeholder="Publisher name"></div>
+        <div data-field="journal" class="hidden"><p class="field-label">Journal Name</p><input class="field-input" id="fJournal" placeholder="e.g. Nature, JAMA"></div>
+        <div data-field="volume" class="hidden"><p class="field-label">Volume / Issue</p><div class="grid grid-cols-2 gap-3"><input class="field-input" id="fVol" placeholder="Vol."><input class="field-input" id="fIssue" placeholder="Issue"></div></div>
+        <div data-field="pages" class="hidden"><p class="field-label">Pages</p><input class="field-input" id="fPages" placeholder="e.g. 12-28"></div>
+        <div data-field="date"><p class="field-label">Publication Date</p><input class="field-input" id="fDate" placeholder="YYYY, Month DD"></div>
+        <div data-field="url"><p class="field-label">URL</p><input class="field-input" id="fUrl" placeholder="https://..."></div>
+        <div data-field="doi" class="hidden"><p class="field-label">DOI</p><input class="field-input" id="fDoi" placeholder="https://doi.org/..."></div>
+        <div data-field="accessed"><p class="field-label">Date Accessed</p><input class="field-input" id="fAccessed" placeholder="e.g. November 6, 2026"></div>
+      </div>
+
+      <!-- GENERATE -->
+      <div class="text-center">
+        <button onclick="generate()" class="px-8 py-3 rounded-lg text-sm font-bold text-white transition hover:opacity-90 active:scale-95" style="background:linear-gradient(135deg,#4facfe,#e91e63)">Generate Citation</button>
+      </div>
+
+      <!-- OUTPUT -->
+      <div id="outputArea" class="hidden space-y-4">
+        <div class="gp glass-panel p-5">
+          <p class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-3" id="outLabel">APA Citation</p>
+          <div class="cite-out" id="citeOutput"></div>
+          <div class="flex flex-wrap gap-3 mt-4">
+            <button onclick="copyCite()" id="copyBtn" class="px-5 py-2 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 active:scale-95" style="background:linear-gradient(135deg,#4facfe,#e91e63)">📋 Copy Citation</button>
+            <button onclick="resetAll()" class="px-5 py-2 rounded-lg text-sm font-semibold text-slate-300 border border-slate-700 hover:border-slate-500 transition active:scale-95" style="background:rgba(9,13,22,.5)">New Citation</button>
+          </div>
+        </div>
+
+        <!-- Saved list -->
+        <div id="savedArea" class="hidden gp glass-panel p-5">
+          <p class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-3">Saved Citations (<span id="savedCount">0</span>)</p>
+          <div id="savedList" class="space-y-3"></div>
+          <button onclick="copyAll()" class="mt-4 px-5 py-2 rounded-lg text-sm font-semibold text-slate-300 border border-slate-700 hover:border-slate-500 transition active:scale-95" style="background:rgba(9,13,22,.5)">📋 Copy All</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- BOTTOM AD -->
+  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+    <div class="ad-wrap">
+      <div class="af">
+        <span class="ad-label">Community Partner</span>
+      <script>
+        atOptions = { 'key':'4eb8d16a9cbab1deebe011d440079990','format':'iframe','height':250,'width':300,'params':{} };
+      </script>
+      <script src="https://bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid rgba(51,65,85,.4);background:rgba(2,2,5,.35)">
+    <div class="max-w-6xl mx-auto px-4 py-8 text-center">
+      <div class="text-lg font-extrabold mb-3"><span class="bg-gradient-to-r from-[#4facfe] to-[#e91e63] bg-clip-text text-transparent" style="font-family:'New Rocker','Inter',sans-serif">ToolHavoc</span></div>
+      <div class="flex flex-wrap justify-center gap-5 mb-4">
+        <a href="../index.html" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">All Tools</a>
+        <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">TikTok</a>
+      </div>
+      <div class="text-[11px] text-slate-700">© 2026 ToolHavoc.com — Made by Dexyy</div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+var curSrc='website',curFmt='apa',saved=[];
+
+/* Source type fields visibility */
+var fieldMap={
+  website:['author','title','site','date','url','accessed'],
+  book:['author','title','publisher','date'],
+  journal:['author','title','journal','volume','pages','date','doi']
+};
+
+function setSrc(btn){
+  document.querySelectorAll('#srcTabs .tab').forEach(function(t){t.classList.remove('active')});
+  btn.classList.add('active');
+  curSrc=btn.dataset.src;
+  var show=fieldMap[curSrc];
+  document.querySelectorAll('#fields [data-field]').forEach(function(f){
+    if(show.indexOf(f.dataset.field)!==-1){f.classList.remove('hidden')}else{f.classList.add('hidden')}
+  });
+  /* Update title label */
+  var tl=document.querySelector('[data-field="title"] .field-label');
+  if(curSrc==='book')tl.textContent='Book Title';
+  else if(curSrc==='journal')tl.textContent='Article Title';
+  else tl.textContent='Page / Article Title';
+}
+
+function setFmt(btn){
+  document.querySelectorAll('#fmtTabs .tab').forEach(function(t){t.classList.remove('active')});
+  btn.classList.add('active');
+  curFmt=btn.dataset.fmt;
+}
+
+function v(id){return document.getElementById(id).value.trim()}
+
+function generate(){
+  var author=v('fAuthor'),title=v('fTitle'),site=v('fSite'),publisher=v('fPublisher'),
+      journal=v('fJournal'),vol=v('fVol'),issue=v('fIssue'),pages=v('fPages'),
+      date=v('fDate'),url=v('fUrl'),doi=v('fDoi'),accessed=v('fAccessed');
+
+  if(!title){alert('Please enter at least a title.');return}
+
+  var cite='';
+  var auth=author||'Unknown Author';
+
+  if(curFmt==='apa'){
+    if(curSrc==='website'){
+      cite=auth+' ('+(date||'n.d.')+')'+'. <i>'+title+'</i>. '+(site?site+'. ':'')+url;
+    }else if(curSrc==='book'){
+      cite=auth+' ('+(date||'n.d.')+')'+'. <i>'+title+'</i>. '+(publisher||'Publisher');
+    }else{
+      cite=auth+' ('+(date||'n.d.')+')'+'. '+title+'. <i>'+(journal||'Journal')+'</i>'+(vol?', '+vol:'')+(issue?'('+issue+')':'')+(pages?', '+pages:'')+'.'+(doi?' '+doi:'');
+    }
+  }else if(curFmt==='mla'){
+    if(curSrc==='website'){
+      cite=auth+'. "'+title+'." <i>'+(site||'Web')+'</i>, '+(date||'n.d.')+', '+url+'. Accessed '+(accessed||'n.d.')+'.';
+    }else if(curSrc==='book'){
+      cite=auth+'. <i>'+title+'</i>. '+(publisher||'Publisher')+', '+(date||'n.d.')+'.';
+    }else{
+      cite=auth+'. "'+title+'." <i>'+(journal||'Journal')+'</i>, vol. '+(vol||'X')+', no. '+(issue||'X')+', '+(date||'n.d.')+', pp. '+(pages||'X-X')+'.'+(doi?' '+doi:'');
+    }
+  }else{
+    /* Chicago */
+    if(curSrc==='website'){
+      cite=auth+'. "'+title+'." '+(site?site+'. ':'')+((date)?'Last modified '+date+'. ':'')+url+'.';
+    }else if(curSrc==='book'){
+      cite=auth+'. <i>'+title+'</i>. '+(publisher?publisher+', ':'')+(date||'n.d.')+'.';
+    }else{
+      cite=auth+'. "'+title+'." <i>'+(journal||'Journal')+'</i> '+(vol||'')+', no. '+(issue||'')+' ('+(date||'n.d.')+'): '+(pages||'')+'. '+(doi||'');
+    }
+  }
+
+  document.getElementById('outLabel').textContent=curFmt.toUpperCase()+' Citation — '+curSrc.charAt(0).toUpperCase()+curSrc.slice(1);
+  document.getElementById('citeOutput').innerHTML=cite;
+  document.getElementById('outputArea').classList.remove('hidden');
+  document.getElementById('outputArea').scrollIntoView({behavior:'smooth',block:'start'});
+
+  /* Auto-save */
+  saved.push({fmt:curFmt.toUpperCase(),html:cite,text:stripHtml(cite)});
+  renderSaved();
+}
+
+function stripHtml(h){var d=document.createElement('div');d.innerHTML=h;return d.textContent||d.innerText||''}
+
+function renderSaved(){
+  if(saved.length<2){document.getElementById('savedArea').classList.add('hidden');return}
+  document.getElementById('savedArea').classList.remove('hidden');
+  document.getElementById('savedCount').textContent=saved.length;
+  var sl=document.getElementById('savedList');sl.innerHTML='';
+  saved.forEach(function(s,i){
+    var d=document.createElement('div');
+    d.className='cite-out text-xs';
+    d.innerHTML='<span class="text-[10px] text-slate-600 font-mono">'+s.fmt+'</span><br>'+s.html;
+    sl.appendChild(d);
+  });
+}
+
+function copyCite(){
+  var txt=stripHtml(document.getElementById('citeOutput').innerHTML);
+  navigator.clipboard.writeText(txt).then(function(){
+    var b=document.getElementById('copyBtn');b.textContent='✅ Copied!';setTimeout(function(){b.textContent='📋 Copy Citation'},1800);
+  });
+}
+
+function copyAll(){
+  var all=saved.map(function(s){return s.text}).join('\n\n');
+  navigator.clipboard.writeText(all).then(function(){alert('All '+saved.length+' citations copied!')});
+}
+
+function resetAll(){
+  document.querySelectorAll('.field-input').forEach(function(f){f.value=''});
+  document.getElementById('outputArea').classList.add('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* Set today as default accessed date */
+(function(){
+  var d=new Date(),m=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('fAccessed').value=m[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+})();
+</script>
+</body>
+</html>

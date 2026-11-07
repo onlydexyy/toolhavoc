@@ -29,9 +29,17 @@ html{scroll-behavior:smooth}
   box-shadow:inset 0 1px 1px rgba(255,255,255,.05);
 }
 
-/* Ad frames */
-.af{display:flex;align-items:center;justify-content:center;overflow:hidden;contain:layout style;
-  min-height:95px;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px;position:relative}
+/* Ad frames — shrink-wrap around actual ad content */
+.ad-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+.af{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;contain:layout style;
+  background:rgba(2,2,5,.55);border-radius:14px;position:relative;padding:10px 14px 12px;
+  border:1px solid transparent;background-clip:padding-box;
+  box-shadow:0 0 0 1px rgba(79,172,254,.15),0 0 20px rgba(79,172,254,.06),0 0 40px rgba(233,30,99,.04)}
+.af::before{content:'';position:absolute;inset:-1px;border-radius:15px;padding:1px;
+  background:linear-gradient(135deg,rgba(79,172,254,.3),rgba(233,30,99,.2));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.af .ad-label{font-size:9px;color:rgba(100,116,139,.6);letter-spacing:.1em;font-family:ui-monospace,monospace;text-transform:uppercase;margin-bottom:6px;align-self:flex-start}
 
 /* Dropzone */
 .dropzone{
@@ -97,18 +105,20 @@ html{scroll-behavior:smooth}
 
   <!-- TOP AD SLOT -->
   <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-    <div class="af">
-      <span class="absolute top-2 left-3 text-[10px] text-slate-600 tracking-widest font-mono uppercase">Community Partner</span>
-      <script>
-        atOptions = {
-          'key' : '76f41da819582075b2e5619851f50a31',
-          'format' : 'iframe',
-          'height' : 90,
-          'width' : 728,
-          'params' : {}
-        };
-      </script>
-      <script src="https://bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+    <div class="ad-wrap">
+      <div class="af">
+        <span class="ad-label">Community Partner</span>
+        <script>
+          atOptions = {
+            'key' : '76f41da819582075b2e5619851f50a31',
+            'format' : 'iframe',
+            'height' : 90,
+            'width' : 728,
+            'params' : {}
+          };
+        </script>
+        <script src="https://bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      </div>
     </div>
   </div>
 
@@ -213,8 +223,9 @@ html{scroll-behavior:smooth}
 
   <!-- BOTTOM AD SLOT -->
   <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-    <div class="af" style="min-height:260px">
-      <span class="absolute top-2 left-3 text-[10px] text-slate-600 tracking-widest font-mono uppercase">Sponsored Slot</span>
+    <div class="ad-wrap">
+      <div class="af">
+        <span class="ad-label">Community Partner</span>
       <script>
         atOptions = {
           'key' : '4eb8d16a9cbab1deebe011d440079990',
@@ -225,6 +236,7 @@ html{scroll-behavior:smooth}
         };
       </script>
       <script src="https://bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
+      </div>
     </div>
   </div>
 

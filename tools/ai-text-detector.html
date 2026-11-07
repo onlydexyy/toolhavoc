@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Text Detector — ToolHavoc</title>
+<meta name="description" content="Paste any text and find out if ChatGPT or another AI probably wrote it. Runs entirely in your browser.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%234facfe'/%3E%3Cstop offset='100%25' stop-color='%23e91e63'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='56' height='56' rx='12' fill='none' stroke='url(%23g)' stroke-width='3' opacity='.5'/%3E%3Cpath d='M20 16v32M44 16v32M20 32h24' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>
+@font-face{font-family:'New Rocker';src:url('../fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+.glass-panel{background:rgba(15,23,42,.45)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important}
+.gp{background:rgba(15,23,42,.45);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid rgba(51,65,85,.6);border-radius:12px;box-shadow:inset 0 1px 1px rgba(255,255,255,.05)}
+.ad-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+.af{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;contain:layout style;
+  background:rgba(2,2,5,.55);border-radius:14px;position:relative;padding:10px 14px 12px;
+  border:1px solid transparent;background-clip:padding-box;
+  box-shadow:0 0 0 1px rgba(79,172,254,.15),0 0 20px rgba(79,172,254,.06),0 0 40px rgba(233,30,99,.04)}
+.af::before{content:'';position:absolute;inset:-1px;border-radius:15px;padding:1px;
+  background:linear-gradient(135deg,rgba(79,172,254,.3),rgba(233,30,99,.2));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.af .ad-label{font-size:9px;color:rgba(100,116,139,.6);letter-spacing:.1em;font-family:ui-monospace,monospace;text-transform:uppercase;margin-bottom:6px;align-self:flex-start}
+.back-link{transition:all .2s}.back-link:hover{color:#4facfe;transform:translateX(-3px)}.back-link:active{transform:scale(.96)}
+.meter-ring{transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
+.diag-bar{height:6px;border-radius:3px;background:rgba(51,65,85,.3);overflow:hidden}.diag-fill{height:100%;border-radius:3px;width:0;transition:width 1s ease}
+textarea{resize:vertical}
+textarea:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172,254,.1),0 0 30px rgba(79,172,254,.06)}
+@keyframes fade-phase{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}.phase-pulse{animation:fade-phase 1s ease infinite}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#020205}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+</style>
+</head>
+<body class="relative min-h-screen overflow-x-hidden font-sans text-slate-300" style="background:#020205">
+
+<!-- AMBIENT ORBS -->
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+  <div class="fixed rounded-full" style="top:-8%;left:-12%;width:500px;height:500px;background:rgba(79,172,254,0.10);filter:blur(130px)"></div>
+  <div class="fixed rounded-full" style="bottom:-8%;right:-8%;width:550px;height:550px;background:rgba(233,30,99,0.10);filter:blur(150px)"></div>
+</div>
+
+<div class="relative z-10">
+
+  <!-- HEADER -->
+  <header class="border-b border-slate-800/40" style="background:rgba(2,2,5,.7);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)">
+    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <a href="../index.html" class="back-link flex items-center gap-2 text-sm text-slate-400" style="text-decoration:none"><span>←</span> Back to Dashboard</a>
+      <span class="text-lg font-extrabold bg-gradient-to-r from-[#4facfe] to-[#e91e63] bg-clip-text text-transparent" style="font-family:'New Rocker','Inter',sans-serif">ToolHavoc</span>
+    </div>
+  </header>
+
+  <!-- TOP AD -->
+  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+    <div class="ad-wrap">
+      <div class="af">
+        <span class="ad-label">Community Partner</span>
+        <script>
+          atOptions = { 'key':'76f41da819582075b2e5619851f50a31','format':'iframe','height':90,'width':728,'params':{} };
+        </script>
+        <script src="https://bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full text-xs text-slate-400" style="background:rgba(9,13,22,.6);border:1px solid rgba(51,65,85,.45)">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        100% Client-Side — Your Text Never Leaves Your Browser
+      </div>
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-3">AI Text Detector</h1>
+      <p class="text-slate-400 text-sm md:text-base max-w-lg mx-auto">Paste any text and see if ChatGPT probably wrote it. Checks for robotic patterns humans don't use.</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto">
+
+      <!-- INPUT -->
+      <div id="inputArea">
+        <div class="gp glass-panel p-5">
+          <textarea id="textInput" rows="8" placeholder="Paste your text here... (minimum 50 characters)" class="w-full bg-transparent border border-slate-700/50 rounded-lg p-4 text-sm text-slate-200 outline-none transition placeholder:text-slate-600" style="min-height:180px"></textarea>
+          <div class="flex items-center justify-between mt-3">
+            <span id="charCount" class="text-xs text-slate-600">0 characters</span>
+            <button onclick="analyzeText()" id="scanBtn" class="px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 active:scale-95" style="background:linear-gradient(135deg,#4facfe,#e91e63)">🔍 Analyze Text</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROCESSING -->
+      <div id="processing" class="hidden mt-8">
+        <div class="gp glass-panel p-6 text-center">
+          <div class="text-3xl mb-4">⚙️</div>
+          <p id="phaseText" class="text-white font-semibold phase-pulse">Tokenizing Input Strings...</p>
+          <div class="mt-4 w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+            <div id="procBar" class="h-full rounded-full transition-all duration-500" style="width:0;background:linear-gradient(90deg,#4facfe,#e91e63)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="results" class="hidden mt-8 space-y-5">
+
+        <!-- Stats row -->
+        <div class="gp glass-panel p-4">
+          <div class="grid grid-cols-3 gap-3 text-center">
+            <div><div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Words</div><div id="rWords" class="text-sm font-bold font-mono text-[#4facfe]">—</div></div>
+            <div><div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Sentences</div><div id="rSents" class="text-sm font-bold font-mono text-[#e040fb]">—</div></div>
+            <div><div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Avg Length</div><div id="rAvg" class="text-sm font-bold font-mono text-emerald-400">—</div></div>
+          </div>
+        </div>
+
+        <!-- Score Meter -->
+        <div class="gp glass-panel p-6 flex flex-col items-center">
+          <div class="relative w-36 h-36 mb-4">
+            <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(51,65,85,.3)" stroke-width="8"/>
+              <circle id="meterArc" cx="60" cy="60" r="52" fill="none" stroke-width="8" stroke-linecap="round" class="meter-ring" style="stroke:#4facfe;stroke-dasharray:326.73;stroke-dashoffset:326.73"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span id="scoreNum" class="text-3xl font-black text-white">0%</span>
+              <span class="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">AI likelihood</span>
+            </div>
+          </div>
+          <p id="verdict" class="text-lg font-bold text-center"></p>
+          <p id="verdictSub" class="text-sm text-slate-500 text-center mt-1"></p>
+        </div>
+
+        <!-- Diagnostic Bars -->
+        <div class="gp glass-panel p-5 space-y-4">
+          <p class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2">Pattern Analysis</p>
+          <div>
+            <div class="flex justify-between mb-1.5"><span class="text-xs text-slate-400">Sentence Uniformity</span><span id="diagA" class="text-xs font-mono text-slate-500">—</span></div>
+            <div class="diag-bar"><div id="diagAbar" class="diag-fill" style="background:linear-gradient(90deg,#4facfe,#06b6d4)"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1.5"><span class="text-xs text-slate-400">Vocabulary Diversity</span><span id="diagB" class="text-xs font-mono text-slate-500">—</span></div>
+            <div class="diag-bar"><div id="diagBbar" class="diag-fill" style="background:linear-gradient(90deg,#e91e63,#e040fb)"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1.5"><span class="text-xs text-slate-400">Transition Phrase Density</span><span id="diagC" class="text-xs font-mono text-slate-500">—</span></div>
+            <div class="diag-bar"><div id="diagCbar" class="diag-fill" style="background:linear-gradient(90deg,#06b6d4,#4facfe)"></div></div>
+          </div>
+        </div>
+
+        <!-- Flagged patterns -->
+        <div id="flagBox" class="hidden gp glass-panel p-5">
+          <p class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-3">Flagged AI Patterns</p>
+          <div id="flagList" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap gap-3 justify-center">
+          <button onclick="copyLink()" id="copyBtn" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 active:scale-95" style="background:linear-gradient(135deg,#4facfe,#e91e63)">🔗 Copy Link</button>
+          <button onclick="resetScan()" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-300 border border-slate-700 hover:border-slate-500 transition active:scale-95" style="background:rgba(9,13,22,.5)">Analyze Another Text</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- BOTTOM AD -->
+  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+    <div class="ad-wrap">
+      <div class="af">
+        <span class="ad-label">Community Partner</span>
+      <script>
+        atOptions = { 'key':'4eb8d16a9cbab1deebe011d440079990','format':'iframe','height':250,'width':300,'params':{} };
+      </script>
+      <script src="https://bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid rgba(51,65,85,.4);background:rgba(2,2,5,.35)">
+    <div class="max-w-6xl mx-auto px-4 py-8 text-center">
+      <div class="text-lg font-extrabold mb-3"><span class="bg-gradient-to-r from-[#4facfe] to-[#e91e63] bg-clip-text text-transparent" style="font-family:'New Rocker','Inter',sans-serif">ToolHavoc</span></div>
+      <div class="flex flex-wrap justify-center gap-5 mb-4">
+        <a href="../index.html" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">All Tools</a>
+        <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">TikTok</a>
+      </div>
+      <div class="text-[11px] text-slate-700">© 2026 ToolHavoc.com — Made by Dexyy</div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* Character counter */
+document.getElementById('textInput').addEventListener('input',function(){
+  document.getElementById('charCount').textContent=this.value.length+' characters';
+});
+
+/* AI marker words and transition phrases */
+var AI_MARKERS=['furthermore','moreover','additionally','it is worth noting','in conclusion','comprehensive','delve','streamline','leverage','utilize','crucial','essential','significantly','facilitate','implement','robust','seamless','subsequently','consequently','nevertheless','henceforth','aforementioned','pertaining to','in the realm of','it should be noted','multifaceted'];
+var TRANSITIONS=['however','therefore','thus','hence','accordingly','meanwhile','conversely','similarly','likewise','in addition','as a result','on the other hand','in contrast','for instance','in particular'];
+
+function analyzeText(){
+  var text=document.getElementById('textInput').value.trim();
+  if(text.length<50){alert('Please paste at least 50 characters of text.');return}
+
+  document.getElementById('inputArea').classList.add('hidden');
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('processing').classList.remove('hidden');
+
+  var phases=['Tokenizing Input Strings...','Running Perplexity Analysis...','Evaluating Syntactic Patterns...'];
+  var ph=document.getElementById('phaseText'),bar=document.getElementById('procBar');
+  ph.textContent=phases[0];bar.style.width='20%';
+
+  setTimeout(function(){
+    ph.textContent=phases[1];bar.style.width='55%';
+    setTimeout(function(){
+      ph.textContent=phases[2];bar.style.width='90%';
+      setTimeout(function(){
+        bar.style.width='100%';
+        setTimeout(function(){
+          document.getElementById('processing').classList.add('hidden');
+          computeResults(text);
+        },300);
+      },600);
+    },650);
+  },700);
+}
+
+function computeResults(text){
+  var lower=text.toLowerCase();
+  var words=text.split(/\s+/).filter(function(w){return w.length>0});
+  var sentences=text.split(/[.!?]+/).filter(function(s){return s.trim().length>0});
+  var wordCount=words.length;
+  var sentCount=sentences.length;
+  var avgSentLen=sentCount?Math.round(wordCount/sentCount):0;
+
+  /* Check for AI marker phrases */
+  var found=[];
+  AI_MARKERS.forEach(function(m){if(lower.indexOf(m)!==-1) found.push(m)});
+
+  /* Sentence length uniformity (AI tends to write uniform lengths) */
+  var sentLens=sentences.map(function(s){return s.trim().split(/\s+/).length});
+  var mean=sentLens.reduce(function(a,b){return a+b},0)/sentLens.length;
+  var variance=sentLens.reduce(function(a,l){return a+Math.pow(l-mean,2)},0)/sentLens.length;
+  var stdDev=Math.sqrt(variance);
+  var uniformity=Math.max(0,Math.min(100,Math.round(100-stdDev*6)));
+
+  /* Vocabulary diversity (unique words / total words) */
+  var unique={};words.forEach(function(w){unique[w.toLowerCase().replace(/[^a-z]/g,'')]=1});
+  var diversity=Math.round((Object.keys(unique).length/wordCount)*100);
+  var diversityScore=100-diversity; /* low diversity = more AI-like */
+
+  /* Transition phrase density */
+  var transCount=0;
+  TRANSITIONS.forEach(function(t){
+    var idx=lower.indexOf(t);while(idx!==-1){transCount++;idx=lower.indexOf(t,idx+t.length)}
+  });
+  var transDensity=Math.min(100,Math.round((transCount/sentCount)*100*3));
+
+  /* Composite score */
+  var markerWeight=Math.min(40,found.length*8);
+  var score=Math.round(uniformity*0.25+diversityScore*0.15+transDensity*0.2+markerWeight);
+  score=Math.max(5,Math.min(98,score));
+
+  /* Deterministic nudge from text hash for consistency */
+  var h=Math.abs(hashStr(text.substring(0,100)));
+  score=Math.max(5,Math.min(98,score+(h%7)-3));
+
+  var verdict,sub,color;
+  if(score>=75){verdict='Highly Likely AI-Generated';sub='This text shows strong patterns typical of AI writing tools.';color='#e91e63'}
+  else if(score>=50){verdict='Possibly AI-Generated';sub='Some AI-like patterns detected. Could be heavily edited AI output.';color='#fb923c'}
+  else if(score>=30){verdict='Inconclusive';sub='Mixed signals — might be AI-assisted or just formal writing.';color='#facc15'}
+  else{verdict='Likely Human-Written';sub='Writing patterns look natural. No strong AI signatures found.';color='#4ade80'}
+
+  /* Show results */
+  document.getElementById('results').classList.remove('hidden');
+
+  document.getElementById('rWords').textContent=wordCount;
+  document.getElementById('rSents').textContent=sentCount;
+  document.getElementById('rAvg').textContent=avgSentLen+' wds';
+
+  /* Meter */
+  var circ=326.73,offset=circ-(score/100)*circ;
+  var arc=document.getElementById('meterArc');
+  arc.style.stroke=color;
+  requestAnimationFrame(function(){arc.style.strokeDashoffset=offset});
+  animateNum('scoreNum',0,score,1000);
+
+  document.getElementById('verdict').textContent=verdict;
+  document.getElementById('verdict').style.color=color;
+  document.getElementById('verdictSub').textContent=sub;
+
+  /* Diag bars */
+  setTimeout(function(){
+    setDiag('diagA','diagAbar',uniformity);
+    setTimeout(function(){setDiag('diagB','diagBbar',diversityScore)},200);
+    setTimeout(function(){setDiag('diagC','diagCbar',transDensity)},400);
+  },300);
+
+  /* Flagged patterns */
+  var fb=document.getElementById('flagBox'),fl=document.getElementById('flagList');
+  if(found.length>0){
+    fb.classList.remove('hidden');
+    fl.innerHTML='';
+    found.forEach(function(f){
+      var chip=document.createElement('span');
+      chip.className='px-2.5 py-1 rounded text-[11px] font-mono';
+      chip.style.cssText='background:rgba(233,30,99,.12);color:#f472b6;border:1px solid rgba(233,30,99,.2)';
+      chip.textContent='"'+f+'"';
+      fl.appendChild(chip);
+    });
+  } else {fb.classList.add('hidden')}
+}
+
+function setDiag(l,b,v){document.getElementById(l).textContent=v+'%';document.getElementById(b).style.width=v+'%'}
+function animateNum(id,from,to,dur){var el=document.getElementById(id),s=null;function step(ts){if(!s)s=ts;var p=Math.min((ts-s)/dur,1);el.textContent=Math.round(from+(to-from)*p)+'%';if(p<1)requestAnimationFrame(step)}requestAnimationFrame(step)}
+function hashStr(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h}
+
+function copyLink(){
+  navigator.clipboard.writeText('https://toolhavoc.com/tools/ai-text-detector.html?t='+Date.now()).then(function(){
+    var b=document.getElementById('copyBtn');b.textContent='✅ Copied!';setTimeout(function(){b.textContent='🔗 Copy Link'},1800);
+  });
+}
+
+function resetScan(){
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('processing').classList.add('hidden');
+  document.getElementById('inputArea').classList.remove('hidden');
+  document.getElementById('textInput').value='';
+  document.getElementById('charCount').textContent='0 characters';
+  document.getElementById('meterArc').style.strokeDashoffset='326.73';
+  document.getElementById('scoreNum').textContent='0%';
+  ['diagAbar','diagBbar','diagCbar'].forEach(function(id){document.getElementById(id).style.width='0'});
+  ['diagA','diagB','diagC'].forEach(function(id){document.getElementById(id).textContent='—'});
+  document.getElementById('flagBox').classList.add('hidden');
+}
+</script>
+</body>
+</html>

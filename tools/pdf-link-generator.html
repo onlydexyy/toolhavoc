@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Link Generator — ToolHavoc</title>
+<meta name="description" content="Turn any PDF into a shareable link — entirely in your browser. No uploads, no servers, no sign-ups.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%234facfe'/%3E%3Cstop offset='100%25' stop-color='%23e91e63'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='56' height='56' rx='12' fill='none' stroke='url(%23g)' stroke-width='3' opacity='.5'/%3E%3Cpath d='M20 16v32M44 16v32M20 32h24' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>
+@font-face{font-family:'New Rocker';src:url('../fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+.glass-panel{background:rgba(15,23,42,.45)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important}
+.gp{background:rgba(15,23,42,.45);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid rgba(51,65,85,.6);border-radius:12px;box-shadow:inset 0 1px 1px rgba(255,255,255,.05)}
+.ad-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+.af{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;contain:layout style;
+  background:rgba(2,2,5,.55);border-radius:14px;position:relative;padding:10px 14px 12px;
+  border:1px solid transparent;background-clip:padding-box;
+  box-shadow:0 0 0 1px rgba(79,172,254,.15),0 0 20px rgba(79,172,254,.06),0 0 40px rgba(233,30,99,.04)}
+.af::before{content:'';position:absolute;inset:-1px;border-radius:15px;padding:1px;
+  background:linear-gradient(135deg,rgba(79,172,254,.3),rgba(233,30,99,.2));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.af .ad-label{font-size:9px;color:rgba(100,116,139,.6);letter-spacing:.1em;font-family:ui-monospace,monospace;text-transform:uppercase;margin-bottom:6px;align-self:flex-start}
+.back-link{transition:all .2s}.back-link:hover{color:#4facfe;transform:translateX(-3px)}.back-link:active{transform:scale(.96)}
+.dropzone{border:2px dashed rgba(51,65,85,.6);border-radius:16px;transition:border-color .3s,box-shadow .3s,background .3s;cursor:pointer;position:relative}
+.dropzone:hover,.dropzone.over{border-color:rgba(79,172,254,.6);box-shadow:0 0 40px rgba(79,172,254,.12);background:rgba(79,172,254,.03)}
+.dropzone.over{animation:pulse-glow 1.2s ease infinite}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 30px rgba(79,172,254,.1)}50%{box-shadow:0 0 50px rgba(79,172,254,.25)}}
+.link-box{background:rgba(2,2,5,.5);border:1px solid rgba(51,65,85,.4);border-radius:8px;padding:12px 14px;font-size:13px;color:#4facfe;word-break:break-all;font-family:ui-monospace,monospace;user-select:all}
+@keyframes fade-phase{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}.phase-pulse{animation:fade-phase 1s ease infinite}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#020205}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+</style>
+</head>
+<body class="relative min-h-screen overflow-x-hidden font-sans text-slate-300" style="background:#020205">
+
+<!-- AMBIENT ORBS -->
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+  <div class="fixed rounded-full" style="top:-8%;left:-12%;width:500px;height:500px;background:rgba(79,172,254,0.10);filter:blur(130px)"></div>
+  <div class="fixed rounded-full" style="bottom:-8%;right:-8%;width:550px;height:550px;background:rgba(233,30,99,0.10);filter:blur(150px)"></div>
+</div>
+
+<div class="relative z-10">
+
+  <!-- HEADER -->
+  <header class="border-b border-slate-800/40" style="background:rgba(2,2,5,.7);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)">
+    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <a href="../index.html" class="back-link flex items-center gap-2 text-sm text-slate-400" style="text-decoration:none"><span>←</span> Back to Dashboard</a>
+      <span class="text-lg font-extrabold bg-gradient-to-r from-[#4facfe] to-[#e91e63] bg-clip-text text-transparent" style="font-family:'New Rocker','Inter',sans-serif">ToolHavoc</span>
+    </div>
+  </header>
+
+  <!-- TOP AD -->
+  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+    <div class="ad-wrap">
+      <div class="af">
+        <span class="ad-label">Community Partner</span>
+        <script>
+          atOptions = { 'key':'76f41da819582075b2e5619851f50a31','format':'iframe','height':90,'width':728,'params':{} };
+        </script>
+        <script src="https://bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full text-xs text-slate-400" style="background:rgba(9,13,22,.6);border:1px solid rgba(51,65,85,.45)">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        100% Client-Side — Your PDF Never Leaves Your Browser
+      </div>
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-3">PDF Link Generator</h1>
+      <p class="text-slate-400 text-sm md:text-base max-w-lg mx-auto">Drop a PDF and get a shareable data URL. The file stays on your device — we convert it to a base64 link you can paste anywhere.</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto">
+
+      <!-- UPLOAD ZONE -->
+      <div id="uploadArea">
+        <div class="gp glass-panel p-6">
+          <div class="dropzone p-10 text-center" id="dropzone" onclick="document.getElementById('fileIn').click()">
+            <div class="text-4xl mb-3">📄</div>
+            <p class="text-white font-semibold text-lg">Drag & drop a PDF here</p>
+            <p class="text-slate-500 text-sm mt-1">or click to browse your files</p>
+            <p class="text-slate-600 text-xs mt-3">PDF only — up to 5 MB</p>
+            <input type="file" id="fileIn" accept=".pdf,application/pdf" class="hidden">
+          </div>
+        </div>
+      </div>
+
+      <!-- PROCESSING -->
+      <div id="processing" class="hidden mt-8">
+        <div class="gp glass-panel p-6 text-center">
+          <div class="text-3xl mb-4">⚙️</div>
+          <p id="phaseText" class="text-white font-semibold phase-pulse">Reading PDF Binary...</p>
+          <div class="mt-4 w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+            <div id="procBar" class="h-full rounded-full transition-all duration-500" style="width:0;background:linear-gradient(90deg,#4facfe,#e91e63)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div id="resultArea" class="hidden mt-8 space-y-5">
+        <!-- File info -->
+        <div class="gp glass-panel p-4">
+          <div class="grid grid-cols-3 gap-3 text-center">
+            <div><div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">File Name</div><div id="rName" class="text-sm font-bold font-mono text-[#4facfe] truncate">—</div></div>
+            <div><div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">File Size</div><div id="rSize" class="text-sm font-bold font-mono text-[#e040fb]">—</div></div>
+            <div><div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Link Size</div><div id="rLink" class="text-sm font-bold font-mono text-emerald-400">—</div></div>
+          </div>
+        </div>
+
+        <!-- Generated link -->
+        <div class="gp glass-panel p-5">
+          <p class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-3">Your Shareable Link</p>
+          <div class="link-box" id="linkOutput"></div>
+          <p class="text-[11px] text-slate-600 mt-2">This is a data URI — paste it into a browser bar or embed it in HTML. It works offline.</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap gap-3 justify-center">
+          <button onclick="copyLink()" id="copyBtn" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 active:scale-95" style="background:linear-gradient(135deg,#4facfe,#e91e63)">📋 Copy Link</button>
+          <button onclick="openLink()" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 active:scale-95" style="background:rgba(79,172,254,.15);border:1px solid rgba(79,172,254,.3)">🔗 Open in New Tab</button>
+          <button onclick="resetTool()" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-300 border border-slate-700 hover:border-slate-500 transition active:scale-95" style="background:rgba(9,13,22,.5)">Generate Another</button>
+        </div>
+
+        <!-- Warning -->
+        <div class="gp glass-panel p-4 text-center">
+          <p class="text-[11px] text-amber-400/70">⚠️ Large PDFs produce very long links. Some apps and messaging platforms truncate URLs over ~2000 characters. Files under 1 MB work best for sharing.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- BOTTOM AD -->
+  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+    <div class="ad-wrap">
+      <div class="af">
+        <span class="ad-label">Community Partner</span>
+        <script>
+          atOptions = { 'key':'4eb8d16a9cbab1deebe011d440079990','format':'iframe','height':250,'width':300,'params':{} };
+        </script>
+        <script src="https://bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid rgba(51,65,85,.4);background:rgba(2,2,5,.35)">
+    <div class="max-w-6xl mx-auto px-4 py-8 text-center">
+      <div class="text-lg font-extrabold mb-3"><span class="bg-gradient-to-r from-[#4facfe] to-[#e91e63] bg-clip-text text-transparent" style="font-family:'New Rocker','Inter',sans-serif">ToolHavoc</span></div>
+      <div class="flex flex-wrap justify-center gap-5 mb-4">
+        <a href="../index.html" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">All Tools</a>
+        <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">TikTok</a>
+      </div>
+      <div class="text-[11px] text-slate-700">© 2026 ToolHavoc.com — Made by Dexyy</div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+var generatedUrl='';
+var dz=document.getElementById('dropzone'),fi=document.getElementById('fileIn');
+
+/* Drag & drop */
+dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('over')});
+dz.addEventListener('dragleave',function(){dz.classList.remove('over')});
+dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files[0])});
+fi.addEventListener('change',function(){if(fi.files.length)handleFile(fi.files[0])});
+
+function handleFile(file){
+  if(file.type!=='application/pdf'){alert('Please select a PDF file.');return}
+  if(file.size>5*1024*1024){alert('File too large. Maximum size is 5 MB.');return}
+
+  document.getElementById('uploadArea').classList.add('hidden');
+  document.getElementById('resultArea').classList.add('hidden');
+  document.getElementById('processing').classList.remove('hidden');
+
+  var phases=['Reading PDF Binary...','Encoding Base64 Payload...','Building Data URI...'];
+  var ph=document.getElementById('phaseText'),bar=document.getElementById('procBar');
+  ph.textContent=phases[0];bar.style.width='15%';
+
+  var reader=new FileReader();
+  reader.onload=function(e){
+    ph.textContent=phases[1];bar.style.width='50%';
+    setTimeout(function(){
+      ph.textContent=phases[2];bar.style.width='85%';
+      var dataUrl=e.target.result;
+      generatedUrl=dataUrl;
+
+      setTimeout(function(){
+        bar.style.width='100%';
+        setTimeout(function(){
+          document.getElementById('processing').classList.add('hidden');
+          showResult(file,dataUrl);
+        },300);
+      },400);
+    },500);
+  };
+  reader.readAsDataURL(file);
+}
+
+function showResult(file,dataUrl){
+  document.getElementById('resultArea').classList.remove('hidden');
+  document.getElementById('rName').textContent=file.name;
+  document.getElementById('rSize').textContent=formatSize(file.size);
+  document.getElementById('rLink').textContent=formatSize(dataUrl.length);
+
+  /* Show truncated link */
+  var display=dataUrl.length>300?dataUrl.substring(0,300)+'... ('+formatSize(dataUrl.length)+' total)':dataUrl;
+  document.getElementById('linkOutput').textContent=display;
+}
+
+function formatSize(bytes){
+  if(bytes<1024)return bytes+' B';
+  if(bytes<1048576)return(bytes/1024).toFixed(1)+' KB';
+  return(bytes/1048576).toFixed(2)+' MB';
+}
+
+function copyLink(){
+  navigator.clipboard.writeText(generatedUrl).then(function(){
+    var b=document.getElementById('copyBtn');b.textContent='✅ Copied!';setTimeout(function(){b.textContent='📋 Copy Link'},1800);
+  });
+}
+
+function openLink(){
+  var w=window.open();
+  if(w){w.document.write('<html><head><title>PDF Preview</title></head><body style="margin:0"><embed src="'+generatedUrl+'" width="100%" height="100%" type="application/pdf"></body></html>');w.document.close()}
+}
+
+function resetTool(){
+  generatedUrl='';
+  document.getElementById('resultArea').classList.add('hidden');
+  document.getElementById('processing').classList.add('hidden');
+  document.getElementById('uploadArea').classList.remove('hidden');
+  document.getElementById('fileIn').value='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
