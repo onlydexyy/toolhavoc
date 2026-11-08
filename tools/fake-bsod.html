@@ -13,7 +13,7 @@
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
 <style>
 @font-face{font-family:'New Rocker';src:url('../fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
-*{margin:0;padding:0;box-sizing:border-box}
+
 html{scroll-behavior:smooth}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:#020205}
@@ -56,12 +56,9 @@ html{scroll-behavior:smooth}
 .rmodal-submit:active{transform:scale(.96)}
 .rmodal-close{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:#475569;font-size:18px;line-height:1;transition:color .2s}
 .rmodal-close:hover{color:#94a3b8}
-*{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0a0f;color:#e4e4e7;font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
 .setup{max-width:500px;text-align:center}
-.setup h1{font-size:28px;font-weight:800;margin-bottom:8px}
-.setup h1 span{background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.setup p{color:#a1a1aa;font-size:15px;margin-bottom:24px}
+.setup .setup .setup p{color:#a1a1aa;font-size:15px;margin-bottom:24px}
 .back-link{position:fixed;top:16px;left:16px;color:#a1a1aa;text-decoration:none;font-size:14px;z-index:200}
 .launch-btn{
   padding:16px 48px;border-radius:14px;border:none;
@@ -80,8 +77,7 @@ body{background:#0a0a0f;color:#e4e4e7;font-family:'Inter',sans-serif;min-height:
   padding:10vh 10vw;cursor:none;
 }
 .bsod .sad{font-size:clamp(80px,15vw,140px);margin-bottom:20px}
-.bsod h1{font-size:clamp(20px,3vw,36px);font-weight:300;margin-bottom:16px}
-.bsod p{font-size:clamp(13px,1.5vw,18px);font-weight:300;line-height:1.8;max-width:700px;margin-bottom:20px}
+.bsod .bsod p{font-size:clamp(13px,1.5vw,18px);font-weight:300;line-height:1.8;max-width:700px;margin-bottom:20px}
 .bsod .pct{font-size:clamp(16px,2vw,22px);font-weight:300;margin-bottom:20px}
 .bsod .qr-wrap{display:flex;align-items:flex-start;gap:16px;margin-top:30px}
 .bsod .qr-box{width:80px;height:80px;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
