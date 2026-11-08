@@ -464,8 +464,8 @@ html{scroll-behavior:smooth}
     <!-- PRIMARY INJECTION GRID -->
     <div id="tools-display-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       <!-- HUD Stats Panel — boot state before pill clicked -->
-      <div id="grid-empty-state" style="grid-column:1/-1;padding:32px 16px 40px">
-        <div id="hud-panel" style="max-width:720px;margin:0 auto;border:1px solid #1e3a4a;border-radius:4px;background:linear-gradient(160deg,#020810 0%,#040c14 60%,#020a10 100%);overflow:hidden;position:relative">
+      <div id="grid-empty-state" style="grid-column:1/-1;padding:0 0 8px;display:flex;justify-content:center;align-items:stretch">
+        <div id="hud-panel" style="width:100%;border:1px solid #1e3a4a;border-radius:4px;background:linear-gradient(160deg,#020810 0%,#040c14 60%,#020a10 100%);overflow:hidden;position:relative">
 
           <!-- corner brackets -->
           <div style="position:absolute;top:8px;left:8px;width:14px;height:14px;border-top:1px solid #22d3ee;border-left:1px solid #22d3ee;opacity:.6"></div>
@@ -483,40 +483,40 @@ html{scroll-behavior:smooth}
           </div>
 
           <!-- main stats row -->
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #0f2a38">
+          <div class="hud-stats-row">
 
             <!-- tool count -->
-            <div style="padding:20px 24px;border-right:1px solid #0f2a38">
-              <div style="font-family:monospace;font-size:9px;letter-spacing:.18em;color:#475569;text-transform:uppercase;margin-bottom:6px">TOOLS_LOADED</div>
-              <div style="font-family:monospace;font-size:36px;font-weight:700;color:#22d3ee;line-height:1;text-shadow:0 0 20px rgba(34,211,238,.4)" id="hud-tool-count">35</div>
-              <div style="font-family:monospace;font-size:9px;color:#22c55e;margin-top:6px;letter-spacing:.1em">▲ MORE SHIPPING SOON</div>
+            <div class="hud-stat-cell hud-stat-border-r hud-stat-border-b">
+              <div style="font-family:monospace;font-size:10px;letter-spacing:.18em;color:#475569;text-transform:uppercase;margin-bottom:10px">TOOLS_LOADED</div>
+              <div style="font-family:monospace;font-size:56px;font-weight:700;color:#22d3ee;line-height:1;text-shadow:0 0 30px rgba(34,211,238,.5)" id="hud-tool-count">35</div>
+              <div style="font-family:monospace;font-size:10px;color:#22c55e;margin-top:10px;letter-spacing:.1em">▲ MORE SHIPPING SOON</div>
             </div>
 
             <!-- session xp -->
-            <div style="padding:20px 24px;border-right:1px solid #0f2a38">
-              <div style="font-family:monospace;font-size:9px;letter-spacing:.18em;color:#475569;text-transform:uppercase;margin-bottom:6px">SESSION_XP</div>
-              <div style="font-family:monospace;font-size:36px;font-weight:700;color:#a78bfa;line-height:1;text-shadow:0 0 20px rgba(167,139,250,.4)" id="hud-xp">0</div>
-              <div style="margin-top:8px;background:#0f172a;border-radius:2px;height:3px;overflow:hidden">
-                <div id="hud-xp-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#a78bfa);transition:width .4s ease;box-shadow:0 0 8px rgba(167,139,250,.6)"></div>
+            <div class="hud-stat-cell hud-stat-border-r hud-stat-border-b">
+              <div style="font-family:monospace;font-size:10px;letter-spacing:.18em;color:#475569;text-transform:uppercase;margin-bottom:10px">SESSION_XP</div>
+              <div style="font-family:monospace;font-size:56px;font-weight:700;color:#a78bfa;line-height:1;text-shadow:0 0 30px rgba(167,139,250,.5)" id="hud-xp">0</div>
+              <div style="margin-top:12px;background:#0f172a;border-radius:2px;height:4px;overflow:hidden">
+                <div id="hud-xp-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#a78bfa);transition:width .4s ease;box-shadow:0 0 10px rgba(167,139,250,.7)"></div>
               </div>
             </div>
 
             <!-- uptime -->
-            <div style="padding:20px 24px">
-              <div style="font-family:monospace;font-size:9px;letter-spacing:.18em;color:#475569;text-transform:uppercase;margin-bottom:6px">SESSION_UPTIME</div>
-              <div style="font-family:monospace;font-size:36px;font-weight:700;color:#f472b6;line-height:1;text-shadow:0 0 20px rgba(244,114,182,.4)" id="hud-uptime">00:00</div>
-              <div style="font-family:monospace;font-size:9px;color:#475569;margin-top:6px;letter-spacing:.1em">HH:MM:SS</div>
+            <div class="hud-stat-cell hud-stat-border-b">
+              <div style="font-family:monospace;font-size:10px;letter-spacing:.18em;color:#475569;text-transform:uppercase;margin-bottom:10px">SESSION_UPTIME</div>
+              <div style="font-family:monospace;font-size:56px;font-weight:700;color:#f472b6;line-height:1;text-shadow:0 0 30px rgba(244,114,182,.5)" id="hud-uptime">00:00</div>
+              <div style="font-family:monospace;font-size:10px;color:#475569;margin-top:10px;letter-spacing:.1em">HH:MM:SS</div>
             </div>
           </div>
 
           <!-- live scan log -->
-          <div style="padding:16px 24px 20px">
-            <div style="font-family:monospace;font-size:9px;letter-spacing:.18em;color:#334155;text-transform:uppercase;margin-bottom:10px">// LIVE SYSTEM LOG</div>
-            <div id="hud-log" style="display:flex;flex-direction:column;gap:4px;min-height:80px"></div>
+          <div style="padding:24px 32px 28px;text-align:center">
+            <div style="font-family:monospace;font-size:10px;letter-spacing:.18em;color:#334155;text-transform:uppercase;margin-bottom:14px">// LIVE SYSTEM LOG</div>
+            <div id="hud-log" style="display:flex;flex-direction:column;gap:6px;min-height:160px;align-items:center"></div>
           </div>
 
           <!-- footer -->
-          <div style="border-top:1px solid #0f2a38;padding:8px 24px;display:flex;align-items:center;justify-content:space-between">
+          <div style="border-top:1px solid #0f2a38;padding:8px 16px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;text-align:center">
             <div style="font-family:monospace;font-size:9px;color:#1e3a4a;letter-spacing:.12em">HAVOC v2.4.1 // FREE TOOLS ENGINE</div>
             <div style="font-family:monospace;font-size:9px;color:#1e3a4a;letter-spacing:.12em">↑ SELECT A CATEGORY TO LOAD TOOLKIT</div>
           </div>
@@ -527,7 +527,18 @@ html{scroll-behavior:smooth}
       <style>
         @keyframes hudBlink{0%,100%{opacity:1}50%{opacity:.3}}
         @keyframes hudFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-        .hud-log-line{font-family:monospace;font-size:11px;line-height:1.5;animation:hudFadeIn .3s ease}
+        .hud-log-line{font-family:monospace;font-size:11px;line-height:1.5;animation:hudFadeIn .3s ease;text-align:center}
+        /* stats grid: 3 cols on desktop, 1 col stacked on mobile */
+        .hud-stats-row{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #0f2a38}
+        .hud-stat-cell{padding:32px;text-align:center}
+        .hud-stat-border-r{border-right:1px solid #0f2a38}
+        .hud-stat-border-b{border-bottom:none}
+        @media(max-width:640px){
+          .hud-stats-row{grid-template-columns:1fr}
+          .hud-stat-border-r{border-right:none}
+          .hud-stat-border-b{border-bottom:1px solid #0f2a38}
+          .hud-stat-cell{padding:20px 16px}
+        }
       </style>
 
       <script>
@@ -589,8 +600,8 @@ html{scroll-behavior:smooth}
           var ts = '['+_pad(Math.floor(s/60))+':'+_pad(s%60)+'] ';
           line.textContent = ts + msg.t;
           _hudLog.appendChild(line);
-          // keep max 5 lines
-          while(_hudLog.children.length > 5) _hudLog.removeChild(_hudLog.firstChild);
+          // keep max 8 lines
+          while(_hudLog.children.length > 8) _hudLog.removeChild(_hudLog.firstChild);
         }
 
         // kick off
