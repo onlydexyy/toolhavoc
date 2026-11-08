@@ -953,8 +953,17 @@ html{scroll-behavior:smooth}
               <div style="color:#94a3b8">PRIORITY ACTIONS <span style="color:#f59e0b">►</span> <span style="color:#f87171">3 CRITICAL INTERVENTIONS QUEUED</span></div>
             </div>
 
+            <!-- DEPLOYMENT DECK toggle -->
+            <button onclick="(function(btn){
+              var deck=document.getElementById('fps-deck');
+              var open=deck.style.display==='flex';
+              deck.style.display=open?'none':'flex';
+              btn.textContent=open?'▼ Show Fix Plan':'▲ Hide Fix Plan';
+              addXP(50);
+            })(this)" style="margin-top:12px;width:100%;font-family:monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;padding:8px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:#f87171;cursor:pointer;transition:all 0.2s">▼ Show Fix Plan</button>
+
             <!-- DEPLOYMENT DECK -->
-            <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+            <div id="fps-deck" style="display:none;margin-top:4px;flex-direction:column;gap:10px">
 
               <!-- ACTION 1: Debloat Script -->
               <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:12px">
@@ -1966,11 +1975,16 @@ function fireMatrixRain(duration){
     terminal.style.transition = 'opacity 0.4s';
     setTimeout(function(){ terminal.style.opacity = '1'; }, 100);
 
-    /* After 2s, fade in the result panel */
+    /* After 2s, collapse terminal and fade in result panel */
     setTimeout(function(){
-      intro.textContent = 'Scan complete — your optimization path is ready.';
-      result.style.display = 'block';
-      setTimeout(function(){ result.style.opacity = '1'; }, 60);
+      terminal.style.transition = 'opacity 0.3s';
+      terminal.style.opacity = '0';
+      setTimeout(function(){
+        terminal.style.display = 'none';
+        intro.textContent = 'Scan complete — bottleneck identified.';
+        result.style.display = 'block';
+        setTimeout(function(){ result.style.opacity = '1'; }, 60);
+      }, 300);
       addXP(50);
     }, 2000);
   }
