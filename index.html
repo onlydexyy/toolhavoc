@@ -108,11 +108,15 @@ html{scroll-behavior:smooth}
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
 #nav-pill-bar .pill-scroll{
-  display:flex;gap:6px;align-items:center;
+  display:flex;gap:6px;align-items:center;justify-content:center;
   overflow-x:auto;padding:7px 16px;
   scrollbar-width:none;-ms-overflow-style:none;
+  flex-wrap:wrap;
 }
 #nav-pill-bar .pill-scroll::-webkit-scrollbar{display:none}
+@media(max-width:767px){
+  #nav-pill-bar .pill-scroll{flex-wrap:nowrap;justify-content:flex-start;}
+}
 
 /* ══ SEARCH ══ */
 .sbox{background:rgba(9,13,22,.5);border:1px solid rgba(51,65,85,.5);border-radius:12px;color:#e2e8f0;font-size:14px;outline:none;transition:border-color .3s,box-shadow .3s}
@@ -404,9 +408,9 @@ html{scroll-behavior:smooth}
         </div>
       </div>
     </div>
-    <!-- ROW 2: category pills -->
+    <!-- ROW 2: category pills — centered -->
     <div id="nav-pill-bar">
-      <div class="pill-scroll max-w-7xl mx-auto" id="pillWrap">
+      <div class="pill-scroll w-full" id="pillWrap">
         <button class="pill" onclick="fCat('all',this)">All Tools</button>
         <button class="pill" onclick="fCat('computer',this)">💻 Computer</button>
         <button class="pill" onclick="fCat('phone',this)">📱 Phone</button>
