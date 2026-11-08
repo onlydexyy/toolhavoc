@@ -166,6 +166,54 @@ html{scroll-behavior:smooth}
 .hide{opacity:0;transform:scale(.95);pointer-events:none;position:absolute!important;width:0;height:0;overflow:hidden;margin:0;padding:0;border:0}
 
 /* ══════════════════════════════════════════
+   BOOT-HIDDEN CARDS (shown only via pill click / search)
+   ══════════════════════════════════════════ */
+.gc-boot-hidden{
+  display:none!important;
+}
+/* Fade-in animation when cards are revealed */
+@keyframes cardReveal{
+  from{opacity:0;transform:translateY(10px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.gc-revealed{
+  animation:cardReveal .28s ease forwards;
+}
+
+/* ══════════════════════════════════════════
+   EMPTY STATE PROMPT (shown when no pill is active)
+   ══════════════════════════════════════════ */
+#grid-empty-state{
+  grid-column:1/-1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 24px;
+  text-align:center;
+}
+#grid-empty-state .es-icon{font-size:48px;margin-bottom:16px;opacity:0.4}
+#grid-empty-state .es-title{
+  font-size:18px;font-weight:700;color:#334155;
+  font-family:monospace;letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:8px;
+}
+#grid-empty-state .es-sub{
+  font-size:13px;color:#1e293b;
+  max-width:360px;line-height:1.6;
+}
+#grid-empty-state .es-arrows{
+  margin-top:24px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+}
+#grid-empty-state .es-arrow{
+  font-size:11px;font-family:monospace;letter-spacing:.08em;
+  color:rgba(79,172,254,.55);border:1px solid rgba(79,172,254,.18);
+  background:rgba(79,172,254,.04);border-radius:6px;padding:5px 12px;
+  text-transform:uppercase;cursor:pointer;transition:all .2s;
+}
+#grid-empty-state .es-arrow:hover{
+  color:rgba(79,172,254,.9);border-color:rgba(79,172,254,.45);
+  background:rgba(79,172,254,.08);
+}
+
+/* ══════════════════════════════════════════
    SCROLLBAR
    ══════════════════════════════════════════ */
 ::-webkit-scrollbar{width:5px}
@@ -792,7 +840,7 @@ html{scroll-behavior:smooth}
   <section class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-10" id="tools">
     <div class="border-b border-slate-800/40 pb-6">
       <div class="flex flex-wrap gap-2 justify-center" id="pillWrap">
-        <button class="pill active" onclick="fCat('all',this)">All Tools</button>
+        <button class="pill" onclick="fCat('all',this)">All Tools</button>
         <button class="pill" onclick="fCat('computer',this)">💻 Computer</button>
         <button class="pill" onclick="fCat('phone',this)">📱 Phone</button>
         <button class="pill" onclick="fCat('games',this)">🎮 Games & Roasts</button>
@@ -808,63 +856,76 @@ html{scroll-behavior:smooth}
     <div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="toolGrid">
 
+        <!-- ── EMPTY STATE (shown when no pill is active) ── -->
+        <div id="grid-empty-state">
+          <div class="es-icon">⚡</div>
+          <div class="es-title">// SELECT A CATEGORY</div>
+          <div class="es-sub">Pick a category below to load your toolkit — or search above to find any tool instantly.</div>
+          <div class="es-arrows">
+            <span class="es-arrow" onclick="fCat('computer',document.querySelectorAll('.pill')[1])">💻 Computer</span>
+            <span class="es-arrow" onclick="fCat('phone',document.querySelectorAll('.pill')[2])">📱 Phone</span>
+            <span class="es-arrow" onclick="fCat('games',document.querySelectorAll('.pill')[3])">🎮 Games</span>
+            <span class="es-arrow" onclick="fCat('software',document.querySelectorAll('.pill')[4])">💻 Software</span>
+          </div>
+        </div>
+
         <!-- ── TRENDING / BREAKOUT ── -->
-        <a href="tools/ai-image-detector.html" class="gc gc-featured" data-cat="computer" data-s="ai image detector fake photo exif metadata scan">
+        <a href="tools/ai-image-detector.html" class="gc gc-featured gc-boot-hidden" data-cat="computer" data-s="ai image detector fake photo exif metadata scan">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖼️</span><span class="chip chip-brk">Breakout</span></div>
           <h3>AI Image Detector</h3>
           <p>Drop any image and find out if it's AI-generated. Scans EXIF data and pixel patterns — no uploads, runs locally.</p>
         </a>
 
-        <a href="tools/ai-text-detector.html" class="gc gc-featured" data-cat="computer" data-s="ai text detector gpt chatgpt writing check">
+        <a href="tools/ai-text-detector.html" class="gc gc-featured gc-boot-hidden" data-cat="computer" data-s="ai text detector gpt chatgpt writing check">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🤖</span><span class="chip chip-pop">Popular</span></div>
           <h3>AI Text Detector</h3>
           <p>Paste any text and see if ChatGPT probably wrote it. Checks for robotic patterns humans don't use.</p>
         </a>
 
-        <a href="tools/citation-generator.html" class="gc" data-cat="computer" data-s="apa mla citation generator bibliography reference">
+        <a href="tools/citation-generator.html" class="gc gc-boot-hidden" data-cat="computer" data-s="apa mla citation generator bibliography reference">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📚</span><span class="chip chip-util">Utility</span></div>
           <h3>APA & MLA Citation Generator</h3>
           <p>Plug in a URL or book title and get a perfect APA or MLA citation. Copy-paste ready.</p>
         </a>
 
-        <a href="tools/pdf-link-generator.html" class="gc" data-cat="computer" data-s="pdf link generator share document url">
+        <a href="tools/pdf-link-generator.html" class="gc gc-boot-hidden" data-cat="computer" data-s="pdf link generator share document url">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📄</span><span class="chip chip-util">Utility</span></div>
           <h3>PDF Link Generator</h3>
           <p>Turn any PDF on your device into a shareable link. Works offline, nothing gets uploaded.</p>
         </a>
 
         <!-- ── COMPUTER ── -->
-        <a href="tools/pc-age.html" class="gc" data-cat="computer" data-s="how old is my pc device age scanner">
+        <a href="tools/pc-age.html" class="gc gc-boot-hidden" data-cat="computer" data-s="how old is my pc device age scanner">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">💻</span><span class="chip chip-pop">Popular</span></div>
           <h3>How Old Is My PC?</h3>
           <p>Scans your GPU, CPU cores, and RAM to estimate your device's age — then roasts it.</p>
         </a>
 
-        <a href="tools/keyboard-test.html" class="gc" data-cat="computer" data-s="keyboard tester key test gaming">
+        <a href="tools/keyboard-test.html" class="gc gc-boot-hidden" data-cat="computer" data-s="keyboard tester key test gaming">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">⌨️</span><span class="chip chip-comp">Computer</span></div>
           <h3>Keyboard Tester</h3>
           <p>Press any key and see it light up. Find dead keys, test rollover, perfect for gamers.</p>
         </a>
 
-        <a href="tools/webcam-test.html" class="gc" data-cat="computer" data-s="webcam tester camera test video">
+        <a href="tools/webcam-test.html" class="gc gc-boot-hidden" data-cat="computer" data-s="webcam tester camera test video">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📷</span><span class="chip chip-comp">Computer</span></div>
           <h3>Webcam Tester</h3>
           <p>Check if your camera works. See resolution, frame rate, and preview your feed.</p>
         </a>
 
-        <a href="tools/mic-test.html" class="gc" data-cat="computer" data-s="microphone tester mic test audio">
+        <a href="tools/mic-test.html" class="gc gc-boot-hidden" data-cat="computer" data-s="microphone tester mic test audio">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎤</span><span class="chip chip-comp">Computer</span></div>
           <h3>Microphone Tester</h3>
           <p>Test if your mic is picking up sound. See the live waveform and volume levels.</p>
         </a>
 
-        <a href="tools/dead-pixel.html" class="gc" data-cat="computer" data-s="dead pixel tester monitor screen test">
+        <a href="tools/dead-pixel.html" class="gc gc-boot-hidden" data-cat="computer" data-s="dead pixel tester monitor screen test">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖥️</span><span class="chip chip-comp">Computer</span></div>
           <h3>Dead Pixel Tester</h3>
           <p>Fullscreen color test to find stuck or dead pixels on your monitor.</p>
         </a>
 
-        <a href="tools/speaker-test.html" class="gc" data-cat="computer" data-s="speaker audio test left right channel">
+        <a href="tools/speaker-test.html" class="gc gc-boot-hidden" data-cat="computer" data-s="speaker audio test left right channel">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔊</span><span class="chip chip-comp">Computer</span></div>
           <h3>Speaker Tester</h3>
           <p>Test left and right audio channels. Make sure both speakers are working.</p>
@@ -880,57 +941,57 @@ html{scroll-behavior:smooth}
         </div>
 
         <!-- ── PHONE ── -->
-        <a href="tools/device-info.html" class="gc" data-cat="phone" data-s="device info phone scanner specs">
+        <a href="tools/device-info.html" class="gc gc-boot-hidden" data-cat="phone" data-s="device info phone scanner specs">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📱</span><span class="chip chip-phone">Phone</span></div>
           <h3>Device Scanner</h3>
           <p>Tells you exactly what phone you have — model, screen size, OS, browser. The works.</p>
         </a>
 
-        <a href="tools/touch-test.html" class="gc" data-cat="phone" data-s="touchscreen tester touch test phone tablet">
+        <a href="tools/touch-test.html" class="gc gc-boot-hidden" data-cat="phone" data-s="touchscreen tester touch test phone tablet">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">👆</span><span class="chip chip-phone">Phone</span></div>
           <h3>Touchscreen Tester</h3>
           <p>Draw on screen to test for dead zones. Checks multi-touch support too.</p>
         </a>
 
-        <a href="tools/gyroscope-test.html" class="gc" data-cat="phone" data-s="gyroscope accelerometer sensor test phone">
+        <a href="tools/gyroscope-test.html" class="gc gc-boot-hidden" data-cat="phone" data-s="gyroscope accelerometer sensor test phone">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🧭</span><span class="chip chip-phone">Phone</span></div>
           <h3>Gyroscope Tester</h3>
           <p>Tilt your phone around and watch the sensor data move in real time. Oddly satisfying.</p>
         </a>
 
-        <a href="tools/vibration-test.html" class="gc" data-cat="phone" data-s="vibration motor test phone android">
+        <a href="tools/vibration-test.html" class="gc gc-boot-hidden" data-cat="phone" data-s="vibration motor test phone android">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📳</span><span class="chip chip-phone">Phone</span></div>
           <h3>Vibration Tester</h3>
           <p>Test your phone's vibration motor with different patterns. Android only.</p>
         </a>
 
         <!-- ── INTERNET ── -->
-        <a href="tools/browser-check.html" class="gc" data-cat="computer" data-s="what browser am i using version check update">
+        <a href="tools/browser-check.html" class="gc gc-boot-hidden" data-cat="computer" data-s="what browser am i using version check update">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🌐</span><span class="chip chip-pop">Popular</span></div>
           <h3>What Browser Am I Using?</h3>
           <p>Detects your browser name, version, and tells you if it's up to date.</p>
         </a>
 
-        <a href="tools/ip-lookup.html" class="gc" data-cat="computer" data-s="what is my ip address location lookup">
+        <a href="tools/ip-lookup.html" class="gc gc-boot-hidden" data-cat="computer" data-s="what is my ip address location lookup">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔍</span><span class="chip chip-net">Internet</span></div>
           <h3>What's My IP Address?</h3>
           <p>Shows your public IP address and approximate location instantly.</p>
         </a>
 
-        <a href="tools/screen-resolution.html" class="gc" data-cat="computer" data-s="what is my screen resolution display size">
+        <a href="tools/screen-resolution.html" class="gc gc-boot-hidden" data-cat="computer" data-s="what is my screen resolution display size">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📐</span><span class="chip chip-net">Internet</span></div>
           <h3>Screen Resolution</h3>
           <p>Quick readout of your exact screen resolution, pixel ratio, and color depth.</p>
         </a>
 
-        <a href="tools/password-checker.html" class="gc" data-cat="computer" data-s="password strength checker cryptographic entropy breach exposure security test">
+        <a href="tools/password-checker.html" class="gc gc-boot-hidden" data-cat="computer" data-s="password strength checker cryptographic entropy breach exposure security test">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔒</span><span class="chip chip-pop">Popular</span></div>
           <h3>Cryptographic Entropy & Breach Engine</h3>
           <p>Real-time multi-GPU brute-force time estimates for any password you type. Calculates crack latency across attack vectors and generates a copyable vulnerability report. Nothing stored, nothing sent.</p>
         </a>
 
         <!-- ── FPS BOTTLENECK AUDITOR ── -->
-        <a href="tools/fps-bottleneck.html" class="gc" data-cat="computer" data-s="fps bottleneck pc lag fix optimizer gpu cpu ram performance boost debloat" style="cursor:pointer;text-decoration:none;color:inherit">
+        <a href="tools/fps-bottleneck.html" class="gc gc-boot-hidden" data-cat="computer" data-s="fps bottleneck pc lag fix optimizer gpu cpu ram performance boost debloat" style="cursor:pointer;text-decoration:none;color:inherit">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖥️</span><span class="chip chip-brk">🔥 Power Tool</span></div>
           <h3>PC Spec Assessment & FPS Bottleneck Auditor</h3>
           <p id="fps-intro">Running diagnostics on your system profile...</p>
@@ -1054,166 +1115,166 @@ html{scroll-behavior:smooth}
         </a><!-- /fps card -->
 
         <!-- ── UTILITIES ── -->
-        <a href="tools/qr-generator.html" class="gc" data-cat="phone" data-s="qr code generator create make">
+        <a href="tools/qr-generator.html" class="gc gc-boot-hidden" data-cat="phone" data-s="qr code generator create make">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📱</span><span class="chip chip-util">Utility</span></div>
           <h3>QR Code Generator</h3>
           <p>Paste any URL or text and get a QR code instantly. Download as PNG.</p>
         </a>
 
-        <a href="tools/word-counter.html" class="gc" data-cat="computer" data-s="word counter character count text">
+        <a href="tools/word-counter.html" class="gc gc-boot-hidden" data-cat="computer" data-s="word counter character count text">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📝</span><span class="chip chip-util">Utility</span></div>
           <h3>Word & Character Counter</h3>
           <p>Paste your text — get word count, character count, sentences, and reading time. That's it.</p>
         </a>
 
-        <a href="tools/color-picker.html" class="gc" data-cat="computer" data-s="color picker palette generator hex rgb">
+        <a href="tools/color-picker.html" class="gc gc-boot-hidden" data-cat="computer" data-s="color picker palette generator hex rgb">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎨</span><span class="chip chip-util">Utility</span></div>
           <h3>Color Picker</h3>
           <p>Pick any color, grab the hex/RGB code, and build a matching palette around it.</p>
         </a>
 
-        <a href="tools/text-converter.html" class="gc" data-cat="computer" data-s="text case converter uppercase lowercase title">
+        <a href="tools/text-converter.html" class="gc gc-boot-hidden" data-cat="computer" data-s="text case converter uppercase lowercase title">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔤</span><span class="chip chip-util">Utility</span></div>
           <h3>Text Case Converter</h3>
           <p>Convert text to UPPERCASE, lowercase, Title Case, or aLtErNaTiNg.</p>
         </a>
 
-        <a href="tools/timer.html" class="gc" data-cat="phone" data-s="countdown timer stopwatch clock">
+        <a href="tools/timer.html" class="gc gc-boot-hidden" data-cat="phone" data-s="countdown timer stopwatch clock">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">⏱️</span><span class="chip chip-util">Utility</span></div>
           <h3>Timer & Stopwatch</h3>
           <p>Clean countdown timer and stopwatch with lap tracking.</p>
         </a>
 
         <!-- ── GAMES & ROASTS ── -->
-        <a href="tools/hacker-terminal.html" class="gc" data-cat="games" data-s="hacker terminal simulator typing matrix">
+        <a href="tools/hacker-terminal.html" class="gc gc-boot-hidden" data-cat="games" data-s="hacker terminal simulator typing matrix">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖥️</span><span class="chip chip-viral">🔥 Viral</span></div>
           <h3>Hacker Terminal</h3>
           <p>Type literally anything and look like you're hacking NASA. Full Matrix vibes.</p>
         </a>
 
-        <a href="tools/typing-test.html" class="gc" data-cat="games" data-s="typing speed test wpm roast fast slow">
+        <a href="tools/typing-test.html" class="gc gc-boot-hidden" data-cat="games" data-s="typing speed test wpm roast fast slow">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">⚡</span><span class="chip chip-viral">🔥 Viral</span></div>
           <h3>Typing Speed Test</h3>
           <p>Test your WPM then get brutally roasted based on how fast (or slow) you type.</p>
         </a>
 
-        <a href="tools/wifi-names.html" class="gc" data-cat="games" data-s="wifi name generator funny network ssid">
+        <a href="tools/wifi-names.html" class="gc gc-boot-hidden" data-cat="games" data-s="wifi name generator funny network ssid">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📶</span><span class="chip chip-fun">Fun</span></div>
           <h3>WiFi Name Generator</h3>
           <p>Get WiFi names that'll make your neighbors question everything. One-tap copy.</p>
         </a>
 
-        <a href="tools/hacker-name.html" class="gc" data-cat="games" data-s="hacker name generator alias cyber identity">
+        <a href="tools/hacker-name.html" class="gc gc-boot-hidden" data-cat="games" data-s="hacker name generator alias cyber identity">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🥷</span><span class="chip chip-fun">Fun</span></div>
           <h3>Hacker Name Generator</h3>
           <p>Enter your name and get your elite hacker alias. Share your cyber identity.</p>
         </a>
 
-        <a href="tools/internet-quiz.html" class="gc" data-cat="games" data-s="what type of internet user quiz personality">
+        <a href="tools/internet-quiz.html" class="gc gc-boot-hidden" data-cat="games" data-s="what type of internet user quiz personality">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🧠</span><span class="chip chip-fun">Fun</span></div>
           <h3>What Internet User Are You?</h3>
           <p>Take the quiz and find out your internet personality type. Scarily accurate.</p>
         </a>
 
-        <a href="tools/fake-error.html" class="gc" data-cat="games" data-s="fake error message generator windows prank">
+        <a href="tools/fake-error.html" class="gc gc-boot-hidden" data-cat="games" data-s="fake error message generator windows prank">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">⚠️</span><span class="chip chip-prank">Prank</span></div>
           <h3>Fake Error Generator</h3>
           <p>Build a fake error popup that looks 100% real. Watch the panic unfold.</p>
         </a>
 
-        <a href="tools/fake-bsod.html" class="gc" data-cat="games" data-s="fake blue screen of death bsod windows prank">
+        <a href="tools/fake-bsod.html" class="gc gc-boot-hidden" data-cat="games" data-s="fake blue screen of death bsod windows prank">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">💀</span><span class="chip chip-prank">Prank</span></div>
           <h3>Blue Screen of Death</h3>
           <p>Fullscreen fake BSOD. Press F11 for maximum panic. ESC to escape.</p>
         </a>
 
-        <a href="tools/fake-update.html" class="gc" data-cat="games" data-s="fake windows update screen prank loading">
+        <a href="tools/fake-update.html" class="gc gc-boot-hidden" data-cat="games" data-s="fake windows update screen prank loading">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔄</span><span class="chip chip-prank">Prank</span></div>
           <h3>Fake Update Screen</h3>
           <p>Fullscreen fake Windows update that never finishes. Classic prank.</p>
         </a>
 
         <!-- ── ARCADE .IO GAMES ── -->
-        <div class="gc" data-cat="games" data-s="slither io snake multiplayer arcade game online" onclick="launchGame('https://slither.io/')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="games" data-s="slither io snake multiplayer arcade game online" onclick="launchGame('https://slither.io/')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🐍</span><span class="chip chip-viral">🔥 Arcade</span></div>
           <h3>Slither.io Arena</h3>
           <p>Multiplayer snake survival — eat, grow, and outlast everyone. Opens in a new tab, zero installs needed.</p>
         </div>
 
-        <div class="gc" data-cat="games" data-s="retro snake multiplayer game arcade classic" onclick="launchGame('https://playsnake.org/')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="games" data-s="retro snake multiplayer game arcade classic" onclick="launchGame('https://playsnake.org/')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🕹️</span><span class="chip chip-fun">Arcade</span></div>
           <h3>Retro Snake Multiplayer</h3>
           <p>Classic snake reborn in competitive multiplayer mode. Pure reflex gaming, opens in new tab.</p>
         </div>
 
         <!-- ── SAFE PC SOFTWARE (hidden unless software tab active) ── -->
-        <div class="gc" data-cat="software" data-s="obs studio screen recorder streaming capture free open source" onclick="window.open('https://obsproject.com/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="obs studio screen recorder streaming capture free open source" onclick="window.open('https://obsproject.com/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎥</span><span class="chip chip-comp">Free · Open Source</span></div>
           <h3>OBS Studio</h3>
           <p>The screen capture bible. Records your desktop, game feed, or webcam in broadcast quality — no watermarks, no subscriptions, no nonsense. What every streamer and content creator actually runs.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="7zip file archiver extractor zip rar 7z tar iso free open source" onclick="window.open('https://www.7-zip.org/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="7zip file archiver extractor zip rar 7z tar iso free open source" onclick="window.open('https://www.7-zip.org/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📦</span><span class="chip chip-util">Free · Open Source</span></div>
           <h3>7-Zip</h3>
           <p>The zero-nag archiver. Opens ZIP, RAR, 7z, TAR, ISO and a dozen more formats without pestering you to upgrade. Tiny installer, no bundled junk, just works every single time.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="bleachbit system cleaner privacy junk files browser cache free open source" onclick="window.open('https://www.bleachbit.org/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="bleachbit system cleaner privacy junk files browser cache free open source" onclick="window.open('https://www.bleachbit.org/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🧹</span><span class="chip chip-net">Free · Open Source</span></div>
           <h3>BleachBit</h3>
           <p>System shredder core. Wipes browser caches, temp files, log clutter, and privacy traces down to the bone. Goes places Windows Disk Cleanup won't even look at.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="revo uninstaller remove programs registry leftover deep clean free" onclick="window.open('https://www.revouninstaller.com/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="revo uninstaller remove programs registry leftover deep clean free" onclick="window.open('https://www.revouninstaller.com/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🗑️</span><span class="chip chip-prank">Free</span></div>
           <h3>Revo Uninstaller</h3>
           <p>Deep trace cleaner. Removes the program and hunts down every registry key, leftover folder, and hidden file it left behind. Standard Windows uninstall doesn't come close to this.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="vlc media player video audio codec free open source universal" onclick="window.open('https://www.videolan.org/vlc/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="vlc media player video audio codec free open source universal" onclick="window.open('https://www.videolan.org/vlc/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎬</span><span class="chip chip-comp">Free · Open Source</span></div>
           <h3>VLC Media Player</h3>
           <p>Universal codec player. If VLC can't open your video or audio file, the file is broken. Plays MKV, MP4, FLAC, ISO, streams, and formats that haven't been invented yet. No extra codecs ever needed.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="handbrake video converter compress transcode encode free open source" onclick="window.open('https://handbrake.fr/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="handbrake video converter compress transcode encode free open source" onclick="window.open('https://handbrake.fr/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎞️</span><span class="chip chip-util">Free · Open Source</span></div>
           <h3>HandBrake</h3>
           <p>Video compression warp. Converts and shrinks any video file for sharing, uploading, or archiving without torching the quality. The go-to for anyone who moves large video files regularly.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="microsoft powertoys windows utilities fancy zones keyboard layout power user" onclick="window.open('https://github.com/microsoft/PowerToys/releases','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="microsoft powertoys windows utilities fancy zones keyboard layout power user" onclick="window.open('https://github.com/microsoft/PowerToys/releases','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">⚡</span><span class="chip chip-comp">Free · Open Source</span></div>
           <h3>Microsoft PowerToys</h3>
           <p>Advanced layout utilities straight from Microsoft. Snap windows into custom grid zones, remap any key on your keyboard, bulk-rename files, preview almost any file type in Explorer. Power user stuff the OS should've shipped with.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="everything voidtools instant file search windows fast free" onclick="window.open('https://www.voidtools.com/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="everything voidtools instant file search windows fast free" onclick="window.open('https://www.voidtools.com/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔍</span><span class="chip chip-util">Free</span></div>
           <h3>Voidtools Everything</h3>
           <p>Instant search matrix for your entire drive. Finds any file or folder on your PC the moment you start typing — no indexing delays, no spinner. Windows Search feels broken after you've used this once.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="keepassxc password manager encrypted local vault offline free open source" onclick="window.open('https://keepassxc.org/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="keepassxc password manager encrypted local vault offline free open source" onclick="window.open('https://keepassxc.org/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔐</span><span class="chip chip-net">Free · Open Source</span></div>
           <h3>KeePassXC</h3>
           <p>Local encrypted vault. Stores every password you have in an AES-256 encrypted database that never touches the cloud. Your passwords live on your machine — no subscription, no breach exposure, no company holding your keys.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="wiztree disk space analyzer visual treemap drive usage free" onclick="window.open('https://www.diskanalyzer.com/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="wiztree disk space analyzer visual treemap drive usage free" onclick="window.open('https://www.diskanalyzer.com/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">💾</span><span class="chip chip-util">Free</span></div>
           <h3>WizTree</h3>
           <p>Visual space finder. Shows you exactly what's eating your hard drive as a color-coded treemap — giant files you forgot existed surface in seconds. Scans a 2TB drive faster than anything else out there.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="rufus bootable usb iso windows linux installer free" onclick="window.open('https://rufus.ie/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="rufus bootable usb iso windows linux installer free" onclick="window.open('https://rufus.ie/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">💿</span><span class="chip chip-prank">Free</span></div>
           <h3>Rufus</h3>
           <p>Bootable ISO builder. Turns any Windows or Linux ISO file into a working bootable USB drive in a few clicks. Single .exe file, no installation required. The first tool you grab when setting up a new machine.</p>
         </div>
 
-        <div class="gc" data-cat="software" data-s="crystaldiskinfo drive health ssd hdd monitor smart status free" onclick="window.open('https://crystalmark.info/en/software/crystaldiskinfo/','_blank')" style="cursor:pointer">
+        <div class="gc gc-boot-hidden" data-cat="software" data-s="crystaldiskinfo drive health ssd hdd monitor smart status free" onclick="window.open('https://crystalmark.info/en/software/crystaldiskinfo/','_blank')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🩺</span><span class="chip chip-comp">Free · Open Source</span></div>
           <h3>CrystalDiskInfo</h3>
           <p>Drive health scanner. Reads the S.M.A.R.T. data your SSD and HDD report internally and translates it into a plain health rating. Catch a failing drive before it takes your data with it.</p>
@@ -1291,7 +1352,7 @@ html{scroll-behavior:smooth}
         <a href="#tools" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">All Tools</a>
         <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('computer',document.querySelectorAll('.pill')[1]);return false">Computer</a>
         <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('phone',document.querySelectorAll('.pill')[2]);return false">Phone</a>
-        <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('games',document.querySelectorAll('.pill')[5]);return false">Games & Roasts</a>
+        <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('games',document.querySelectorAll('.pill')[3]);return false">Games & Roasts</a>
         <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">TikTok</a>
       </div>
       <div class="text-[11px] text-slate-700 mt-2">© 2026 ToolHavoc.com — Made by Dexyy</div>
@@ -1653,12 +1714,29 @@ function fTrending(){
   document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active')});
   document.getElementById('searchInput').value='';
   var trending=['ai-image-detector','ai-text-detector','citation-generator','pdf-link-generator'];
+  var delay=0;
   document.querySelectorAll('.gc').forEach(function(g){
+    if(g.dataset.cat==='all') return; /* skip ad card */
     var href=g.getAttribute('href')||'';
     var match=trending.some(function(t){return href.indexOf(t)!==-1});
-    if(match){g.classList.remove('hide')}else{g.classList.add('hide')}
+    if(match){
+      (function(el,d){
+        setTimeout(function(){
+          el.classList.remove('gc-boot-hidden');
+          el.style.display='';
+          el.classList.remove('gc-revealed');
+          void el.offsetWidth;
+          el.classList.add('gc-revealed');
+        },d);
+      })(g,delay);
+      delay+=35;
+    } else {
+      g.classList.add('gc-boot-hidden');
+      g.style.display='none';
+      g.classList.remove('gc-revealed');
+    }
   });
-  document.querySelectorAll('[data-cat="all"]').forEach(function(a){a.classList.remove('hide')});
+  document.getElementById('grid-empty-state').style.display='none';
 }
 
 /* ═══ CATEGORY FILTER ═══ */
@@ -1666,21 +1744,83 @@ function fCat(c,b){
   document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active')});
   if(b) b.classList.add('active');
   document.getElementById('searchInput').value='';
+  var delay=0;
   document.querySelectorAll('.gc').forEach(function(g){
-    if(c==='all'||g.dataset.cat===c){g.classList.remove('hide')}
-    else{g.classList.add('hide')}
+    if(g.dataset.cat==='all') return; /* always keep ad card visible */
+    var show=(c==='all'||g.dataset.cat===c);
+    if(show){
+      (function(el,d){
+        setTimeout(function(){
+          el.classList.remove('gc-boot-hidden');
+          el.style.display='';
+          el.classList.remove('gc-revealed');
+          void el.offsetWidth;
+          el.classList.add('gc-revealed');
+        },d);
+      })(g,delay);
+      delay+=30;
+    } else {
+      g.classList.add('gc-boot-hidden');
+      g.style.display='none';
+      g.classList.remove('gc-revealed');
+    }
   });
+  document.getElementById('grid-empty-state').style.display='none';
+  addXP(50);
 }
 
 /* ═══ SEARCH FILTER ═══ */
 function filterTools(){
   var q=document.getElementById('searchInput').value.toLowerCase().trim();
-  if(q) document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active')});
+  var emptyState=document.getElementById('grid-empty-state');
+  if(!q){
+    /* If search cleared, restore pill state */
+    var activePill=document.querySelector('.pill.active');
+    if(activePill){
+      var cat=activePill.textContent.trim();
+      /* Re-apply current pill */
+      var catMap={'All Tools':'all','💻 Computer':'computer','📱 Phone':'phone','🎮 Games & Roasts':'games','💻 Safe PC Software':'software'};
+      var catKey=catMap[cat]||'all';
+      fCat(catKey,activePill);
+    } else {
+      /* No active pill — hide everything, show empty state */
+      document.querySelectorAll('.gc').forEach(function(g){
+        if(g.dataset.cat==='all') return;
+        g.classList.add('gc-boot-hidden');
+        g.style.display='none';
+        g.classList.remove('gc-revealed');
+      });
+      emptyState.style.display='flex';
+    }
+    return;
+  }
+  /* While searching: deactivate pills, show ALL matches from every category */
+  document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active')});
+  emptyState.style.display='none';
+  var delay=0;
   document.querySelectorAll('.gc').forEach(function(g){
-    var s=g.dataset.s||'',t=g.querySelector('h3')?g.querySelector('h3').textContent.toLowerCase():'';
-    if(!q||s.indexOf(q)!==-1||t.indexOf(q)!==-1){g.classList.remove('hide')}
-    else{g.classList.add('hide')}
+    if(g.dataset.cat==='all') return;
+    var s=g.dataset.s||'';
+    var t=g.querySelector('h3')?g.querySelector('h3').textContent.toLowerCase():'';
+    var match=s.indexOf(q)!==-1||t.indexOf(q)!==-1;
+    if(match){
+      (function(el,d){
+        setTimeout(function(){
+          el.classList.remove('gc-boot-hidden');
+          el.style.display='';
+          el.classList.remove('gc-revealed');
+          void el.offsetWidth;
+          el.classList.add('gc-revealed');
+        },d);
+      })(g,delay);
+      delay+=25;
+    } else {
+      g.classList.add('gc-boot-hidden');
+      g.style.display='none';
+      g.classList.remove('gc-revealed');
+    }
   });
+  addXP(50);
 }
 
 /* ═══ REQUEST MODAL ═══ */
@@ -1990,15 +2130,23 @@ function fireMatrixRain(duration){
   }
 })();
 
+/* ═══ BOOT: show empty state, ensure all tool cards hidden ═══ */
+(function(){
+  /* Show the empty state prompt */
+  var es=document.getElementById('grid-empty-state');
+  if(es) es.style.display='flex';
+  /* Ensure all gc cards with gc-boot-hidden start as display:none
+     (CSS handles this but let's be explicit for JS-driven state) */
+  document.querySelectorAll('.gc.gc-boot-hidden').forEach(function(g){
+    g.style.display='none';
+  });
+})();
+
 /* Hook XP onto existing interactive actions */
 (function(){
-  /* Category pills */
-  document.querySelectorAll('.pill').forEach(function(p){
-    p.addEventListener('click',function(){ addXP(50); });
-  });
-  /* Search input */
-  var si=document.getElementById('searchInput');
-  if(si) si.addEventListener('input',function(){ addXP(50); });
+  /* Pills call fCat() which calls addXP() — no duplicate needed */
+  /* filterTools() calls addXP() — no duplicate needed */
+  /* Tool cards */
   /* Tool cards */
   document.querySelectorAll('#toolGrid .gc').forEach(function(c){
     c.addEventListener('click',function(){ addXP(50); });
