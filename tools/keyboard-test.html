@@ -12,6 +12,7 @@
 <script src="https://cdn.tailwindcss.com/3.4.1"></script>
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
 <style>
+/* ── MASTER SHELL STYLES ── */
 @font-face{font-family:'New Rocker';src:url('../fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -20,6 +21,7 @@ html{scroll-behavior:smooth}
 ::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
 .glass-panel{background:rgba(9,13,22,.30)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important;border:1px solid rgba(51,65,85,.6);border-radius:16px}
 .nav-bar{position:fixed;top:0;left:0;right:0;z-index:50;height:56px;display:flex;align-items:center;background:rgba(2,2,5,.7);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid rgba(51,65,85,.4)}
+/* ── WINGS ── */
 .wing{display:none;position:fixed;top:0;bottom:0;width:5vw;min-width:48px;max-width:80px;pointer-events:none;z-index:5;flex-direction:column;align-items:center;overflow:hidden}
 @media(min-width:1280px){.wing{display:flex}}
 .wing-line{position:absolute;top:0;bottom:0;width:1px;background:repeating-linear-gradient(to bottom,rgba(51,65,85,.18) 0px,rgba(51,65,85,.18) 4px,transparent 4px,transparent 10px)}
@@ -38,8 +40,10 @@ html{scroll-behavior:smooth}
 @keyframes tickUp{0%{transform:translateY(0%)}100%{transform:translateY(-50%)}}
 .tick-item{font-family:monospace;font-size:7.5px;font-weight:400;letter-spacing:.12em;color:rgba(71,85,105,.38);text-transform:uppercase;white-space:nowrap;writing-mode:vertical-rl;line-height:1;user-select:none;-webkit-user-select:none}
 .tick-item.hi{color:rgba(79,172,254,.28)}.tick-item.mg{color:rgba(233,30,99,.22)}.tick-item.gr{color:rgba(34,197,94,.25)}
+/* ── AD SLOT BRACKET ── */
 .ad-slot{min-height:95px;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:8px;position:relative;overflow:hidden}
 .ad-label{position:absolute;top:6px;left:10px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(71,85,105,.5)}
+/* ── REQUEST MODAL ── */
 #request-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,2,5,.75);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .3s ease}
 #request-modal.open{opacity:1;pointer-events:all}
 .rmodal-box{width:100%;max-width:460px;background:rgba(9,13,22,.72);border:1px solid rgba(79,172,254,.22);border-radius:16px;padding:32px 28px;box-shadow:0 0 60px rgba(79,172,254,.08),inset 0 0 0 1px rgba(255,255,255,.04);transform:translateY(16px) scale(.97);transition:transform .35s cubic-bezier(.22,1,.36,1);position:relative}
@@ -56,68 +60,34 @@ html{scroll-behavior:smooth}
 .rmodal-submit:active{transform:scale(.96)}
 .rmodal-close{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:#475569;font-size:18px;line-height:1;transition:color .2s}
 .rmodal-close:hover{color:#94a3b8}
+
+/* ── TOOL-SPECIFIC STYLES: KEYBOARD TESTER ── */
 :root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--card:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--text:#e4e4e7;--text2:#a1a1aa;--text3:#52525b;--accent1:#6366f1;--accent2:#8b5cf6;--gradient:linear-gradient(135deg,#6366f1,#8b5cf6,#a78bfa);--pressed:#6366f1;--tested:rgba(99,102,241,0.15)}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
-nav a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500}
-.nav-brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-
-.container{max-width:1000px;margin:0 auto;padding:76px 16px 40px}
-h1{font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;margin-bottom:4px;letter-spacing:-0.5px}
-h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.subtitle{text-align:center;color:var(--text2);font-size:15px;margin-bottom:24px}
-
 .stats-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
 .stat{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:10px 20px;text-align:center}
 .stat .val{font-size:22px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .stat .lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
-
 .last-key{text-align:center;font-size:14px;color:var(--text2);margin-bottom:20px;min-height:20px}
-
 .keyboard{display:flex;flex-direction:column;gap:4px;align-items:center;margin-bottom:24px}
 .row{display:flex;gap:4px;justify-content:center}
-.key{
-  min-width:42px;height:42px;border-radius:7px;display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:600;background:var(--bg3);border:1px solid var(--card-border);
-  color:var(--text2);transition:all 0.15s;flex-shrink:0;padding:0 4px;
-  text-transform:capitalize;position:relative;overflow:hidden;
-}
+.key{min-width:42px;height:42px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;background:var(--bg3);border:1px solid var(--card-border);color:var(--text2);transition:all 0.15s;flex-shrink:0;padding:0 4px;text-transform:capitalize;position:relative;overflow:hidden}
 .key.tested{background:var(--tested);border-color:rgba(99,102,241,0.3);color:var(--text)}
 .key.active{background:var(--pressed)!important;border-color:var(--accent1)!important;color:#fff!important;transform:scale(0.95);box-shadow:0 0 15px rgba(99,102,241,0.4)}
-
-.key.w-150{min-width:65px} .key.w-175{min-width:76px} .key.w-200{min-width:88px}
-.key.w-225{min-width:99px} .key.w-250{min-width:110px} .key.w-275{min-width:120px}
+.key.w-150{min-width:65px}.key.w-175{min-width:76px}.key.w-200{min-width:88px}
+.key.w-225{min-width:99px}.key.w-250{min-width:110px}.key.w-275{min-width:120px}
 .key.w-space{min-width:260px}
-
-.reset-btn{
-  display:block;margin:0 auto;padding:10px 24px;border-radius:10px;border:1px solid var(--card-border);
-  background:var(--card);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;
-  font-weight:600;cursor:pointer;transition:all 0.3s;
-}
+.reset-btn{display:block;margin:0 auto;padding:10px 24px;border-radius:10px;border:1px solid var(--card-border);background:var(--card);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s}
 .reset-btn:hover{border-color:var(--accent1);background:rgba(99,102,241,0.1)}
-
-.ad-slot{text-align:center;padding:20px 0;color:var(--text3);font-size:12px;margin:20px 0}
-
-@media(max-width:800px){
-  .key{min-width:28px;height:34px;font-size:9px;border-radius:5px}
-  .key.w-150{min-width:44px} .key.w-175{min-width:50px} .key.w-200{min-width:58px}
-  .key.w-225{min-width:65px} .key.w-250{min-width:72px} .key.w-275{min-width:80px}
-  .key.w-space{min-width:160px}
-  .row{gap:2px} .keyboard{gap:2px}
-}
-@media(max-width:500px){
-  .key{min-width:22px;height:28px;font-size:7px}
-  .key.w-150{min-width:34px} .key.w-175{min-width:38px} .key.w-200{min-width:44px}
-  .key.w-225{min-width:50px} .key.w-250{min-width:56px} .key.w-275{min-width:62px}
-  .key.w-space{min-width:120px}
-}
+@media(max-width:800px){.key{min-width:28px;height:34px;font-size:9px;border-radius:5px}.key.w-150{min-width:44px}.key.w-175{min-width:50px}.key.w-200{min-width:58px}.key.w-225{min-width:65px}.key.w-250{min-width:72px}.key.w-275{min-width:80px}.key.w-space{min-width:160px}.row{gap:2px}.keyboard{gap:2px}}
+@media(max-width:500px){.key{min-width:22px;height:28px;font-size:7px}.key.w-150{min-width:34px}.key.w-175{min-width:38px}.key.w-200{min-width:44px}.key.w-225{min-width:50px}.key.w-250{min-width:56px}.key.w-275{min-width:62px}.key.w-space{min-width:120px}}
 </style>
 </head>
 <body class="relative min-h-screen font-sans text-slate-300 overflow-x-hidden" style="background:#020205">
 
+<!-- BACKGROUND CANVAS -->
 <canvas id="bg-canvas" class="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none"></canvas>
 
+<!-- LEFT WING -->
 <div class="wing wing-left" style="left:1.5vw" aria-hidden="true">
   <div class="wing-line"></div>
   <div class="xhair xhair-top" style="right:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="0" x2="6" y2="4" stroke="rgba(79,172,254,.4)" stroke-width="1"/><line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.4)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.5)"/></svg></div>
@@ -129,6 +99,7 @@ h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fil
   </div></div>
 </div>
 
+<!-- RIGHT WING -->
 <div class="wing wing-right" style="right:1.5vw" aria-hidden="true">
   <div class="wing-line"></div>
   <div class="xhair xhair-top" style="left:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="0" x2="6" y2="4" stroke="rgba(233,30,99,.35)" stroke-width="1"/><line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.35)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.4)"/></svg></div>
@@ -140,6 +111,7 @@ h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fil
   </div></div>
 </div>
 
+<!-- NAVBAR -->
 <nav class="nav-bar">
   <div class="max-w-4xl w-full mx-auto px-4 flex items-center justify-between">
     <a href="../index.html" class="text-slate-500 hover:text-slate-200 transition font-mono text-xs tracking-wide" style="text-decoration:none">&larr; Dashboard</a>
@@ -148,8 +120,11 @@ h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fil
   </div>
 </nav>
 
+<!-- PAGE CONTENT -->
 <div class="relative z-10 pt-20 pb-16">
   <div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+
+    <!-- Tool header -->
     <div class="mb-6">
       <div class="flex items-center gap-3 mb-2">
         <span class="text-3xl">⌨️</span>
@@ -159,39 +134,51 @@ h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fil
         </div>
       </div>
     </div>
-    <div class="ad-slot mb-6"><span class="ad-label">Community Partner</span><!-- INSERT ADSTERRA TOP AD CODE --></div>
-    <div class="glass-panel p-6 md:p-8 mb-6">
-<div class="container">
-  <h1>Keyboard <span>Tester</span></h1>
-  <p class="subtitle">Press any key — it'll light up. Find dead keys instantly.</p>
 
-  <div class="stats-row">
-    <div class="stat"><div class="val" id="testedCount">0</div><div class="lbl">Keys Tested</div></div>
-    <div class="stat"><div class="val" id="totalKeys">0</div><div class="lbl">Total Keys</div></div>
-    <div class="stat"><div class="val" id="rollover">0</div><div class="lbl">Keys Held</div></div>
-  </div>
-
-  <div class="last-key" id="lastKey">Press any key to begin</div>
-
-  <div class="keyboard" id="keyboard"></div>
-
-  <button class="reset-btn" onclick="resetKeys()">Reset All Keys</button>
-
-  <div class="ad-slot" style="text-align:center;padding:20px 0;margin:20px 0;overflow:hidden">
-
-<div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
-</div>
-
-<div class="ad-slot" style="text-align:center;padding:20px 0;margin:20px 0;overflow:hidden">
-
-
-</div>
-</div>
+    <!-- TOP AD SLOT -->
+    <div class="ad-slot mb-6">
+      <span class="ad-label">Community Partner</span>
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '76f41da819582075b2e5619851f50a31',
+          'format' : 'iframe',
+          'height' : 90,
+          'width' : 728,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
     </div>
-    <div class="ad-slot"><span class="ad-label">Community Partner</span><!-- INSERT ADSTERRA BOTTOM AD CODE --></div>
+
+    <!-- GLASS WORKSPACE PANEL -->
+    <div class="glass-panel p-6 md:p-8 mb-6">
+
+      <div class="stats-row">
+        <div class="stat"><div class="val" id="testedCount">0</div><div class="lbl">Keys Tested</div></div>
+        <div class="stat"><div class="val" id="totalKeys">0</div><div class="lbl">Total Keys</div></div>
+        <div class="stat"><div class="val" id="rollover">0</div><div class="lbl">Keys Held</div></div>
+      </div>
+
+      <div class="last-key" id="lastKey">Press any key to begin</div>
+
+      <div class="keyboard" id="keyboard"></div>
+
+      <button class="reset-btn" onclick="resetKeys()">Reset All Keys</button>
+
+    </div>
+    <!-- END GLASS PANEL -->
+
+    <!-- BOTTOM AD SLOT -->
+    <div class="ad-slot mt-6">
+      <span class="ad-label">Community Partner</span>
+      <div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
+      <script async="async" data-cfasync="false" src="//bauval.org/21/d0f677b4d72b913f07ead837adf17f31"></script>
+    </div>
+
   </div>
 </div>
 
+<!-- REQUEST TOOL MODAL -->
 <div id="request-modal" role="dialog" aria-modal="true" onclick="if(event.target===this)closeReqModal()">
   <div class="rmodal-box">
     <button class="rmodal-close" onclick="closeReqModal()">&#x2715;</button>
@@ -205,10 +192,15 @@ h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fil
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     BLOCK A: GLOBAL BACKGROUND & INTERACTIVE ENGINE
+     Canvas IIFE — all variables are scoped. Never pollutes global.
+     Modal functions are global (called by HTML onclick attributes).
+     ═══════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
   var canvas=document.getElementById('bg-canvas');
-  if(!canvas) return;
+  if(!canvas)return;
   var ctx=canvas.getContext('2d');
   var W,H,isMobile;
   function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;isMobile=W<=768;}
@@ -220,7 +212,7 @@ h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fil
     {baseX:.1,baseY:1.05,r:.50,r2:.58,color:'34,197,94',phase:4.2,speed:.000080,amp:.05}
   ];
   var particles=[];
-  for(var i=0;i<25;i++) particles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:0,vy:0,alpha:0,size:1+Math.random()*1.5,color:Math.random()>.5?'79,172,254':'148,163,184'});
+  for(var i=0;i<25;i++)particles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:0,vy:0,alpha:0,size:1+Math.random()*1.5,color:Math.random()>.5?'79,172,254':'148,163,184'});
   var mouseX=-9999,mouseY=-9999,lastMouse=0,ripples=[],rippleIdx=0;
   var RC=['79,172,254','233,30,99','34,197,94'];
   function spawnRipple(x,y,ts){ripples.push({x:x,y:y,born:ts||performance.now(),maxR:60+Math.random()*40,color:RC[rippleIdx++%3]});}
@@ -264,6 +256,7 @@ h1 span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fil
   rafId=requestAnimationFrame(render);
   window.addEventListener('pagehide',function(){if(rafId)cancelAnimationFrame(rafId);});
 })();
+
 function openReqModal(){var m=document.getElementById('request-modal');m.classList.add('open');document.body.style.overflow='hidden';setTimeout(function(){document.getElementById('rf-name').focus();},320);}
 function closeReqModal(){document.getElementById('request-modal').classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeReqModal();});
@@ -275,16 +268,16 @@ function submitReq(e){
   var body=encodeURIComponent('Tool Name: '+name+'\n\nDescription:\n'+desc+'\n\n— Submitted via ToolHavoc.com');
   window.location.href='mailto:nathanielwade2x@gmail.com?subject='+subject+'&body='+body;
   setTimeout(function(){
-    document.getElementById('reqForm').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:36px;margin-bottom:12px">&#x2705;</div><div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div><div style="color:#64748b;font-size:13px">We'll look into building <strong style="color:#94a3b8">'+name.replace(/</g,"&lt;")+'</strong> soon.</div><button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button></div>';
+    document.getElementById('reqForm').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:36px;margin-bottom:12px">&#x2705;</div><div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div><div style="color:#64748b;font-size:13px">We\'ll look into building <strong style="color:#94a3b8">'+name.replace(/</g,'&lt;')+'</strong> soon.</div><button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button></div>';
   },800);
 }
-atOptions = {
-    'key' : '4eb8d16a9cbab1deebe011d440079990',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     BLOCK B: UNIQUE INNER TOOL FUNCTIONAL LOGIC — KEYBOARD TESTER
+     All variables scoped to this tool. No canvas vars here.
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
 const layout = [
   [{k:'Escape',l:'Esc'},{k:'F1'},{k:'F2'},{k:'F3'},{k:'F4'},{k:'F5'},{k:'F6'},{k:'F7'},{k:'F8'},{k:'F9'},{k:'F10'},{k:'F11'},{k:'F12'},{k:'Delete',l:'Del'}],
   [{k:'Backquote',l:'`'},{k:'Digit1',l:'1'},{k:'Digit2',l:'2'},{k:'Digit3',l:'3'},{k:'Digit4',l:'4'},{k:'Digit5',l:'5'},{k:'Digit6',l:'6'},{k:'Digit7',l:'7'},{k:'Digit8',l:'8'},{k:'Digit9',l:'9'},{k:'Digit0',l:'0'},{k:'Minus',l:'-'},{k:'Equal',l:'='},{k:'Backspace',l:'Back',w:'w-200'}],
@@ -319,12 +312,10 @@ document.addEventListener('keydown', e => {
   e.preventDefault();
   const code = e.code;
   heldKeys.add(code);
-
   if (keyElements[code]) {
     keyElements[code].classList.add('active','tested');
     testedKeys.add(code);
   }
-
   document.getElementById('testedCount').textContent = testedKeys.size;
   document.getElementById('rollover').textContent = heldKeys.size;
   document.getElementById('lastKey').textContent = `Key: ${e.key} | Code: ${code}`;
