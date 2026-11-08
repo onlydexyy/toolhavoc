@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+/* ── Safari ad-redirect guard ── */
+(function(){
+  var _open = window.open;
+  window.open = function(url, target, features){
+    if(!navigator.__havocAllow){ return null; }
+    return _open.call(window, url, target, features);
+  };
+  document.addEventListener('click', function(){ navigator.__havocAllow = true; setTimeout(function(){ navigator.__havocAllow = false; }, 500); }, true);
+  document.addEventListener('touchend', function(){ navigator.__havocAllow = true; setTimeout(function(){ navigator.__havocAllow = false; }, 500); }, true);
+  window.addEventListener('beforeunload', function(e){
+    if(document.activeElement && document.activeElement.tagName === 'IFRAME'){
+      e.preventDefault(); e.returnValue = ''; return '';
+    }
+  });
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(function(){
+      var iframes = document.querySelectorAll('iframe');
+      iframes.forEach(function(f){
+        try{ if(!f.hasAttribute('sandbox')){ f.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups-to-escape-sandbox'); } }catch(e){}
+      });
+    }, 2000);
+  });
+})();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universal File Converter — ToolHavoc</title>
+<meta name="description" content="Convert any file free — MP4 to MP3, PNG to JPG, WebP to PNG, WAV to MP3, CSV to JSON and more. All in your browser, no upload needed.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23020205'/%3E%3Ctext x='32' y='50' text-anchor='middle' font-family=%22'New Rocker',serif%22 font-size='52' fill='white'%3EH%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+<style>
+@font-face{font-family:'New Rocker';src:url('../fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
+html{scroll-behavior:smooth}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#020205}
+::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+.glass-panel{background:rgba(9,13,22,.30)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important;border:1px solid rgba(51,65,85,.6);border-radius:16px}
+.nav-bar{position:fixed;top:0;left:0;right:0;z-index:50;height:56px;display:flex;align-items:center;background:rgba(2,2,5,.7);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid rgba(51,65,85,.4)}
+.wing{display:none;position:fixed;top:0;bottom:0;width:5vw;min-width:48px;max-width:80px;pointer-events:none;z-index:5;flex-direction:column;align-items:center;overflow:hidden}
+@media(min-width:1280px){.wing{display:flex}}
+.wing-line{position:absolute;top:0;bottom:0;width:1px;background:repeating-linear-gradient(to bottom,rgba(51,65,85,.18) 0px,rgba(51,65,85,.18) 4px,transparent 4px,transparent 10px)}
+.wing-left .wing-line{right:0}.wing-right .wing-line{left:0}
+.ad-slot{min-height:95px;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:8px;position:relative;overflow:hidden}
+.ad-label{position:absolute;top:6px;left:10px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(71,85,105,.5)}
+@media(max-width:767px){.havoc-ad-desktop{display:none!important}.havoc-ad-mobile{display:flex!important}}
+@media(min-width:768px){.havoc-ad-mobile{display:none!important}.havoc-ad-desktop{display:flex!important}}
+
+/* ── DROP ZONE ── */
+#drop-zone{
+  border:2px dashed rgba(79,172,254,.25);border-radius:16px;
+  background:rgba(9,13,22,.4);
+  padding:48px 24px;text-align:center;
+  transition:border-color .25s,background .25s;
+  cursor:pointer;position:relative;
+}
+#drop-zone.drag-over{border-color:rgba(79,172,254,.7);background:rgba(79,172,254,.06)}
+#drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* ── FORMAT PILLS ── */
+.fmt-pill{
+  padding:6px 14px;border-radius:999px;border:1px solid rgba(51,65,85,.6);
+  background:rgba(9,13,22,.4);color:#94a3b8;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.fmt-pill:hover{border-color:rgba(79,172,254,.5);color:#4facfe}
+.fmt-pill.active{border-color:#4facfe;background:rgba(79,172,254,.12);color:#4facfe;box-shadow:0 0 12px rgba(79,172,254,.15)}
+
+/* ── PROGRESS ── */
+.prog-bar{height:4px;background:#0f172a;border-radius:4px;overflow:hidden;margin:12px 0}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#4facfe,#a78bfa);transition:width .3s ease;border-radius:4px}
+
+/* ── CONVERT BTN ── */
+.convert-btn{
+  padding:14px 32px;border-radius:12px;border:none;cursor:pointer;
+  font-weight:700;font-size:15px;letter-spacing:.03em;color:#fff;
+  background:linear-gradient(135deg,#4facfe,#e91e63);
+  box-shadow:0 0 24px rgba(79,172,254,.2);
+  transition:opacity .2s,transform .15s,box-shadow .2s;
+  width:100%;
+}
+.convert-btn:hover:not(:disabled){opacity:.88;box-shadow:0 0 32px rgba(79,172,254,.35)}
+.convert-btn:active:not(:disabled){transform:scale(.97)}
+.convert-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── CATEGORY TABS ── */
+.cat-tab{
+  padding:8px 20px;border-radius:8px;border:1px solid rgba(51,65,85,.5);
+  background:transparent;color:#64748b;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.cat-tab.active{background:rgba(79,172,254,.1);border-color:rgba(79,172,254,.4);color:#4facfe}
+.cat-tab:hover:not(.active){border-color:rgba(79,172,254,.25);color:#94a3b8}
+
+/* ── FILE CARD ── */
+.file-card{background:rgba(9,13,22,.5);border:1px solid rgba(51,65,85,.5);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px}
+.file-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+
+/* ── LOG ── */
+#conv-log{font-family:monospace;font-size:12px;line-height:1.8;color:#64748b;padding:16px;background:rgba(2,2,5,.5);border-radius:10px;border:1px solid rgba(51,65,85,.3);max-height:120px;overflow-y:auto;display:none}
+#conv-log .log-ok{color:#22c55e}
+#conv-log .log-info{color:#4facfe}
+#conv-log .log-warn{color:#fbbf24}
+#conv-log .log-err{color:#f87171}
+
+/* ── RESULT ── */
+#result-zone{display:none}
+.dl-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 24px;border-radius:10px;border:1px solid rgba(34,197,94,.4);
+  background:rgba(34,197,94,.08);color:#22c55e;font-weight:700;font-size:14px;
+  cursor:pointer;text-decoration:none;transition:all .2s;
+}
+.dl-btn:hover{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.6);box-shadow:0 0 20px rgba(34,197,94,.15)}
+</style>
+</head>
+<body class="relative min-h-screen font-sans text-slate-300 overflow-x-hidden" style="background:#020205">
+
+<canvas id="bg-canvas" class="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none" style="background:#020205"></canvas>
+
+<!-- Wings -->
+<div class="wing wing-left" style="left:1.5vw" aria-hidden="true">
+  <div class="wing-line"></div>
+</div>
+<div class="wing wing-right" style="right:1.5vw" aria-hidden="true">
+  <div class="wing-line"></div>
+</div>
+
+<!-- Nav -->
+<nav class="nav-bar px-4 md:px-8">
+  <div class="w-full max-w-6xl mx-auto flex items-center justify-between">
+    <a href="../index.html" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+      <span>←</span> <span class="hidden sm:inline">Back to Arsenal</span>
+    </a>
+    <a href="../index.html" class="font-bold text-xl tracking-widest" style="font-family:'New Rocker','Inter',sans-serif;color:#fff;text-shadow:0 0 20px rgba(79,172,254,.4)">HAVOC</a>
+    <div class="text-xs font-mono text-slate-600 tracking-widest uppercase hidden sm:block">File Converter</div>
+  </div>
+</nav>
+
+<!-- Ad top -->
+<div class="w-full max-w-2xl mx-auto px-4 pt-20 pb-2">
+  <div class="ad-slot havoc-ad-desktop" style="min-height:90px">
+    <span class="ad-label">Partner</span>
+    <script async="async" data-cfasync="false">
+      var atOptions={'key':'76f41da8102a7c4d2de5a7cf0da20e45','format':'iframe','height':90,'width':728,'params':{}};
+    </script>
+    <script async="async" data-cfasync="false" src="//bauval.org/22/76f41da8102a7c4d2de5a7cf0da20e45"></script>
+  </div>
+  <div class="ad-slot havoc-ad-mobile" style="min-height:60px">
+    <span class="ad-label">Partner</span>
+    <script async="async" data-cfasync="false">
+      var atOptions={'key':'76f41da8102a7c4d2de5a7cf0da20e45','format':'iframe','height':60,'width':300,'params':{}};
+    </script>
+    <script async="async" data-cfasync="false" src="//bauval.org/22/76f41da8102a7c4d2de5a7cf0da20e45"></script>
+  </div>
+</div>
+
+<!-- Main content -->
+<main class="relative z-10 w-full max-w-2xl mx-auto px-4 py-6 pb-24">
+
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <div class="text-4xl mb-3">🔄</div>
+    <h1 class="text-2xl md:text-3xl font-black text-white mb-2">Universal File Converter</h1>
+    <p class="text-slate-400 text-sm">Convert images, audio, video & documents — 100% in your browser. Nothing uploaded to any server.</p>
+    <div class="flex items-center justify-center gap-4 mt-3 font-mono text-[10px] tracking-widest uppercase">
+      <span class="text-emerald-400">● Private</span>
+      <span class="text-cyan-400">● Free</span>
+      <span class="text-purple-400">● No Signup</span>
+    </div>
+  </div>
+
+  <!-- Category tabs -->
+  <div class="flex items-center gap-2 flex-wrap justify-center mb-6" id="cat-tabs">
+    <button class="cat-tab active" data-cat="image" onclick="switchCat('image',this)">🖼️ Image</button>
+    <button class="cat-tab" data-cat="audio" onclick="switchCat('audio',this)">🎵 Audio</button>
+    <button class="cat-tab" data-cat="video" onclick="switchCat('video',this)">🎬 Video</button>
+    <button class="cat-tab" data-cat="document" onclick="switchCat('document',this)">📄 Document</button>
+  </div>
+
+  <!-- Supported formats info -->
+  <div id="fmt-info" class="text-center mb-5">
+    <div class="text-xs text-slate-500 font-mono tracking-wide" id="fmt-info-text">PNG · JPG · JPEG · WebP · BMP · GIF · ICO · SVG · TIFF</div>
+  </div>
+
+  <!-- Drop zone -->
+  <div id="drop-zone" class="mb-5" onclick="document.getElementById('file-input').click()">
+    <input type="file" id="file-input" accept="image/*" onchange="onFileSelect(event)" style="display:none" onclick="event.stopPropagation()">
+    <div id="drop-content">
+      <div class="text-5xl mb-4" id="drop-icon">📁</div>
+      <div class="text-white font-bold text-lg mb-1">Drop your file here</div>
+      <div class="text-slate-500 text-sm mb-4">or click to browse</div>
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-700 text-slate-400 text-sm">
+        <span>Max 500 MB</span> <span class="text-slate-600">·</span> <span>Client-side only</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- File loaded card -->
+  <div id="file-card" class="file-card mb-5" style="display:none">
+    <div class="file-icon bg-slate-800" id="fc-icon">📁</div>
+    <div class="flex-1 min-w-0">
+      <div class="text-white font-semibold text-sm truncate" id="fc-name">filename.png</div>
+      <div class="text-slate-500 text-xs mt-0.5" id="fc-meta">0 KB · image/png</div>
+    </div>
+    <button onclick="clearFile()" class="text-slate-600 hover:text-red-400 transition-colors text-lg flex-shrink-0">✕</button>
+  </div>
+
+  <!-- Convert to section -->
+  <div id="convert-section" style="display:none" class="mb-5">
+    <div class="text-xs font-bold tracking-widest uppercase text-slate-500 mb-3 font-mono">Convert To:</div>
+    <div class="flex flex-wrap gap-2" id="format-pills"></div>
+  </div>
+
+  <!-- Quality slider (images) -->
+  <div id="quality-section" style="display:none" class="mb-5 glass-panel p-4">
+    <div class="flex items-center justify-between mb-2">
+      <div class="text-sm font-semibold text-slate-300">Quality</div>
+      <div class="text-sm font-bold text-cyan-400 font-mono" id="quality-label">92%</div>
+    </div>
+    <input type="range" id="quality-slider" min="10" max="100" value="92" oninput="document.getElementById('quality-label').textContent=this.value+'%'" class="w-full accent-cyan-400">
+    <div class="flex justify-between text-xs text-slate-600 mt-1 font-mono">
+      <span>Smaller file</span><span>Best quality</span>
+    </div>
+  </div>
+
+  <!-- Convert button -->
+  <button class="convert-btn mb-4" id="convert-btn" onclick="startConvert()" disabled>Select a file to convert</button>
+
+  <!-- Progress -->
+  <div id="prog-wrap" style="display:none">
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="text-xs font-mono text-slate-500 text-center" id="prog-label">Processing...</div>
+  </div>
+
+  <!-- Log -->
+  <div id="conv-log"></div>
+
+  <!-- Result -->
+  <div id="result-zone" class="mt-5">
+    <div class="glass-panel p-5 text-center">
+      <div class="text-3xl mb-3" id="res-icon">✅</div>
+      <div class="text-white font-bold text-lg mb-1" id="res-title">Conversion Complete</div>
+      <div class="text-slate-400 text-sm mb-5" id="res-meta"></div>
+      <a id="dl-link" class="dl-btn" download>⬇ Download Converted File</a>
+      <button onclick="clearFile()" class="mt-3 w-full text-slate-500 text-sm hover:text-slate-300 transition-colors py-2">Convert Another File</button>
+    </div>
+  </div>
+
+  <!-- Feature grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-10 mb-8">
+    <div class="glass-panel p-4 text-center">
+      <div class="text-2xl mb-2">🔒</div>
+      <div class="text-sm font-bold text-white mb-1">100% Private</div>
+      <div class="text-xs text-slate-500">Your file never leaves your device. All conversion happens in the browser.</div>
+    </div>
+    <div class="glass-panel p-4 text-center">
+      <div class="text-2xl mb-2">⚡</div>
+      <div class="text-sm font-bold text-white mb-1">Instant</div>
+      <div class="text-xs text-slate-500">No wait times, no queues. Convert in seconds using your device's own power.</div>
+    </div>
+    <div class="glass-panel p-4 text-center">
+      <div class="text-2xl mb-2">♾️</div>
+      <div class="text-sm font-bold text-white mb-1">Unlimited</div>
+      <div class="text-xs text-slate-500">No daily limits, no file count caps. Convert as many files as you want.</div>
+    </div>
+  </div>
+
+  <!-- Ad mid -->
+  <div class="ad-slot mb-6" style="min-height:250px">
+    <span class="ad-label">Partner</span>
+    <script async="async" data-cfasync="false" src="https://bauval.org/21/d0f677b4d72b913f07ead837adf17f31"></script>
+    <div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
+  </div>
+
+  <!-- Format support table -->
+  <div class="glass-panel p-5 mb-6">
+    <div class="text-sm font-bold text-white mb-4">Supported Formats</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div>
+        <div class="text-xs font-bold text-cyan-400 font-mono tracking-widest uppercase mb-2">🖼️ Images</div>
+        <div class="text-xs text-slate-400 leading-relaxed">PNG, JPG/JPEG, WebP, BMP, GIF, ICO, SVG → PNG, JPG, WebP, BMP</div>
+      </div>
+      <div>
+        <div class="text-xs font-bold text-purple-400 font-mono tracking-widest uppercase mb-2">🎵 Audio</div>
+        <div class="text-xs text-slate-400 leading-relaxed">MP3, WAV, OGG, FLAC, AAC, M4A → MP3, WAV, OGG</div>
+      </div>
+      <div>
+        <div class="text-xs font-bold text-pink-400 font-mono tracking-widest uppercase mb-2">🎬 Video</div>
+        <div class="text-xs text-slate-400 leading-relaxed">MP4, WebM, MOV, AVI, MKV → MP3 (audio extract), WebM, MP4</div>
+      </div>
+      <div>
+        <div class="text-xs font-bold text-emerald-400 font-mono tracking-widest uppercase mb-2">📄 Documents</div>
+        <div class="text-xs text-slate-400 leading-relaxed">CSV ↔ JSON, TXT → MD, JSON → CSV, Markdown cleanup</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- FFmpeg load notice -->
+<div id="ffmpeg-notice" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:100;background:rgba(9,13,22,.95);border:1px solid rgba(79,172,254,.3);border-radius:10px;padding:12px 20px;font-size:12px;font-family:monospace;color:#4facfe;white-space:nowrap;box-shadow:0 0 30px rgba(79,172,254,.15)">
+  ⚙️ Loading audio/video engine... <span id="ffmpeg-pct">0%</span>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+var _file = null;
+var _cat = 'image';
+var _targetFmt = null;
+var _ffmpeg = null;
+var _ffmpegLoading = false;
+var _ffmpegReady = false;
+var _blobUrl = null;
+
+/* ═══════════════════════════════════════
+   FORMAT MAPS
+═══════════════════════════════════════ */
+var CATS = {
+  image: {
+    accept: 'image/*',
+    icon: '🖼️',
+    info: 'PNG · JPG · JPEG · WebP · BMP · GIF · ICO · SVG · TIFF',
+    formats: ['PNG','JPG','WebP','BMP'],
+    mimeOut: {PNG:'image/png', JPG:'image/jpeg', WebP:'image/webp', BMP:'image/bmp'},
+    extOut:  {PNG:'png', JPG:'jpg', WebP:'webp', BMP:'bmp'},
+  },
+  audio: {
+    accept: 'audio/*,video/*,.mp4,.mov,.avi,.mkv,.flac,.m4a,.ogg,.wav,.mp3,.aac',
+    icon: '🎵',
+    info: 'MP3 · WAV · OGG · FLAC · AAC · M4A · MP4 · MOV',
+    formats: ['MP3','WAV','OGG'],
+    mimeOut: {MP3:'audio/mpeg', WAV:'audio/wav', OGG:'audio/ogg'},
+    extOut:  {MP3:'mp3', WAV:'wav', OGG:'ogg'},
+  },
+  video: {
+    accept: 'video/*,.mp4,.mov,.avi,.mkv,.webm',
+    icon: '🎬',
+    info: 'MP4 · WebM · MOV · AVI · MKV',
+    formats: ['MP3 (audio)','WebM','MP4'],
+    mimeOut: {'MP3 (audio)':'audio/mpeg', WebM:'video/webm', MP4:'video/mp4'},
+    extOut:  {'MP3 (audio)':'mp3', WebM:'webm', MP4:'mp4'},
+  },
+  document: {
+    accept: '.csv,.json,.txt,.md,.markdown',
+    icon: '📄',
+    info: 'CSV · JSON · TXT · Markdown (.md)',
+    formats: ['JSON','CSV','TXT','Markdown'],
+    mimeOut: {JSON:'application/json', CSV:'text/csv', TXT:'text/plain', Markdown:'text/markdown'},
+    extOut:  {JSON:'json', CSV:'csv', TXT:'txt', Markdown:'md'},
+  }
+};
+
+/* ═══════════════════════════════════════
+   CATEGORY SWITCH
+═══════════════════════════════════════ */
+function switchCat(cat, btn) {
+  _cat = cat;
+  _targetFmt = null;
+  document.querySelectorAll('.cat-tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  var c = CATS[cat];
+  document.getElementById('fmt-info-text').textContent = c.info;
+  document.getElementById('drop-icon').textContent = c.icon;
+  document.getElementById('file-input').accept = c.accept;
+  clearFile(true);
+  // preload ffmpeg for audio/video
+  if((cat==='audio'||cat==='video') && !_ffmpegReady && !_ffmpegLoading) loadFFmpeg();
+}
+
+/* ═══════════════════════════════════════
+   DRAG & DROP
+═══════════════════════════════════════ */
+var dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', function(){ dz.classList.remove('drag-over'); });
+dz.addEventListener('drop', function(e){
+  e.preventDefault(); dz.classList.remove('drag-over');
+  var f = e.dataTransfer.files[0];
+  if(f) loadFile(f);
+});
+
+function onFileSelect(e){ if(e.target.files[0]) loadFile(e.target.files[0]); }
+
+function loadFile(f) {
+  _file = f;
+  _blobUrl = null;
+  // Show file card
+  var ext = (f.name.split('.').pop()||'').toUpperCase();
+  var iconMap = {PNG:'🖼️',JPG:'📷',JPEG:'📷',WEBP:'🖼️',GIF:'🎞️',BMP:'🖼️',SVG:'🎨',ICO:'⚡',TIFF:'🖼️',MP3:'🎵',WAV:'🎵',OGG:'🎵',FLAC:'🎵',AAC:'🎵',M4A:'🎵',MP4:'🎬',WEBM:'🎬',MOV:'🎬',AVI:'🎬',MKV:'🎬',CSV:'📊',JSON:'📋',TXT:'📝',MD:'📝',MARKDOWN:'📝'};
+  document.getElementById('fc-icon').textContent = iconMap[ext] || '📁';
+  document.getElementById('fc-name').textContent = f.name;
+  document.getElementById('fc-meta').textContent = fmtSize(f.size) + ' · ' + (f.type || 'unknown type');
+  document.getElementById('drop-zone').style.display = 'none';
+  document.getElementById('file-card').style.display = 'flex';
+  // Show format pills
+  buildFormatPills(ext);
+  document.getElementById('convert-section').style.display = 'block';
+  document.getElementById('result-zone').style.display = 'none';
+  document.getElementById('conv-log').style.display = 'none';
+  document.getElementById('prog-wrap').style.display = 'none';
+  updateBtn();
+}
+
+function buildFormatPills(inputExt) {
+  var c = CATS[_cat];
+  var wrap = document.getElementById('format-pills');
+  wrap.innerHTML = '';
+  _targetFmt = null;
+  c.formats.forEach(function(fmt){
+    if(fmt.replace(' (audio)','').toUpperCase() === inputExt) return; // skip same format
+    var p = document.createElement('button');
+    p.className = 'fmt-pill';
+    p.textContent = fmt;
+    p.onclick = function(){
+      document.querySelectorAll('.fmt-pill').forEach(function(x){ x.classList.remove('active'); });
+      p.classList.add('active');
+      _targetFmt = fmt;
+      // show quality only for image → JPG/WebP
+      var showQ = _cat==='image' && (fmt==='JPG'||fmt==='WebP');
+      document.getElementById('quality-section').style.display = showQ ? 'block' : 'none';
+      updateBtn();
+    };
+    wrap.appendChild(p);
+  });
+}
+
+function clearFile(keepCat) {
+  _file = null; _targetFmt = null;
+  if(_blobUrl){ URL.revokeObjectURL(_blobUrl); _blobUrl=null; }
+  document.getElementById('file-card').style.display = 'none';
+  document.getElementById('drop-zone').style.display = '';
+  document.getElementById('convert-section').style.display = 'none';
+  document.getElementById('quality-section').style.display = 'none';
+  document.getElementById('result-zone').style.display = 'none';
+  document.getElementById('conv-log').style.display = 'none';
+  document.getElementById('conv-log').innerHTML = '';
+  document.getElementById('prog-wrap').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  updateBtn();
+}
+
+function updateBtn() {
+  var btn = document.getElementById('convert-btn');
+  if(!_file){ btn.disabled=true; btn.textContent='Select a file to convert'; return; }
+  if(!_targetFmt){ btn.disabled=true; btn.textContent='Choose output format ↑'; return; }
+  btn.disabled = false;
+  btn.textContent = 'Convert to ' + _targetFmt + ' →';
+}
+
+function fmtSize(b){
+  if(b<1024) return b+'B';
+  if(b<1048576) return (b/1024).toFixed(1)+'KB';
+  return (b/1048576).toFixed(1)+'MB';
+}
+
+/* ═══════════════════════════════════════
+   LOGGING
+═══════════════════════════════════════ */
+function log(msg, cls){
+  var el = document.getElementById('conv-log');
+  el.style.display = 'block';
+  var line = document.createElement('div');
+  line.className = cls||'';
+  line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setProgress(pct, label){
+  document.getElementById('prog-wrap').style.display = 'block';
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-label').textContent = label||'Processing...';
+}
+
+/* ═══════════════════════════════════════
+   CONVERT DISPATCHER
+═══════════════════════════════════════ */
+function startConvert(){
+  if(!_file||!_targetFmt) return;
+  document.getElementById('result-zone').style.display='none';
+  document.getElementById('conv-log').innerHTML='';
+  document.getElementById('convert-btn').disabled=true;
+  log('Starting conversion: '+_file.name+' → '+_targetFmt,'log-info');
+  setProgress(5,'Reading file...');
+  if(_cat==='image') convertImage();
+  else if(_cat==='audio'||_cat==='video') convertAV();
+  else convertDocument();
+}
+
+/* ═══════════════════════════════════════
+   IMAGE CONVERSION (Canvas API)
+═══════════════════════════════════════ */
+function convertImage(){
+  var mime = CATS.image.mimeOut[_targetFmt];
+  var ext  = CATS.image.extOut[_targetFmt];
+  var quality = parseInt(document.getElementById('quality-slider').value)/100;
+  var url = URL.createObjectURL(_file);
+  var img = new Image();
+  img.onload = function(){
+    setProgress(40,'Rendering...');
+    log('Image loaded: '+img.width+'×'+img.height+'px','log-ok');
+    var canvas = document.createElement('canvas');
+    canvas.width = img.width; canvas.height = img.height;
+    var ctx = canvas.getContext('2d');
+    // white background for JPG (no alpha)
+    if(_targetFmt==='JPG'||_targetFmt==='BMP'){ ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height); }
+    ctx.drawImage(img,0,0);
+    URL.revokeObjectURL(url);
+    setProgress(80,'Encoding...');
+    log('Encoding as '+mime,'log-info');
+    canvas.toBlob(function(blob){
+      if(!blob){ log('Encoding failed — format may not be supported by this browser','log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; return; }
+      setProgress(100,'Done!');
+      log('Done! Output: '+fmtSize(blob.size),'log-ok');
+      var outName = _file.name.replace(/\.[^.]+$/,'')+'.'+ext;
+      showResult(blob, outName, mime);
+    }, mime, (_targetFmt==='JPG'||_targetFmt==='WebP') ? quality : undefined);
+  };
+  img.onerror = function(){ log('Could not load image file','log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; };
+  img.src = url;
+}
+
+/* ═══════════════════════════════════════
+   AUDIO / VIDEO (FFmpeg.wasm)
+═══════════════════════════════════════ */
+function loadFFmpeg(){
+  if(_ffmpegLoading||_ffmpegReady) return;
+  _ffmpegLoading = true;
+  document.getElementById('ffmpeg-notice').style.display='block';
+  log('Loading audio/video engine (FFmpeg.wasm)...','log-info');
+  // Dynamically import FFmpeg from CDN
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js';
+  s.onload = function(){
+    var s2 = document.createElement('script');
+    s2.src = 'https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js';
+    s2.onload = function(){
+      initFFmpeg();
+    };
+    s2.onerror = function(){ log('Failed to load FFmpeg utilities','log-err'); _ffmpegLoading=false; };
+    document.head.appendChild(s2);
+  };
+  s.onerror = function(){ log('Failed to load FFmpeg. Check internet connection.','log-err'); _ffmpegLoading=false; document.getElementById('ffmpeg-notice').style.display='none'; };
+  document.head.appendChild(s);
+}
+
+async function initFFmpeg(){
+  try {
+    var FFmpeg = window.FFmpegWASM ? window.FFmpegWASM.FFmpeg : (window.FFmpeg && window.FFmpeg.FFmpeg);
+    if(!FFmpeg && window.FFmpegWASM) FFmpeg = window.FFmpegWASM.FFmpeg;
+    if(!FFmpeg){ log('FFmpeg not found after loading','log-err'); _ffmpegLoading=false; return; }
+    _ffmpeg = new FFmpeg();
+    _ffmpeg.on('log', function(e){ if(e && e.message) log(e.message,'log-info'); });
+    _ffmpeg.on('progress', function(e){ if(e && typeof e.progress==='number') setProgress(Math.round(e.progress*90)+5,'Converting... '+Math.round(e.progress*100)+'%'); });
+    log('Loading FFmpeg core (may take 10–30s on first visit)...','log-info');
+    await _ffmpeg.load({
+      coreURL: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',
+    });
+    _ffmpegReady = true;
+    _ffmpegLoading = false;
+    document.getElementById('ffmpeg-notice').style.display='none';
+    log('Audio/video engine ready!','log-ok');
+  } catch(e) {
+    log('FFmpeg load error: '+e.message,'log-err');
+    _ffmpegLoading=false;
+    document.getElementById('ffmpeg-notice').style.display='none';
+  }
+}
+
+async function convertAV(){
+  if(!_ffmpegReady){
+    log('Loading audio/video engine first...','log-info');
+    if(!_ffmpegLoading) loadFFmpeg();
+    // Poll until ready
+    var tries=0;
+    while(!_ffmpegReady && tries<60){ await sleep(1000); tries++; }
+    if(!_ffmpegReady){ log('Audio/video engine failed to load. Try refreshing.','log-err'); document.getElementById('convert-btn').disabled=false; return; }
+  }
+  try {
+    var fetchFile = window.FFmpegUtil ? window.FFmpegUtil.fetchFile : null;
+    if(!fetchFile){ log('FFmpeg utilities not ready','log-err'); return; }
+    var inName = 'input.'+(_file.name.split('.').pop()||'mp4');
+    var fmt = _targetFmt;
+    var ext = CATS[_cat].extOut[fmt];
+    var mime = CATS[_cat].mimeOut[fmt];
+    var outName = 'output.'+ext;
+    log('Writing input file to FFmpeg memory...','log-info');
+    setProgress(10,'Loading file...');
+    await _ffmpeg.writeFile(inName, await fetchFile(_file));
+    setProgress(20,'Converting...');
+    log('Running conversion to '+fmt+'...','log-info');
+    var args = ['-i', inName];
+    if(fmt==='MP3'||fmt==='MP3 (audio)'){ args=args.concat(['-vn','-ar','44100','-ac','2','-b:a','192k']); }
+    else if(fmt==='WAV'){ args=args.concat(['-vn','-ar','44100','-ac','2']); }
+    else if(fmt==='OGG'){ args=args.concat(['-vn','-c:a','libvorbis','-q:a','5']); }
+    else if(fmt==='WebM'){ args=args.concat(['-c:v','libvpx-vp9','-crf','30','-b:v','0','-c:a','libvorbis']); }
+    else if(fmt==='MP4'){ args=args.concat(['-c:v','libx264','-preset','fast','-crf','23','-c:a','aac']); }
+    args.push(outName);
+    await _ffmpeg.exec(args);
+    setProgress(90,'Reading output...');
+    log('Reading output file...','log-info');
+    var data = await _ffmpeg.readFile(outName);
+    var blob = new Blob([data.buffer], {type:mime});
+    setProgress(100,'Done!');
+    log('Done! Output: '+fmtSize(blob.size),'log-ok');
+    var dlName = _file.name.replace(/\.[^.]+$/,'')+'.'+ext;
+    showResult(blob, dlName, mime);
+    // cleanup
+    try{ await _ffmpeg.deleteFile(inName); await _ffmpeg.deleteFile(outName); }catch(e){}
+  } catch(e) {
+    log('Conversion error: '+e.message,'log-err');
+    setProgress(0,'Failed');
+    document.getElementById('convert-btn').disabled=false;
+  }
+}
+
+function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+
+/* ═══════════════════════════════════════
+   DOCUMENT CONVERSION (pure JS)
+═══════════════════════════════════════ */
+function convertDocument(){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var text = e.target.result;
+    var inExt = (_file.name.split('.').pop()||'').toLowerCase();
+    var fmt = _targetFmt;
+    var mime = CATS.document.mimeOut[fmt];
+    var ext  = CATS.document.extOut[fmt];
+    var outName = _file.name.replace(/\.[^.]+$/,'')+'.'+ext;
+    setProgress(50,'Converting...');
+    try {
+      var out;
+      if(inExt==='csv' && fmt==='JSON'){
+        out = csvToJson(text);
+        log('CSV → JSON: '+out.length+' rows converted','log-ok');
+      } else if(inExt==='json' && fmt==='CSV'){
+        var parsed = JSON.parse(text);
+        out = jsonToCsv(Array.isArray(parsed)?parsed:[parsed]);
+        log('JSON → CSV: converted','log-ok');
+      } else if((inExt==='txt'||inExt==='md'||inExt==='markdown') && fmt==='Markdown'){
+        out = txtToMarkdown(text);
+        log('TXT → Markdown: converted','log-ok');
+      } else if(inExt==='md' && fmt==='TXT'){
+        out = mdToTxt(text);
+        log('MD → TXT: stripped markdown','log-ok');
+      } else if(fmt==='TXT'){
+        out = text; log('Copied as plain text','log-ok');
+      } else if(fmt==='JSON'){
+        // Try wrap in JSON
+        var lines = text.trim().split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+        out = JSON.stringify(lines, null, 2);
+        log('TXT → JSON: '+lines.length+' lines as array','log-ok');
+      } else {
+        out = text; log('Copied as-is','log-ok');
+      }
+      setProgress(100,'Done!');
+      var blob = new Blob([typeof out==='string'?out:JSON.stringify(out,null,2)], {type:mime});
+      showResult(blob, outName, mime);
+    } catch(err) {
+      log('Parse error: '+err.message,'log-err');
+      setProgress(0,'Failed');
+      document.getElementById('convert-btn').disabled=false;
+    }
+  };
+  reader.readAsText(_file);
+}
+
+function csvToJson(csv){
+  var lines = csv.trim().split('\n');
+  var headers = parseCsvLine(lines[0]);
+  return lines.slice(1).filter(function(l){return l.trim();}).map(function(line){
+    var vals = parseCsvLine(line);
+    var obj={};
+    headers.forEach(function(h,i){ obj[h.trim()]=vals[i]!==undefined?vals[i].trim():''; });
+    return obj;
+  });
+}
+
+function parseCsvLine(line){
+  var result=[]; var cur=''; var inQ=false;
+  for(var i=0;i<line.length;i++){
+    var c=line[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){result.push(cur);cur='';}
+    else{cur+=c;}
+  }
+  result.push(cur); return result;
+}
+
+function jsonToCsv(arr){
+  if(!arr.length) return '';
+  var keys=Object.keys(arr[0]);
+  var rows=[keys.join(',')];
+  arr.forEach(function(row){ rows.push(keys.map(function(k){ var v=row[k]===undefined?'':String(row[k]); return v.includes(',')?'"'+v+'"':v; }).join(',')); });
+  return rows.join('\n');
+}
+
+function txtToMarkdown(txt){
+  var lines=txt.split('\n');
+  return lines.map(function(l,i){ if(i===0&&l.trim()) return '# '+l.trim(); return l; }).join('\n');
+}
+
+function mdToTxt(md){
+  return md
+    .replace(/#{1,6}\s+/g,'')
+    .replace(/\*\*(.+?)\*\*/g,'$1')
+    .replace(/\*(.+?)\*/g,'$1')
+    .replace(/`(.+?)`/g,'$1')
+    .replace(/\[(.+?)\]\(.+?\)/g,'$1')
+    .replace(/^[-*+]\s+/gm,'• ');
+}
+
+/* ═══════════════════════════════════════
+   SHOW RESULT
+═══════════════════════════════════════ */
+function showResult(blob, name, mime){
+  if(_blobUrl) URL.revokeObjectURL(_blobUrl);
+  _blobUrl = URL.createObjectURL(blob);
+  document.getElementById('res-meta').textContent = name + ' · ' + fmtSize(blob.size);
+  var dl = document.getElementById('dl-link');
+  dl.href = _blobUrl;
+  dl.download = name;
+  document.getElementById('result-zone').style.display='block';
+  document.getElementById('convert-btn').disabled=false;
+  document.getElementById('convert-btn').textContent='Convert Another →';
+  // scroll to result
+  setTimeout(function(){ document.getElementById('result-zone').scrollIntoView({behavior:'smooth',block:'nearest'}); }, 100);
+}
+
+/* ═══════════════════════════════════════
+   BG CANVAS (subtle particle field)
+═══════════════════════════════════════ */
+(function(){
+  var c=document.getElementById('bg-canvas');
+  var ctx=c.getContext('2d');
+  var pts=[];
+  function resize(){ c.width=innerWidth; c.height=innerHeight; }
+  resize(); addEventListener('resize',resize);
+  for(var i=0;i<40;i++) pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*1.5+.5,a:Math.random()});
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(function(p){
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=c.width; if(p.x>c.width)p.x=0;
+      if(p.y<0)p.y=c.height; if(p.y>c.height)p.y=0;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(79,172,254,'+p.a*.15+')'; ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
