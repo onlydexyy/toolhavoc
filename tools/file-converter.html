@@ -551,9 +551,11 @@ async function loadFFmpeg(){
     document.getElementById('ffmpeg-pct').textContent = '20%';
     log('Fetching single-thread FFmpeg core (~15 MB, one-time)...','log-info');
 
-    /* Step 2: createFFmpeg with the -st (single thread) core — no SharedArrayBuffer needed */
+    /* Step 2: createFFmpeg with the -st (single thread) core — no SharedArrayBuffer needed.
+       mainName:'main' is REQUIRED for core-st — without it, it looks for proxy_main which doesn't exist */
     var { createFFmpeg } = FFmpeg;
     _ffmpeg = createFFmpeg({
+      mainName: 'main',
       corePath: 'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
       log: false,
       progress: function(p){
