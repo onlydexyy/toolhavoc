@@ -102,18 +102,14 @@ html{scroll-behavior:smooth}
 .pill.active{background:linear-gradient(135deg,#4facfe,#e91e63);border-color:transparent;color:#fff;box-shadow:0 0 14px rgba(79,172,254,.25)}
 
 /* ══ NAV PILL BAR — no separate bg, inherits unified nav panel ══ */
-#nav-pill-bar{
-  /* no background, no border-top — nav shell is the single glass panel */
-}
-#nav-pill-bar .pill-scroll{
-  display:flex;gap:6px;align-items:center;justify-content:center;
-  overflow-x:auto;padding:0 16px 10px;
+#nav-pill-bar{ /* no background, no border-top — nav shell is the single glass panel */ }
+#pillWrap{
+  overflow-x:auto;padding-bottom:2px;
   scrollbar-width:none;-ms-overflow-style:none;
-  flex-wrap:wrap;
 }
-#nav-pill-bar .pill-scroll::-webkit-scrollbar{display:none}
+#pillWrap::-webkit-scrollbar{display:none}
 @media(max-width:767px){
-  #nav-pill-bar .pill-scroll{flex-wrap:nowrap;justify-content:flex-start;}
+  #pillWrap{flex-wrap:nowrap!important;justify-content:flex-start!important;padding-left:8px;}
 }
 
 /* ══ SEARCH ══ */
@@ -382,7 +378,7 @@ html{scroll-behavior:smooth}
 <div class="relative z-10">
 
   <!-- ── UNIFIED NAV COCKPIT ── -->
-  <nav class="fixed top-0 left-0 right-0 z-50 flex flex-col items-center border-b border-slate-800/40" style="background:rgba(4,6,10,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
+  <nav class="fixed top-0 left-0 w-full z-50 bg-[#04060a]/90 backdrop-blur-md border-b border-slate-800/40 p-3 md:p-4 flex flex-col items-center justify-center" style="-webkit-backdrop-filter:blur(12px)">
     <!-- brand row -->
     <div class="w-full max-w-7xl mx-auto px-4 h-14 flex items-center relative">
       <!-- left: burger + nav links -->
@@ -394,7 +390,7 @@ html{scroll-behavior:smooth}
         </div>
       </div>
       <!-- center: HAVOC logo -->
-      <div class="flex-1 flex justify-center">
+      <div class="w-full flex justify-center">
         <a href="#" style="text-decoration:none;font-family:'New Rocker','Inter',sans-serif;font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:.25em;color:#fff;text-shadow:0 1px 0 #cbd5e1,0 2px 0 #94a3b8,0 3px 0 #475569,0 4px 10px rgba(6,182,212,0.5);filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8))">HAVOC</a>
       </div>
       <!-- right: TikTok + Request -->
@@ -410,7 +406,7 @@ html{scroll-behavior:smooth}
     </div>
     <!-- pill row — same glass panel, no separator -->
     <div id="nav-pill-bar" class="w-full">
-      <div class="pill-scroll w-full" id="pillWrap">
+      <div class="w-full flex items-center justify-center gap-2 md:gap-3 flex-wrap mt-3" id="pillWrap">
         <button class="pill" onclick="fCat('all',this)">All Tools</button>
         <button class="pill" onclick="fCat('computer',this)">💻 Computer</button>
         <button class="pill" onclick="fCat('phone',this)">📱 Phone</button>
@@ -434,12 +430,9 @@ html{scroll-behavior:smooth}
   <!-- SLOT A: TOP LEADERBOARD AD — below 96px navbar -->
   <div style="padding-top:108px;padding-bottom:0">
     <div class="max-w-7xl mx-auto px-4 mt-4 mb-2">
-      <div class="af af-top mx-auto" style="max-width:728px;position:relative">
-        <span style="position:absolute;top:3px;left:12px;font-size:9px;color:rgba(100,116,139,.4);letter-spacing:.12em;font-family:monospace;text-transform:uppercase;pointer-events:none">Community Partner</span>
-        <script>
-          atOptions = {'key':'76f41da819582075b2e5619851f50a31','format':'iframe','height':90,'width':728,'params':{}};
-        </script>
-        <script src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      <div class="min-h-[95px] w-full bg-[#020205]/40 border border-slate-800/40 rounded-xl flex items-center justify-center p-2 relative overflow-hidden" style="max-width:728px">
+        <span class="absolute top-1 left-3 text-[9px] text-slate-600 tracking-widest font-mono uppercase">Community Partner</span>
+        <iframe srcdoc='<html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:transparent;}</style></head><body><script>atOptions={"key":"76f41da819582075b2e5619851f50a31","format":"iframe","height":90,"width":728,"params":{}};document.write("<scr"+"ipt src=\"//bauval.org/22/76f41da819582075b2e5619851f50a31\"><\/scr"+"ipt>");<\/script></body></html>' sandbox="allow-scripts allow-same-origin allow-popups" scrolling="no" frameborder="0" class="w-full h-[90px] border-0 overflow-hidden"></iframe>
       </div>
     </div>
   </div>
@@ -452,18 +445,15 @@ html{scroll-behavior:smooth}
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
         </span>
-        35+ Free Tools — No Signup Required
+        35+ Free Tools · No Signup · Zero Downloads
       </div>
-      <h1 class="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.08] mb-5">
-        <span class="text-white">Your Tech Toolbox</span><br>
-        <span class="bg-gradient-to-r from-[#4facfe] via-[#e040fb] to-[#e91e63] bg-clip-text text-transparent">for Everything</span>
-      </h1>
-      <p class="text-slate-400 text-base md:text-lg max-w-xl mx-auto mb-10">Scan your device, test hardware, check security, detect AI — all free, instant, no downloads.</p>
+      <h1 class="text-white text-3xl md:text-5xl font-black uppercase font-mono tracking-wider mb-2">HAVOC // Performance Engine &amp; Optimization Core</h1>
+      <p class="text-slate-400 text-base md:text-lg max-w-xl mx-auto mb-10"><span class="text-emerald-400 font-mono font-bold">[STATUS: CORE LIVE]</span> Stop searching hours of web tutorials. Uncap your client framerates, analyze hardware bottlenecks, and deploy verified open-source optimization scripts natively at a locked 60 FPS background canvas loop.</p>
       <div class="max-w-lg mx-auto relative">
         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">🔍</span>
         <input type="text" id="searchInput" placeholder="Search tools… or press / to open command search" oninput="filterTools()" onfocus="if(window.innerWidth>767)openCmd()" class="sbox w-full pl-11 pr-4 py-3.5" style="cursor:pointer">
       </div>
-      <p class="text-slate-600 text-xs mt-4 font-mono tracking-widest uppercase">↑ Select a category above to explore tools</p>
+      <p class="text-slate-600 text-xs mt-4 font-mono tracking-widest uppercase">↑ Deploy a category above · press / to search the full arsenal</p>
     </div>
   </section>
 
@@ -471,10 +461,9 @@ html{scroll-behavior:smooth}
   <section id="tools" class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
 
     <!-- SLOT B: MID-GRID NATIVE AD (always visible) -->
-    <div id="mid-ad-slot" class="mb-6 flex flex-col items-center justify-center" style="min-height:260px;background:rgba(9,13,22,.2);border:1px solid rgba(51,65,85,.4);border-radius:12px;contain:layout style;display:none">
-      <span class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-3 block">Community Partner</span>
-      <script async="async" data-cfasync="false" src="https://bauval.org/21/d0f677b4d72b913f07ead837adf17f31"></script>
-      <div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
+    <div id="mid-ad-slot" class="mb-6 relative overflow-hidden" style="min-height:260px;background:rgba(9,13,22,.2);border:1px solid rgba(51,65,85,.4);border-radius:12px;contain:layout style;display:none">
+      <span class="absolute top-2 left-3 text-[9px] text-slate-600 tracking-widest font-mono uppercase z-10">Community Partner</span>
+      <iframe srcdoc='<html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:transparent;}</style></head><body><script async data-cfasync="false" src="https://bauval.org/21/d0f677b4d72b913f07ead837adf17f31"><\/script><div id="container-d0f677b4d72b913f07ead837adf17f31"></div></body></html>' sandbox="allow-scripts allow-same-origin allow-popups" scrolling="no" frameborder="0" style="width:100%;min-height:260px;border:0;display:block;"></iframe>
     </div>
 
     <!-- PRIMARY INJECTION GRID -->
@@ -521,7 +510,7 @@ html{scroll-behavior:smooth}
       </div>
       <div class="px-4 py-3.5" style="border-right:1px solid rgba(51,65,85,.4);border-bottom:1px solid rgba(51,65,85,.4)">
         <div class="text-[9px] font-semibold tracking-wider text-slate-600 uppercase mb-0.5">Session XP</div>
-        <div class="text-sm font-bold font-mono" id="xp-wrap"><span class="text-purple-400">XP:</span> <span id="xp-counter" class="text-white">0</span><span class="text-slate-600">/1000</span></div>
+        <div class="text-sm font-bold font-mono" id="xp-wrap"><span class="text-purple-400">SESSION_XP:</span> <span id="xp-counter" class="text-white font-bold">0</span><span class="text-slate-600">/1000</span></div>
       </div>
       <div class="px-4 py-3.5" style="border-right:1px solid rgba(51,65,85,.4);border-bottom:1px solid rgba(51,65,85,.4)">
         <div class="text-[9px] font-semibold tracking-wider text-slate-600 uppercase mb-0.5">Active Sessions</div>
@@ -609,12 +598,9 @@ html{scroll-behavior:smooth}
 <div id="stickyAd" class="stk">
   <div class="af-sticky flex items-center justify-center py-2 relative max-w-7xl mx-auto px-4">
     <button onclick="document.getElementById('stickyAd').classList.add('off')" class="absolute top-1 right-4 text-slate-600 hover:text-slate-300 text-xs font-bold z-10 cursor-pointer" aria-label="Close ad">✕</button>
-    <div style="max-width:320px;min-height:260px;position:relative">
-      <span style="position:absolute;top:3px;left:12px;font-size:9px;color:rgba(100,116,139,.4);letter-spacing:.12em;font-family:monospace;text-transform:uppercase;pointer-events:none">Community Partner</span>
-      <script>
-        atOptions = {'key':'4eb8d16a9cbab1deebe011d440079990','format':'iframe','height':250,'width':300,'params':{}};
-      </script>
-      <script src="//bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
+    <div class="min-h-[95px] w-full bg-[#020205]/40 border border-slate-800/40 rounded-xl flex items-center justify-center p-2 relative overflow-hidden" style="max-width:320px">
+      <span class="absolute top-1 left-3 text-[9px] text-slate-600 tracking-widest font-mono uppercase">Community Partner</span>
+      <iframe srcdoc='<html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:transparent;}</style></head><body><script>atOptions={"key":"4eb8d16a9cbab1deebe011d440079990","format":"iframe","height":250,"width":300,"params":{}};document.write("<scr"+"ipt src=\"//bauval.org/22/4eb8d16a9cbab1deebe011d440079990\"><\/scr"+"ipt>");<\/script></body></html>' sandbox="allow-scripts allow-same-origin allow-popups" scrolling="no" frameborder="0" style="width:300px;height:260px;border:0;overflow:hidden;"></iframe>
     </div>
   </div>
 </div>
