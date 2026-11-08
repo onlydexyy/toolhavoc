@@ -538,11 +538,11 @@ async function loadFFmpeg(){
   document.getElementById('ffmpeg-pct').textContent = '0%';
   log('Loading audio/video engine...','log-info');
   try {
-    /* Step 1: load ffmpeg.wasm v0.10.1 — uses old createFFmpeg API, no Worker spawning */
+    /* Step 1: load @ffmpeg/ffmpeg@0.11.6 — the version that introduced mainName support */
     if(!_ffmpegScriptLoaded){
       await new Promise(function(resolve, reject){
         var s = document.createElement('script');
-        s.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js';
+        s.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js';
         s.onload = function(){ _ffmpegScriptLoaded=true; resolve(); };
         s.onerror = reject;
         document.head.appendChild(s);
@@ -552,7 +552,8 @@ async function loadFFmpeg(){
     log('Fetching single-thread FFmpeg core (~15 MB, one-time)...','log-info');
 
     /* Step 2: createFFmpeg with the -st (single thread) core — no SharedArrayBuffer needed.
-       mainName:'main' is REQUIRED for core-st — without it, it looks for proxy_main which doesn't exist */
+       mainName:'main' tells it to call 'main' instead of 'proxy_main' (multi-thread only).
+       @ffmpeg/ffmpeg@0.11.6 is the first version that supports the mainName option. */
     var { createFFmpeg } = FFmpeg;
     _ffmpeg = createFFmpeg({
       mainName: 'main',
