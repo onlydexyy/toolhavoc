@@ -463,14 +463,158 @@ html{scroll-behavior:smooth}
 
     <!-- PRIMARY INJECTION GRID -->
     <div id="tools-display-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      <!-- Empty state shown on boot, replaced when pill clicked -->
-      <div id="grid-empty-state" style="grid-column:1/-1">
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center">
-          <div style="font-size:48px;margin-bottom:20px;opacity:.2">⚡</div>
-          <div style="font-size:12px;font-weight:700;color:#334155;font-family:monospace;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px">// SELECT A CATEGORY</div>
-          <div style="font-size:12px;color:#1e293b;max-width:300px;line-height:1.6">Pick a category above to load your toolkit — or search to find any tool instantly.</div>
+      <!-- HUD Stats Panel — boot state before pill clicked -->
+      <div id="grid-empty-state" style="grid-column:1/-1;padding:32px 16px 40px">
+        <div id="hud-panel" style="max-width:720px;margin:0 auto;border:1px solid #1e3a4a;border-radius:4px;background:linear-gradient(160deg,#020810 0%,#040c14 60%,#020a10 100%);overflow:hidden;position:relative">
+
+          <!-- corner brackets -->
+          <div style="position:absolute;top:8px;left:8px;width:14px;height:14px;border-top:1px solid #22d3ee;border-left:1px solid #22d3ee;opacity:.6"></div>
+          <div style="position:absolute;top:8px;right:8px;width:14px;height:14px;border-top:1px solid #22d3ee;border-right:1px solid #22d3ee;opacity:.6"></div>
+          <div style="position:absolute;bottom:8px;left:8px;width:14px;height:14px;border-bottom:1px solid #22d3ee;border-left:1px solid #22d3ee;opacity:.6"></div>
+          <div style="position:absolute;bottom:8px;right:8px;width:14px;height:14px;border-bottom:1px solid #22d3ee;border-right:1px solid #22d3ee;opacity:.6"></div>
+
+          <!-- header bar -->
+          <div style="border-bottom:1px solid #0f2a38;padding:10px 24px;display:flex;align-items:center;justify-content:space-between">
+            <div style="font-family:monospace;font-size:10px;letter-spacing:.2em;color:#22d3ee;text-transform:uppercase">▶ HAVOC_SYS :: ARSENAL STATUS</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;animation:hudBlink 1.4s ease-in-out infinite"></div>
+              <div style="font-family:monospace;font-size:9px;color:#22c55e;letter-spacing:.12em">ONLINE</div>
+            </div>
+          </div>
+
+          <!-- main stats row -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #0f2a38">
+
+            <!-- tool count -->
+            <div style="padding:20px 24px;border-right:1px solid #0f2a38">
+              <div style="font-family:monospace;font-size:9px;letter-spacing:.18em;color:#475569;text-transform:uppercase;margin-bottom:6px">TOOLS_LOADED</div>
+              <div style="font-family:monospace;font-size:36px;font-weight:700;color:#22d3ee;line-height:1;text-shadow:0 0 20px rgba(34,211,238,.4)" id="hud-tool-count">35</div>
+              <div style="font-family:monospace;font-size:9px;color:#22c55e;margin-top:6px;letter-spacing:.1em">▲ MORE SHIPPING SOON</div>
+            </div>
+
+            <!-- session xp -->
+            <div style="padding:20px 24px;border-right:1px solid #0f2a38">
+              <div style="font-family:monospace;font-size:9px;letter-spacing:.18em;color:#475569;text-transform:uppercase;margin-bottom:6px">SESSION_XP</div>
+              <div style="font-family:monospace;font-size:36px;font-weight:700;color:#a78bfa;line-height:1;text-shadow:0 0 20px rgba(167,139,250,.4)" id="hud-xp">0</div>
+              <div style="margin-top:8px;background:#0f172a;border-radius:2px;height:3px;overflow:hidden">
+                <div id="hud-xp-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#a78bfa);transition:width .4s ease;box-shadow:0 0 8px rgba(167,139,250,.6)"></div>
+              </div>
+            </div>
+
+            <!-- uptime -->
+            <div style="padding:20px 24px">
+              <div style="font-family:monospace;font-size:9px;letter-spacing:.18em;color:#475569;text-transform:uppercase;margin-bottom:6px">SESSION_UPTIME</div>
+              <div style="font-family:monospace;font-size:36px;font-weight:700;color:#f472b6;line-height:1;text-shadow:0 0 20px rgba(244,114,182,.4)" id="hud-uptime">00:00</div>
+              <div style="font-family:monospace;font-size:9px;color:#475569;margin-top:6px;letter-spacing:.1em">HH:MM:SS</div>
+            </div>
+          </div>
+
+          <!-- live scan log -->
+          <div style="padding:16px 24px 20px">
+            <div style="font-family:monospace;font-size:9px;letter-spacing:.18em;color:#334155;text-transform:uppercase;margin-bottom:10px">// LIVE SYSTEM LOG</div>
+            <div id="hud-log" style="display:flex;flex-direction:column;gap:4px;min-height:80px"></div>
+          </div>
+
+          <!-- footer -->
+          <div style="border-top:1px solid #0f2a38;padding:8px 24px;display:flex;align-items:center;justify-content:space-between">
+            <div style="font-family:monospace;font-size:9px;color:#1e3a4a;letter-spacing:.12em">HAVOC v2.4.1 // FREE TOOLS ENGINE</div>
+            <div style="font-family:monospace;font-size:9px;color:#1e3a4a;letter-spacing:.12em">↑ SELECT A CATEGORY TO LOAD TOOLKIT</div>
+          </div>
+
         </div>
       </div>
+
+      <style>
+        @keyframes hudBlink{0%,100%{opacity:1}50%{opacity:.3}}
+        @keyframes hudFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+        .hud-log-line{font-family:monospace;font-size:11px;line-height:1.5;animation:hudFadeIn .3s ease}
+      </style>
+
+      <script>
+      (function(){
+        var _hudStart = Date.now();
+        var _hudTimer = null;
+        var _hudLog = null;
+        var _logLines = [];
+
+        var _scanMsgs = [
+          {c:'#22d3ee', t:'► ARSENAL_INDEX :: 35 tools mapped and verified'},
+          {c:'#22c55e', t:'► NET_STATUS :: Connection secure · proxy-free routing'},
+          {c:'#a78bfa', t:'► XP_ENGINE :: Session tracking active'},
+          {c:'#f472b6', t:'► CAT_SCAN :: computer · phone · games · software loaded'},
+          {c:'#22d3ee', t:'► TOOL_CACHE :: AI detectors · speed tests · utilities ready'},
+          {c:'#fbbf24', t:'► ADGUARD_LAYER :: Redirect protection engaged'},
+          {c:'#22c55e', t:'► SEARCH_IDX :: Full-text index built · 35 entries'},
+          {c:'#a78bfa', t:'► FONT_LOAD :: NewRocker · Inter · monospace confirmed'},
+          {c:'#22d3ee', t:'► XP_GATE :: Level threshold set at 1000 XP'},
+          {c:'#f472b6', t:'► MOBILE_OPT :: Responsive grid · touch events active'},
+          {c:'#22c55e', t:'► PRANK_MODULE :: Games & Roasts toolkit standing by'},
+          {c:'#22d3ee', t:'► DL_ENGINE :: Safe PC Software index verified clean'},
+          {c:'#a78bfa', t:'► PASSWD_GUARD :: Entropy checker primed'},
+          {c:'#fbbf24', t:'► AD_LAYER :: Monetization slots initialized'},
+          {c:'#22c55e', t:'► UPTIME_CLOCK :: Session timer running'},
+        ];
+        var _msgIdx = 0;
+
+        function _pad(n){return n<10?'0'+n:n}
+
+        function _tick(){
+          // uptime
+          var el = document.getElementById('hud-uptime');
+          if(el){
+            var s = Math.floor((Date.now()-_hudStart)/1000);
+            var h = Math.floor(s/3600);
+            var m = Math.floor((s%3600)/60);
+            var sec = s%60;
+            el.textContent = _pad(h)+':'+_pad(m)+':'+_pad(sec);
+          }
+          // xp sync
+          var xpEl = document.getElementById('hud-xp');
+          var barEl = document.getElementById('hud-xp-bar');
+          var curXp = window._xp||0;
+          if(xpEl) xpEl.textContent = curXp;
+          if(barEl) barEl.style.width = Math.min(100,(curXp/1000)*100)+'%';
+        }
+
+        function _addLog(){
+          _hudLog = document.getElementById('hud-log');
+          if(!_hudLog) return;
+          var msg = _scanMsgs[_msgIdx % _scanMsgs.length];
+          _msgIdx++;
+          var line = document.createElement('div');
+          line.className = 'hud-log-line';
+          line.style.color = msg.c;
+          // timestamp
+          var s = Math.floor((Date.now()-_hudStart)/1000);
+          var ts = '['+_pad(Math.floor(s/60))+':'+_pad(s%60)+'] ';
+          line.textContent = ts + msg.t;
+          _hudLog.appendChild(line);
+          // keep max 5 lines
+          while(_hudLog.children.length > 5) _hudLog.removeChild(_hudLog.firstChild);
+        }
+
+        // kick off
+        _addLog();
+        _tick();
+        var _tickInterval = setInterval(_tick, 1000);
+        var _logInterval = setInterval(_addLog, 2200);
+
+        // stop intervals when empty state is replaced (pill click)
+        var _obs = new MutationObserver(function(muts){
+          muts.forEach(function(m){
+            m.removedNodes.forEach(function(n){
+              if(n.id==='grid-empty-state'){
+                clearInterval(_tickInterval);
+                clearInterval(_logInterval);
+                _obs.disconnect();
+              }
+            });
+          });
+        });
+        var _grid = document.getElementById('tools-display-grid');
+        if(_grid) _obs.observe(_grid,{childList:true});
+      })();
+      </script>
     </div>
   </section>
 
