@@ -107,6 +107,23 @@ html{scroll-behavior:smooth}
 .action-btn.primary{background:var(--gradient);border:none;color:#fff}
 
 @media(max-width:600px){.text-box{font-size:15px;padding:16px} .stat{padding:8px 14px}}
+
+  /* ── Certificate share card ── */
+  .cert-header{text-align:center;padding:8px 0 4px;border-bottom:1px solid rgba(79,172,254,.18);margin-bottom:12px}
+  .cert-badge{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#4facfe;font-family:monospace;opacity:.7}
+  .cert-wpm{font-size:clamp(52px,14vw,88px);font-weight:900;line-height:1;background:linear-gradient(135deg,#4facfe,#e91e63);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .cert-unit{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#64748b;margin-top:2px;font-family:monospace}
+  .cert-roast{font-size:13px;color:#94a3b8;font-style:italic;margin:10px 0 14px;line-height:1.5;text-align:center}
+  .cert-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+  .cert-stat{background:rgba(9,13,22,.5);border:1px solid rgba(51,65,85,.35);border-radius:8px;padding:8px 4px;text-align:center}
+  .cert-stat .v{font-size:18px;font-weight:800;color:#e2e8f0;font-family:monospace}
+  .cert-stat .l{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-top:2px}
+  .cert-divider{border:none;border-top:1px solid rgba(51,65,85,.3);margin:10px 0}
+  .cert-site{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#334155;font-family:monospace;text-align:center;margin-bottom:12px}
+  .copy-diag-btn{width:100%;padding:10px;border-radius:9px;border:1px solid rgba(79,172,254,.3);background:rgba(79,172,254,.06);color:#4facfe;font-size:12px;font-weight:700;letter-spacing:.08em;cursor:pointer;font-family:monospace;transition:background .2s,border-color .2s}
+  .copy-diag-btn:hover{background:rgba(79,172,254,.13);border-color:rgba(79,172,254,.55)}
+  .copy-diag-notice{font-size:11px;color:#4ade80;text-align:center;margin-top:6px;height:16px;font-family:monospace;letter-spacing:.06em;opacity:0;transition:opacity .25s}
+  .copy-diag-notice.show{opacity:1}
 </style>
 </head>
 <body class="relative min-h-screen font-sans text-slate-300 overflow-x-hidden" style="background:#020205">
@@ -157,17 +174,12 @@ html{scroll-behavior:smooth}
         <!-- TOP AD SLOT -->
     <div class="mb-6 flex flex-col items-center">
       <span class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2 block">Community Partner</span>
-      <div style="display:flex;align-items:center;justify-content:center;overflow:hidden;height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
-        <script type="text/javascript">
-          atOptions = {
-            'key' : '76f41da819582075b2e5619851f50a31',
-            'format' : 'iframe',
-            'height' : 90,
-            'width' : 728,
-            'params' : {}
-          };
-        </script>
-        <script type="text/javascript" src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      <div style="position:relative;overflow:hidden;height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
+        <iframe srcdoc='<html><head><style>body{margin:0;padding:0;background:transparent;overflow:hidden;}</style></head><body><script type=\"text\/javascript\">atOptions={&quot;key&quot;:&quot;76f41da819582075b2e5619851f50a31&quot;,&quot;format&quot;:&quot;iframe&quot;,&quot;height&quot;:90,&quot;width&quot;:728,&quot;params&quot;:{}};<\/script><script type=\"text\/javascript\" src=\"//bauval.org/22/76f41da819582075b2e5619851f50a31\"><\/script></body></html>'
+          sandbox="allow-scripts allow-same-origin"
+          scrolling="no" frameborder="0"
+          style="width:100%;height:90px;border:0;display:block;margin:0 auto">
+        </iframe>
       </div>
     </div>
     <div class="glass-panel p-6 md:p-8 mb-6">
@@ -187,15 +199,29 @@ html{scroll-behavior:smooth}
   <input type="text" class="hidden-input" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
 
   <div class="result-card" id="resultCard">
-    <div class="result-wpm" id="resultWpm"></div>
-    <div class="result-label">words per minute</div>
-    <div class="result-roast" id="resultRoast"></div>
-    <div class="result-stats">
-      <div class="rs"><div class="v" id="rChars">0</div><div class="l">Characters</div></div>
-      <div class="rs"><div class="v" id="rCorrect">0</div><div class="l">Correct</div></div>
-      <div class="rs"><div class="v" id="rErrors">0</div><div class="l">Errors</div></div>
-      <div class="rs"><div class="v" id="rAccuracy">0%</div><div class="l">Accuracy</div></div>
-    </div>
+  <div class="cert-header">
+    <div class="cert-badge">⚡ ToolHavoc · Typing Diagnostic</div>
+  </div>
+  <div style="text-align:center;padding:8px 0">
+    <div class="cert-wpm" id="resultWpm"></div>
+    <div class="cert-unit">words per minute</div>
+  </div>
+  <div class="cert-roast" id="resultRoast"></div>
+  <div class="cert-stats">
+    <div class="cert-stat"><div class="v" id="rChars">0</div><div class="l">Chars</div></div>
+    <div class="cert-stat"><div class="v" id="rCorrect">0</div><div class="l">Correct</div></div>
+    <div class="cert-stat"><div class="v" id="rErrors">0</div><div class="l">Errors</div></div>
+    <div class="cert-stat"><div class="v" id="rAccuracy">0%</div><div class="l">Accuracy</div></div>
+  </div>
+  <hr class="cert-divider">
+  <div class="cert-site">toolhavoc.com</div>
+  <button class="copy-diag-btn" onclick="copyDiagnostic(this)">🔗 Copy Diagnostic Breakdown</button>
+  <div class="copy-diag-notice" id="copyDiagNotice">Copied to Clipboard!</div>
+  <div class="btn-row" style="margin-top:12px">
+    <button class="action-btn primary" onclick="resetTest()">Try Again</button>
+    <button class="action-btn" onclick="shareResult()">📤 Share</button>
+  </div>
+</div>
     <div class="btn-row">
       <button class="action-btn primary" onclick="resetTest()">Try Again</button>
       <button class="action-btn" onclick="shareResult()">📤 Share</button>
@@ -206,17 +232,12 @@ html{scroll-behavior:smooth}
         <!-- BOTTOM AD SLOT -->
     <div class="mt-6 flex flex-col items-center">
       <span class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2 block">Community Partner</span>
-      <div style="display:flex;align-items:center;justify-content:center;overflow:hidden;height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
-        <script type="text/javascript">
-          atOptions = {
-            'key' : '76f41da819582075b2e5619851f50a31',
-            'format' : 'iframe',
-            'height' : 90,
-            'width' : 728,
-            'params' : {}
-          };
-        </script>
-        <script type="text/javascript" src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      <div style="position:relative;overflow:hidden;height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
+        <iframe srcdoc='<html><head><style>body{margin:0;padding:0;background:transparent;overflow:hidden;}</style></head><body><script type=\"text\/javascript\">atOptions={&quot;key&quot;:&quot;76f41da819582075b2e5619851f50a31&quot;,&quot;format&quot;:&quot;iframe&quot;,&quot;height&quot;:90,&quot;width&quot;:728,&quot;params&quot;:{}};<\/script><script type=\"text\/javascript\" src=\"//bauval.org/22/76f41da819582075b2e5619851f50a31\"><\/script></body></html>'
+          sandbox="allow-scripts allow-same-origin"
+          scrolling="no" frameborder="0"
+          style="width:100%;height:90px;border:0;display:block;margin:0 auto">
+        </iframe>
       </div>
     </div>
   </div>
@@ -483,6 +504,32 @@ function shareResult() {
 
 // Init
 resetTest();
+
+function copyDiagnostic(btn) {
+  if (!window._result) return;
+  var r = window._result;
+  var chars = document.getElementById('rChars').textContent;
+  var correct = document.getElementById('rCorrect').textContent;
+  var errors = document.getElementById('rErrors').textContent;
+  var text = [
+    '⚡ ToolHavoc Typing Diagnostic',
+    '─────────────────────────────',
+    'Speed:    ' + r.wpm + ' WPM',
+    'Accuracy: ' + r.acc + '%',
+    'Chars:    ' + chars,
+    'Correct:  ' + correct,
+    'Errors:   ' + errors,
+    '─────────────────────────────',
+    '"' + r.roast + '"',
+    '',
+    'Test yours: toolhavoc.com/tools/typing-test.html'
+  ].join('\n');
+  navigator.clipboard.writeText(text).then(function() {
+    var notice = document.getElementById('copyDiagNotice');
+    notice.classList.add('show');
+    setTimeout(function() { notice.classList.remove('show'); }, 2200);
+  });
+}
 </script>
 </body>
 </html>
