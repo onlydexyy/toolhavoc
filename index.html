@@ -455,6 +455,66 @@ html{scroll-behavior:smooth}
 @keyframes floatPulse{0%,100%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 0 rgba(79,172,254,.0)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 6px rgba(79,172,254,.08)}}
 @media(max-width:767px){#mobileSearchTrigger{display:block;bottom:62px;left:50%;transform:translateX(-50%)}}
 
+/* ── Arcade Game Modal ── */
+#arcadeOverlay{
+  display:none;position:fixed;inset:0;z-index:20000;
+  background:rgba(2,2,5,.95);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:16px;
+}
+#arcadeOverlay.open{display:flex}
+#arcadeBox{
+  width:100%;max-width:900px;
+  background:rgba(9,13,22,.72);
+  border:1px solid rgba(79,172,254,.22);
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 0 60px rgba(79,172,254,.12);
+  display:flex;flex-direction:column;
+}
+#arcadeHeader{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;
+  border-bottom:1px solid rgba(51,65,85,.5);
+  background:rgba(2,2,5,.6);
+}
+#arcadeTitle{font-family:monospace;font-size:13px;letter-spacing:.1em;color:#4facfe;font-weight:700}
+#arcadeClose{background:none;border:none;cursor:pointer;color:#475569;font-size:20px;line-height:1;transition:color .2s}
+#arcadeClose:hover{color:#94a3b8}
+#arcadeFrame{width:100%;height:70vh;border:0;background:#000;display:block}
+
+/* ── Session XP Chip ── */
+#xp-wrap{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:monospace;font-size:10px;letter-spacing:.06em;
+}
+#xp-levelup{
+  display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);
+  z-index:30000;
+  padding:10px 22px;border-radius:8px;
+  background:rgba(0,255,65,.08);
+  border:1px solid rgba(0,255,65,.35);
+  color:#4ade80;font-family:monospace;font-size:11px;letter-spacing:.1em;
+  box-shadow:0 0 30px rgba(0,255,65,.15);
+  pointer-events:none;
+  animation:xpChipIn .3s ease;
+}
+@keyframes xpChipIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* ── Sandboxed Ad Wrapper ── */
+.ad-sandbox-wrap{
+  min-height:95px;width:100%;
+  background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);
+  border-radius:12px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.ad-sandbox-label{
+  position:absolute;top:3px;left:12px;
+  font-size:9px;color:rgba(100,116,139,.4);
+  letter-spacing:.12em;font-family:monospace;text-transform:uppercase;
+}
+
 </style>
 </head>
 
@@ -686,17 +746,14 @@ html{scroll-behavior:smooth}
        ═══════════════════════════════════════ -->
   <div class="pt-20 pb-2">
     <div class="max-w-7xl mx-auto px-4 my-6">
-      <div class="af af-top mx-auto">
-        <script>
-          atOptions = {
-            'key' : '76f41da819582075b2e5619851f50a31',
-            'format' : 'iframe',
-            'height' : 90,
-            'width' : 728,
-            'params' : {}
-          };
-        </script>
-        <script src="https://bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      <div class="af af-top mx-auto ad-sandbox-wrap" style="max-width:728px">
+        <span class="ad-sandbox-label">Community Partner</span>
+        <iframe
+          srcdoc='<html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden}</style></head><body><script>var atOptions={"key":"76f41da819582075b2e5619851f50a31","format":"iframe","height":90,"width":728,"params":{}}<\/script><script src="//bauval.org/22/76f41da819582075b2e5619851f50a31"><\/script></body></html>'
+          sandbox="allow-scripts allow-same-origin allow-popups"
+          scrolling="no" frameborder="0"
+          style="width:100%;height:90px;border:0;overflow:hidden;display:block">
+        </iframe>
       </div>
     </div>
   </div>
@@ -736,8 +793,8 @@ html{scroll-behavior:smooth}
         <button class="pill" onclick="fCat('phone',this)">📱 Phone</button>
         <button class="pill" onclick="fCat('internet',this)">🌐 Internet</button>
         <button class="pill" onclick="fCat('utility',this)">🛠️ Utilities</button>
-        <button class="pill" onclick="fCat('fun',this)">🎮 Fun & Viral</button>
-        <button class="pill" onclick="fCat('prank',this)">🤪 Pranks</button>
+        <button class="pill" onclick="fCat('games',this)">🎮 Games & Roasts</button>
+        <button class="pill" onclick="fCat('software',this)">💻 Safe PC Software</button>
       </div>
     </div>
   </section>
@@ -901,55 +958,104 @@ html{scroll-behavior:smooth}
           <p>Clean countdown timer and stopwatch with lap tracking.</p>
         </a>
 
-        <!-- ── FUN & VIRAL ── -->
-        <a href="tools/hacker-terminal.html" class="gc" data-cat="fun" data-s="hacker terminal simulator typing matrix">
+        <!-- ── GAMES & ROASTS ── -->
+        <a href="tools/hacker-terminal.html" class="gc" data-cat="games" data-s="hacker terminal simulator typing matrix">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖥️</span><span class="chip chip-viral">🔥 Viral</span></div>
           <h3>Hacker Terminal</h3>
           <p>Type literally anything and look like you're hacking NASA. Full Matrix vibes.</p>
         </a>
 
-        <a href="tools/typing-test.html" class="gc" data-cat="fun" data-s="typing speed test wpm roast fast slow">
+        <a href="tools/typing-test.html" class="gc" data-cat="games" data-s="typing speed test wpm roast fast slow">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">⚡</span><span class="chip chip-viral">🔥 Viral</span></div>
           <h3>Typing Speed Test</h3>
           <p>Test your WPM then get brutally roasted based on how fast (or slow) you type.</p>
         </a>
 
-        <a href="tools/wifi-names.html" class="gc" data-cat="fun" data-s="wifi name generator funny network ssid">
+        <a href="tools/wifi-names.html" class="gc" data-cat="games" data-s="wifi name generator funny network ssid">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">📶</span><span class="chip chip-fun">Fun</span></div>
           <h3>WiFi Name Generator</h3>
           <p>Get WiFi names that'll make your neighbors question everything. One-tap copy.</p>
         </a>
 
-        <a href="tools/hacker-name.html" class="gc" data-cat="fun" data-s="hacker name generator alias cyber identity">
+        <a href="tools/hacker-name.html" class="gc" data-cat="games" data-s="hacker name generator alias cyber identity">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🥷</span><span class="chip chip-fun">Fun</span></div>
           <h3>Hacker Name Generator</h3>
           <p>Enter your name and get your elite hacker alias. Share your cyber identity.</p>
         </a>
 
-        <a href="tools/internet-quiz.html" class="gc" data-cat="fun" data-s="what type of internet user quiz personality">
+        <a href="tools/internet-quiz.html" class="gc" data-cat="games" data-s="what type of internet user quiz personality">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🧠</span><span class="chip chip-fun">Fun</span></div>
           <h3>What Internet User Are You?</h3>
           <p>Take the quiz and find out your internet personality type. Scarily accurate.</p>
         </a>
 
-        <!-- ── PRANKS ── -->
-        <a href="tools/fake-error.html" class="gc" data-cat="prank" data-s="fake error message generator windows prank">
+        <a href="tools/fake-error.html" class="gc" data-cat="games" data-s="fake error message generator windows prank">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">⚠️</span><span class="chip chip-prank">Prank</span></div>
           <h3>Fake Error Generator</h3>
           <p>Build a fake error popup that looks 100% real. Watch the panic unfold.</p>
         </a>
 
-        <a href="tools/fake-bsod.html" class="gc" data-cat="prank" data-s="fake blue screen of death bsod windows prank">
+        <a href="tools/fake-bsod.html" class="gc" data-cat="games" data-s="fake blue screen of death bsod windows prank">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">💀</span><span class="chip chip-prank">Prank</span></div>
           <h3>Blue Screen of Death</h3>
           <p>Fullscreen fake BSOD. Press F11 for maximum panic. ESC to escape.</p>
         </a>
 
-        <a href="tools/fake-update.html" class="gc" data-cat="prank" data-s="fake windows update screen prank loading">
+        <a href="tools/fake-update.html" class="gc" data-cat="games" data-s="fake windows update screen prank loading">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔄</span><span class="chip chip-prank">Prank</span></div>
           <h3>Fake Update Screen</h3>
           <p>Fullscreen fake Windows update that never finishes. Classic prank.</p>
         </a>
+
+        <!-- ── ARCADE .IO GAMES ── -->
+        <div class="gc" data-cat="games" data-s="slither io snake multiplayer arcade game online" onclick="openArcade('https://slither.io/','🐍 Slither.io Arena')" style="cursor:pointer">
+          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🐍</span><span class="chip chip-viral">🔥 Arcade</span></div>
+          <h3>Slither.io Arena</h3>
+          <p>Multiplayer snake survival — eat, grow, and outlast everyone. Launches in full-screen game mode right here.</p>
+        </div>
+
+        <div class="gc" data-cat="games" data-s="retro snake multiplayer game arcade classic" onclick="openArcade('https://playsnake.org/','🕹️ Retro Snake Multiplayer')" style="cursor:pointer">
+          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🕹️</span><span class="chip chip-fun">Arcade</span></div>
+          <h3>Retro Snake Multiplayer</h3>
+          <p>Classic snake reborn in competitive multiplayer mode. Pure reflex gaming, zero installs.</p>
+        </div>
+
+        <!-- ── SAFE PC SOFTWARE (hidden unless software tab active) ── -->
+        <div class="gc" data-cat="software" data-s="obs studio screen recorder streaming free" onclick="window.open('https://obsproject.com/','_blank')" style="cursor:pointer">
+          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎥</span><span class="chip chip-comp">Free · Open Source</span></div>
+          <h3>OBS Studio</h3>
+          <p>The gold standard for screen recording and streaming. Zero bloat, zero cost, used by millions. Direct download from obsproject.com.</p>
+        </div>
+
+        <div class="gc" data-cat="software" data-s="7zip file archiver extractor zip rar free" onclick="window.open('https://www.7-zip.org/','_blank')" style="cursor:pointer">
+          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📦</span><span class="chip chip-util">Free · Open Source</span></div>
+          <h3>7-Zip</h3>
+          <p>Unzip any archive format — ZIP, RAR, 7z, TAR, ISO. Tiny installer, no bundled crapware. The only archiver you'll ever need.</p>
+        </div>
+
+        <div class="gc" data-cat="software" data-s="bleachbit disk cleaner privacy free junk files" onclick="window.open('https://www.bleachbit.org/','_blank')" style="cursor:pointer">
+          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🧹</span><span class="chip chip-net">Free · Open Source</span></div>
+          <h3>BleachBit</h3>
+          <p>Nuke junk files, browser caches, and privacy traces from your PC. Way more thorough than Windows built-in cleaner.</p>
+        </div>
+
+        <div class="gc" data-cat="software" data-s="revo uninstaller remove programs clean registry" onclick="window.open('https://www.revouninstaller.com/revo-uninstaller-free-download/','_blank')" style="cursor:pointer">
+          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🗑️</span><span class="chip chip-prank">Free</span></div>
+          <h3>Revo Uninstaller</h3>
+          <p>Removes programs AND the leftover registry junk they leave behind. Cleans deeper than the standard uninstall.</p>
+        </div>
+
+        <div class="gc" data-cat="software" data-s="vlc media player video audio free play any format" onclick="window.open('https://www.videolan.org/vlc/','_blank')" style="cursor:pointer">
+          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎬</span><span class="chip chip-comp">Free · Open Source</span></div>
+          <h3>VLC Media Player</h3>
+          <p>Plays literally every video and audio format in existence. No codecs needed. The only media player worth installing.</p>
+        </div>
+
+        <div class="gc" data-cat="software" data-s="handbrake video converter compress transcode free" onclick="window.open('https://handbrake.fr/','_blank')" style="cursor:pointer">
+          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎞️</span><span class="chip chip-util">Free · Open Source</span></div>
+          <h3>HandBrake</h3>
+          <p>Convert and compress any video file to any format. Shrink huge files for sharing without losing quality.</p>
+        </div>
 
       </div>
     </div>
@@ -989,6 +1095,10 @@ html{scroll-behavior:smooth}
         <div class="text-sm font-bold font-mono text-[#e040fb]">12ms</div>
       </div>
       <div class="px-4 py-3.5" style="border-right:1px solid rgba(51,65,85,.4);border-bottom:1px solid rgba(51,65,85,.4)">
+        <div class="text-[9px] font-semibold tracking-wider text-slate-600 uppercase mb-0.5">Session XP</div>
+        <div class="text-sm font-bold font-mono" id="xp-wrap"><span class="text-purple-400">XP:</span> <span id="xp-counter" class="text-white">0</span><span class="text-slate-600">/1000</span></div>
+      </div>
+      <div class="px-4 py-3.5" style="border-right:1px solid rgba(51,65,85,.4);border-bottom:1px solid rgba(51,65,85,.4)">
         <div class="text-[9px] font-semibold tracking-wider text-slate-600 uppercase mb-0.5">Active Sessions</div>
         <div class="text-sm font-bold font-mono text-[#4facfe]">Live</div>
       </div>
@@ -1019,7 +1129,7 @@ html{scroll-behavior:smooth}
         <a href="#tools" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">All Tools</a>
         <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('computer',document.querySelectorAll('.pill')[1]);return false">Computer</a>
         <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('phone',document.querySelectorAll('.pill')[2]);return false">Phone</a>
-        <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('fun',document.querySelectorAll('.pill')[5]);return false">Fun</a>
+        <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('games',document.querySelectorAll('.pill')[5]);return false">Games & Roasts</a>
         <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">TikTok</a>
       </div>
       <div class="text-[11px] text-slate-700 mt-2">© 2026 ToolHavoc.com — Made by Dexyy</div>
@@ -1047,6 +1157,20 @@ html{scroll-behavior:smooth}
   </div>
 
 
+<!-- ═══ ARCADE GAME MODAL ═══ -->
+<div id="arcadeOverlay" role="dialog" aria-modal="true" onclick="if(event.target===this)closeArcade()">
+  <div id="arcadeBox">
+    <div id="arcadeHeader">
+      <span id="arcadeTitle">🎮 ARCADE MODE</span>
+      <button id="arcadeClose" onclick="closeArcade()" aria-label="Close">✕</button>
+    </div>
+    <iframe id="arcadeFrame" src="" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" scrolling="auto" allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- ═══ XP LEVEL-UP CHIP ═══ -->
+<div id="xp-levelup">[SUCCESS: LEVEL UP // INTERFACE ACCESS TIER 02 SECURED]</div>
+
 <!-- ═══ COMMAND SEARCH MATRIX MODAL ═══ -->
 <div id="cmdOverlay" role="dialog" aria-modal="true" aria-label="Command Search" onclick="if(event.target===this)closeCmd()">
   <div id="cmdBox">
@@ -1069,16 +1193,15 @@ html{scroll-behavior:smooth}
 <div id="stickyAd" class="stk">
   <div class="af-sticky flex items-center justify-center py-2 relative max-w-7xl mx-auto px-4">
     <button onclick="document.getElementById('stickyAd').classList.add('off')" class="absolute top-1 right-4 text-slate-600 hover:text-slate-300 text-xs font-bold z-10 cursor-pointer" aria-label="Close ad">✕</button>
-    <script>
-      atOptions = {
-        'key' : '4eb8d16a9cbab1deebe011d440079990',
-        'format' : 'iframe',
-        'height' : 250,
-        'width' : 300,
-        'params' : {}
-      };
-    </script>
-    <script src="https://bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
+    <div class="ad-sandbox-wrap" style="max-width:320px;min-height:260px">
+      <span class="ad-sandbox-label">Community Partner</span>
+      <iframe
+        srcdoc='<html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden}</style></head><body><script>var atOptions={"key":"4eb8d16a9cbab1deebe011d440079990","format":"iframe","height":250,"width":300,"params":{}}<\/script><script src="//bauval.org/22/4eb8d16a9cbab1deebe011d440079990"><\/script></body></html>'
+        sandbox="allow-scripts allow-same-origin allow-popups"
+        scrolling="no" frameborder="0"
+        style="width:300px;height:250px;border:0;overflow:hidden;display:block">
+      </iframe>
+    </div>
   </div>
 </div>
 
@@ -1560,11 +1683,111 @@ document.addEventListener('keydown',function(e){
     openCmd();
   }
   if(e.key==='Escape'){
+    if(document.getElementById('arcadeOverlay').classList.contains('open')){
+      closeArcade(); return;
+    }
     if(document.getElementById('cmdOverlay').classList.contains('open')){
       closeCmd();
     }
   }
 });
+
+/* ═══ ARCADE GAME MODAL ═══ */
+function openArcade(url, title){
+  addXP(50);
+  var ov=document.getElementById('arcadeOverlay');
+  var fr=document.getElementById('arcadeFrame');
+  var ti=document.getElementById('arcadeTitle');
+  ti.textContent=title||'🎮 ARCADE MODE';
+  fr.src=url;
+  ov.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeArcade(){
+  var ov=document.getElementById('arcadeOverlay');
+  var fr=document.getElementById('arcadeFrame');
+  ov.classList.remove('open');
+  fr.src='';
+  document.body.style.overflow='';
+}
+
+/* ═══ SESSION XP ENGINE ═══ */
+var _xp=0;
+var _xpLeveled=false;
+var _xpChipTimer=null;
+function addXP(amount){
+  if(_xpLeveled) return;
+  _xp=Math.min(_xp+(amount||50),1000);
+  var el=document.getElementById('xp-counter');
+  if(el) el.textContent=_xp;
+  if(_xp>=1000&&!_xpLeveled){
+    _xpLeveled=true;
+    triggerLevelUp();
+  }
+}
+function triggerLevelUp(){
+  /* Show chip */
+  var chip=document.getElementById('xp-levelup');
+  if(chip){
+    chip.style.display='block';
+    if(_xpChipTimer) clearTimeout(_xpChipTimer);
+    _xpChipTimer=setTimeout(function(){chip.style.display='none';},3200);
+  }
+  /* Matrix rain on canvas for 1200ms */
+  fireMatrixRain(1200);
+}
+function fireMatrixRain(duration){
+  var canvas=document.getElementById('bg-canvas');
+  if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var cols=Math.floor(W/14);
+  var drops=[];
+  for(var i=0;i<cols;i++) drops[i]=Math.random()*-H/14|0;
+  var chars='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン01';
+  var start=performance.now();
+  var matId;
+  function matFrame(now){
+    var elapsed=now-start;
+    if(elapsed>duration){ return; }
+    matId=requestAnimationFrame(matFrame);
+    ctx.fillStyle='rgba(2,2,5,0.07)';
+    ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(0,255,65,0.55)';
+    ctx.font='13px monospace';
+    for(var c=0;c<cols;c++){
+      var ch=chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillText(ch, c*14, drops[c]*14);
+      if(drops[c]*14>H&&Math.random()>0.975) drops[c]=0;
+      drops[c]++;
+    }
+  }
+  matId=requestAnimationFrame(matFrame);
+}
+
+/* Hook XP onto existing interactive actions */
+(function(){
+  /* Category pills */
+  document.querySelectorAll('.pill').forEach(function(p){
+    p.addEventListener('click',function(){ addXP(50); });
+  });
+  /* Search input */
+  var si=document.getElementById('searchInput');
+  if(si) si.addEventListener('input',function(){ addXP(50); });
+  /* Tool cards */
+  document.querySelectorAll('#toolGrid .gc').forEach(function(c){
+    c.addEventListener('click',function(){ addXP(50); });
+  });
+  /* Request modal submit */
+  var rf=document.getElementById('reqForm');
+  if(rf) rf.addEventListener('submit',function(){ addXP(50); });
+  /* Command search open */
+  var origOpenCmd=window.openCmd;
+  window.openCmd=function(){
+    addXP(50);
+    if(origOpenCmd) origOpenCmd();
+  };
+})();
 
 </script>
 </body>
