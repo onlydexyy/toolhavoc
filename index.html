@@ -296,6 +296,129 @@ html{scroll-behavior:smooth}
 .tick-item.hi{color:rgba(79,172,254,.28)}
 .tick-item.mg{color:rgba(233,30,99,.22)}
 .tick-item.gr{color:rgba(34,197,94,.25)}
+
+/* ── Command Search Matrix ── */
+#cmdOverlay{
+  display:none;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  z-index:10000;
+  background:rgba(2,2,5,.88);
+  -webkit-backdrop-filter:blur(28px);
+  backdrop-filter:blur(28px);
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding-top:clamp(60px,12vh,120px);
+  animation:cmdFadeIn .18s ease;
+}
+#cmdOverlay.open{display:flex}
+@keyframes cmdFadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+
+#cmdBox{
+  width:100%;max-width:620px;
+  padding:0 16px;
+  position:relative;
+}
+#cmdSearch{
+  width:100%;
+  background:rgba(9,13,22,.72);
+  border:1.5px solid rgba(79,172,254,.35);
+  border-radius:14px;
+  padding:16px 20px 16px 52px;
+  font-family:monospace;
+  font-size:17px;
+  color:#e2e8f0;
+  outline:none;
+  box-shadow:0 0 40px rgba(79,172,254,.12),0 2px 32px rgba(0,0,0,.7);
+  transition:border-color .15s;
+  caret-color:#4facfe;
+}
+#cmdSearch::placeholder{color:rgba(100,116,139,.55)}
+#cmdSearch:focus{border-color:rgba(79,172,254,.65)}
+.cmd-slash{
+  position:absolute;left:28px;top:50%;transform:translateY(-50%);
+  font-family:monospace;font-size:16px;
+  color:rgba(79,172,254,.55);
+  pointer-events:none;
+  user-select:none;
+}
+#cmdResults{
+  width:100%;max-width:620px;
+  padding:12px 16px 0;
+  display:flex;flex-direction:column;gap:4px;
+  max-height:60vh;overflow-y:auto;
+}
+#cmdResults::-webkit-scrollbar{width:4px}
+#cmdResults::-webkit-scrollbar-track{background:transparent}
+#cmdResults::-webkit-scrollbar-thumb{background:rgba(79,172,254,.2);border-radius:2px}
+
+.cmd-item{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 16px;
+  border-radius:10px;
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:background .12s,border-color .12s;
+  text-decoration:none;
+  color:inherit;
+}
+.cmd-item:hover,.cmd-item.cmd-sel{
+  background:rgba(79,172,254,.07);
+  border-color:rgba(79,172,254,.18);
+}
+.cmd-item-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
+.cmd-item-name{font-size:14px;font-weight:600;color:#e2e8f0}
+.cmd-item-desc{font-size:12px;color:rgba(100,116,139,.8);margin-top:1px;line-height:1.3}
+.cmd-item-chip{
+  margin-left:auto;flex-shrink:0;
+  font-size:9px;font-family:monospace;letter-spacing:.08em;
+  padding:2px 7px;border-radius:4px;
+  background:rgba(9,13,22,.6);
+  color:rgba(79,172,254,.7);
+  border:1px solid rgba(79,172,254,.2);
+  text-transform:uppercase;
+}
+#cmdNoResult{
+  display:none;
+  padding:28px 16px;text-align:center;
+}
+#cmdNoResult p{color:rgba(100,116,139,.7);font-size:13px;margin-bottom:14px}
+#cmdNoResult a{
+  display:inline-block;
+  padding:9px 20px;border-radius:9px;
+  font-size:12px;font-weight:600;
+  color:#4facfe;
+  border:1px solid rgba(79,172,254,.25);
+  background:rgba(79,172,254,.06);
+  text-decoration:none;
+  cursor:pointer;
+  transition:border-color .15s,background .15s;
+}
+#cmdNoResult a:hover{border-color:rgba(79,172,254,.55);background:rgba(79,172,254,.12)}
+#cmdHint{
+  margin-top:18px;
+  font-size:10px;font-family:monospace;letter-spacing:.1em;
+  color:rgba(71,85,105,.55);text-transform:uppercase;text-align:center;
+}
+/* Mobile search trigger chip */
+#mobileSearchTrigger{
+  display:none;
+  position:fixed;bottom:72px;left:50%;transform:translateX(-50%);
+  z-index:9000;
+  padding:10px 22px;border-radius:999px;
+  background:rgba(9,13,22,.88);
+  border:1px solid rgba(79,172,254,.25);
+  color:rgba(79,172,254,.85);
+  font-size:12px;font-family:monospace;letter-spacing:.12em;
+  text-transform:uppercase;
+  cursor:pointer;
+  backdrop-filter:blur(12px);
+  box-shadow:0 4px 24px rgba(0,0,0,.5);
+  animation:floatPulse 3s ease-in-out infinite;
+}
+@keyframes floatPulse{0%,100%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 0 rgba(79,172,254,.0)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 6px rgba(79,172,254,.08)}}
+@media(max-width:767px){#mobileSearchTrigger{display:block}}
+
 </style>
 </head>
 
@@ -304,6 +427,10 @@ html{scroll-behavior:smooth}
 <!-- ┌─────────────────────────────────────────┐
      │  CANVAS BACKGROUND ENGINE (z-0)        │
      └─────────────────────────────────────────┘ -->
+
+<!-- Mobile Command Search Trigger -->
+<button id="mobileSearchTrigger" onclick="openCmd()" aria-label="Open search">⌨ Search Tools</button>
+
 <canvas id="bg-canvas" class="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none" style="background:#020205"></canvas>
 
 <!-- ┌──────────────────────────────────────────────┐
@@ -557,7 +684,7 @@ html{scroll-behavior:smooth}
       <p class="text-slate-400 text-base md:text-lg max-w-xl mx-auto mb-10">Scan your device, test hardware, check security, detect AI — all free, instant, no downloads.</p>
       <div class="max-w-lg mx-auto relative">
         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">🔍</span>
-        <input type="text" id="searchInput" placeholder="Search tools..." oninput="filterTools()" class="sbox w-full pl-11 pr-4 py-3.5">
+        <input type="text" id="searchInput" placeholder="Search tools… or press / to open command search" oninput="filterTools()" onfocus="if(window.innerWidth>767)openCmd()" class="sbox w-full pl-11 pr-4 py-3.5" style="cursor:pointer">
       </div>
     </div>
   </section>
@@ -882,6 +1009,21 @@ html{scroll-behavior:smooth}
       </form>
     </div>
   </div>
+
+
+<!-- ═══ COMMAND SEARCH MATRIX MODAL ═══ -->
+<div id="cmdOverlay" role="dialog" aria-modal="true" aria-label="Command Search" onclick="if(event.target===this)closeCmd()">
+  <div id="cmdBox">
+    <span class="cmd-slash">/</span>
+    <input id="cmdSearch" type="text" placeholder="Search 35+ tools…" autocomplete="off" autocorrect="off" spellcheck="false" oninput="cmdFilter(this.value)" onkeydown="cmdKey(event)" aria-label="Search tools">
+  </div>
+  <div id="cmdResults"></div>
+  <div id="cmdNoResult">
+    <p>No tools match that search.</p>
+    <a onclick="closeCmd();openReqModal()">🛠️ Request a Tool →</a>
+  </div>
+  <div id="cmdHint">↑↓ navigate &nbsp;·&nbsp; ↵ open &nbsp;·&nbsp; esc close</div>
+</div>
 
 </div><!-- end z-10 master -->
 
@@ -1255,6 +1397,139 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a){
     if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'})}
   });
 });
+
+/* ═══ COMMAND SEARCH MATRIX ═══ */
+var CMD_TOOLS=(function(){
+  /* Build tool list from actual grid cards at runtime */
+  var items=[];
+  document.querySelectorAll('#toolGrid a.gc').forEach(function(card){
+    var href=card.getAttribute('href')||'';
+    var icon=card.querySelector('.text-2xl');
+    var name=card.querySelector('h3');
+    var desc=card.querySelector('p');
+    var chip=card.querySelector('[class*="chip-"]');
+    if(!href||!name) return;
+    items.push({
+      href:href,
+      icon:icon?icon.textContent.trim():'🔧',
+      name:name.textContent.trim(),
+      desc:desc?desc.textContent.trim():'',
+      cat:chip?chip.textContent.trim():'',
+      s:(card.dataset.s||'').toLowerCase()
+    });
+  });
+  return items;
+})();
+
+var cmdSelIdx=-1;
+
+function openCmd(){
+  var ov=document.getElementById('cmdOverlay');
+  ov.classList.add('open');
+  document.body.style.overflow='hidden';
+  cmdSelIdx=-1;
+  renderCmdResults('');
+  setTimeout(function(){
+    var inp=document.getElementById('cmdSearch');
+    inp.value='';
+    inp.focus();
+  },60);
+}
+
+function closeCmd(){
+  document.getElementById('cmdOverlay').classList.remove('open');
+  document.body.style.overflow='';
+  cmdSelIdx=-1;
+}
+
+function renderCmdResults(q){
+  var list=document.getElementById('cmdResults');
+  var noRes=document.getElementById('cmdNoResult');
+  var hint=document.getElementById('cmdHint');
+  q=q.toLowerCase().trim();
+  var filtered=q?CMD_TOOLS.filter(function(t){
+    return t.name.toLowerCase().indexOf(q)!==-1||
+           t.s.indexOf(q)!==-1||
+           t.desc.toLowerCase().indexOf(q)!==-1;
+  }):CMD_TOOLS;
+
+  if(filtered.length===0){
+    list.innerHTML='';
+    noRes.style.display='block';
+    hint.style.display='none';
+    return;
+  }
+  noRes.style.display='none';
+  hint.style.display='block';
+
+  list.innerHTML=filtered.map(function(t,i){
+    return '<a href="'+t.href+'" class="cmd-item'+(i===cmdSelIdx?' cmd-sel':'')+'" data-idx="'+i+'" onclick="closeCmd()">'
+      +'<span class="cmd-item-icon">'+t.icon+'</span>'
+      +'<span style="flex:1;min-width:0">'
+      +'<div class="cmd-item-name">'+t.name+'</div>'
+      +'<div class="cmd-item-desc">'+t.desc+'</div>'
+      +'</span>'
+      +(t.cat?'<span class="cmd-item-chip">'+t.cat+'</span>':'')
+      +'</a>';
+  }).join('');
+}
+
+function cmdFilter(val){
+  cmdSelIdx=-1;
+  renderCmdResults(val);
+}
+
+function cmdKey(e){
+  var items=document.querySelectorAll('#cmdResults .cmd-item');
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    cmdSelIdx=Math.min(cmdSelIdx+1,items.length-1);
+    updateCmdSel(items);
+  }else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    cmdSelIdx=Math.max(cmdSelIdx-1,0);
+    updateCmdSel(items);
+  }else if(e.key==='Enter'){
+    e.preventDefault();
+    if(cmdSelIdx>=0&&items[cmdSelIdx]){
+      window.location.href=items[cmdSelIdx].getAttribute('href');
+      closeCmd();
+    }else if(items.length>0){
+      window.location.href=items[0].getAttribute('href');
+      closeCmd();
+    }
+  }else if(e.key==='Escape'){
+    closeCmd();
+  }
+}
+
+function updateCmdSel(items){
+  items.forEach(function(el,i){
+    if(i===cmdSelIdx){
+      el.classList.add('cmd-sel');
+      el.scrollIntoView({block:'nearest'});
+    }else{
+      el.classList.remove('cmd-sel');
+    }
+  });
+}
+
+/* Global keyboard shortcut: / opens command search (desktop) */
+document.addEventListener('keydown',function(e){
+  /* Skip if inside an input/textarea */
+  var tag=document.activeElement&&document.activeElement.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA') return;
+  if(e.key==='/'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    e.preventDefault();
+    openCmd();
+  }
+  if(e.key==='Escape'){
+    if(document.getElementById('cmdOverlay').classList.contains('open')){
+      closeCmd();
+    }
+  }
+});
+
 </script>
 </body>
 </html>
