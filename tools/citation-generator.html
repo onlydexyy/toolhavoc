@@ -80,6 +80,17 @@ html{scroll-behavior:smooth}
 .cite-out{background:rgba(2,2,5,.5);border:1px solid rgba(51,65,85,.4);border-radius:8px;padding:14px 16px;font-size:14px;line-height:1.7;color:#cbd5e1;position:relative;min-height:60px;cursor:text;user-select:all}
 .cite-out i{font-style:italic}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#020205}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+
+
+/* ── Responsive ad slots ── */
+@media(max-width:767px){
+  .havoc-ad-desktop{display:none!important}
+  .havoc-ad-mobile{display:flex!important}
+}
+@media(min-width:768px){
+  .havoc-ad-mobile{display:none!important}
+  .havoc-ad-desktop{display:flex!important}
+}
 </style>
 </head>
 <body class="relative min-h-screen font-sans text-slate-300 overflow-x-hidden" style="background:#020205">
@@ -130,13 +141,26 @@ html{scroll-behavior:smooth}
         <!-- TOP AD SLOT -->
     <div class="mb-6 flex flex-col items-center">
       <span class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2 block">Community Partner</span>
-      <div style="display:flex;align-items:center;justify-content:center;overflow:hidden;height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
+      <div class="havoc-ad-desktop" style="display:flex;align-items:center;justify-content:center;overflow:hidden;height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
         <script type="text/javascript">
           atOptions = {
             'key' : '76f41da819582075b2e5619851f50a31',
             'format' : 'iframe',
             'height' : 90,
             'width' : 728,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      </div>
+      <!-- MOBILE AD (300x250, shown only on phones) -->
+      <div class="havoc-ad-mobile" style="display:none;align-items:center;justify-content:center;overflow:hidden;height:260px;max-width:320px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '76f41da819582075b2e5619851f50a31',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
             'params' : {}
           };
         </script>
@@ -245,13 +269,26 @@ html{scroll-behavior:smooth}
         <!-- BOTTOM AD SLOT -->
     <div class="mt-6 flex flex-col items-center">
       <span class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2 block">Community Partner</span>
-      <div style="display:flex;align-items:center;justify-content:center;overflow:hidden;height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
+      <div class="havoc-ad-desktop" style="display:flex;align-items:center;justify-content:center;overflow:hidden;height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
         <script type="text/javascript">
           atOptions = {
             'key' : '76f41da819582075b2e5619851f50a31',
             'format' : 'iframe',
             'height' : 90,
             'width' : 728,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      </div>
+      <!-- MOBILE AD (300x250, shown only on phones) -->
+      <div class="havoc-ad-mobile" style="display:none;align-items:center;justify-content:center;overflow:hidden;height:260px;max-width:320px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '76f41da819582075b2e5619851f50a31',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
             'params' : {}
           };
         </script>
