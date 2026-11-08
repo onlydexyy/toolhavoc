@@ -75,9 +75,6 @@ html{scroll-behavior:smooth}
 .gc:hover h3{color:#4facfe}
 .gc p{color:#94a3b8;font-size:13px;line-height:1.7;margin-top:4px}
 .gc-featured{grid-column:span 1}
-@media(min-width:1024px){.gc-featured{grid-column:span 2;padding:28px 32px}}
-.gc-featured h3{font-size:20px}
-@media(min-width:1024px){.gc-featured h3{font-size:22px}}
 
 /* ══ CARD REVEAL ANIMATION ══ */
 @keyframes cardReveal{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -617,11 +614,11 @@ html{scroll-behavior:smooth}
 ══════════════════════════════════════ */
 var TOOLS = [
   /* ── TRENDING / BREAKOUT ── */
-  {cat:'computer', href:'tools/ai-image-detector.html', icon:'🖼️', chip:'chip-brk', chipLabel:'Breakout', featured:true,
+  {cat:'computer', href:'tools/ai-image-detector.html', icon:'🖼️', chip:'chip-brk', chipLabel:'Breakout',
    name:'AI Image Detector',
    desc:'Drop any image and find out if it\'s AI-generated. Scans EXIF data and pixel patterns — no uploads, runs locally.',
    s:'ai image detector fake photo exif metadata scan'},
-  {cat:'computer', href:'tools/ai-text-detector.html', icon:'🤖', chip:'chip-pop', chipLabel:'Popular', featured:true,
+  {cat:'computer', href:'tools/ai-text-detector.html', icon:'🤖', chip:'chip-pop', chipLabel:'Popular',
    name:'AI Text Detector',
    desc:'Paste any text and see if ChatGPT probably wrote it. Checks for robotic patterns humans don\'t use.',
    s:'ai text detector gpt chatgpt writing check'},
@@ -823,7 +820,7 @@ function buildCard(t, delay){
     el.style.cursor = 'pointer';
   }
 
-  el.className = 'gc' + (t.featured ? ' gc-featured' : '');
+  el.className = 'gc';
   el.dataset.s = t.s || '';
   el.dataset.cat = t.cat;
 
