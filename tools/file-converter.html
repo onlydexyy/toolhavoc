@@ -222,6 +222,7 @@ html{scroll-behavior:smooth}
         <button class="cat-tab" onclick="switchCat('audio',this)">🎵 Audio</button>
         <button class="cat-tab" onclick="switchCat('video',this)">🎬 Video</button>
         <button class="cat-tab" onclick="switchCat('document',this)">📄 Document</button>
+        <button class="cat-tab" onclick="switchCat('archive',this)">📦 Archive</button>
       </div>
 
       <!-- Supported formats -->
@@ -330,7 +331,11 @@ html{scroll-behavior:smooth}
         </div>
         <div>
           <div class="text-xs font-bold text-emerald-400 font-mono tracking-widest uppercase mb-2">📄 Documents</div>
-          <div class="text-xs text-slate-400 leading-relaxed">CSV ↔ JSON, TXT → Markdown, MD → TXT, JSON → CSV</div>
+          <div class="text-xs text-slate-400 leading-relaxed">CSV ↔ JSON, TXT → Markdown, MD → TXT, JSON → CSV, XML, YAML</div>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-orange-400 font-mono tracking-widest uppercase mb-2">📦 Archives</div>
+          <div class="text-xs text-slate-400 leading-relaxed">ZIP, RAR, 7Z, TAR, GZ, TAR.GZ, BZ2, XZ → Extract & repack as ZIP</div>
         </div>
       </div>
     </div>
@@ -385,12 +390,15 @@ var _ffmpeg = null;
 var _ffmpegLoading = false;
 var _ffmpegReady = false;
 var _blobUrl = null;
+var _archiveLibLoading = false;
+var _archiveLibReady = false;
 
 var CATS = {
   image:    { accept:'image/*', icon:'🖼️', info:'PNG · JPG · JPEG · WebP · BMP · GIF · ICO · SVG · TIFF', formats:['PNG','JPG','WebP','BMP'], mimeOut:{PNG:'image/png',JPG:'image/jpeg',WebP:'image/webp',BMP:'image/bmp'}, extOut:{PNG:'png',JPG:'jpg',WebP:'webp',BMP:'bmp'} },
   audio:    { accept:'audio/*,video/*,.mp4,.mov,.avi,.mkv,.flac,.m4a,.ogg,.wav,.mp3,.aac', icon:'🎵', info:'MP3 · WAV · OGG · FLAC · AAC · M4A · MP4 · MOV', formats:['MP3','WAV','OGG'], mimeOut:{MP3:'audio/mpeg',WAV:'audio/wav',OGG:'audio/ogg'}, extOut:{MP3:'mp3',WAV:'wav',OGG:'ogg'} },
   video:    { accept:'video/*,.mp4,.mov,.avi,.mkv,.webm', icon:'🎬', info:'MP4 · WebM · MOV · AVI · MKV', formats:['MP3 (audio)','WebM','MP4'], mimeOut:{'MP3 (audio)':'audio/mpeg',WebM:'video/webm',MP4:'video/mp4'}, extOut:{'MP3 (audio)':'mp3',WebM:'webm',MP4:'mp4'} },
-  document: { accept:'.csv,.json,.txt,.md,.markdown', icon:'📄', info:'CSV · JSON · TXT · Markdown (.md)', formats:['JSON','CSV','TXT','Markdown'], mimeOut:{JSON:'application/json',CSV:'text/csv',TXT:'text/plain',Markdown:'text/markdown'}, extOut:{JSON:'json',CSV:'csv',TXT:'txt',Markdown:'md'} }
+  document: { accept:'.csv,.json,.txt,.md,.markdown,.xml,.yaml,.yml,.html,.htm', icon:'📄', info:'CSV · JSON · TXT · Markdown · XML · YAML · HTML', formats:['JSON','CSV','TXT','Markdown','XML'], mimeOut:{JSON:'application/json',CSV:'text/csv',TXT:'text/plain',Markdown:'text/markdown',XML:'application/xml'}, extOut:{JSON:'json',CSV:'csv',TXT:'txt',Markdown:'md',XML:'xml'} },
+  archive:  { accept:'.zip,.rar,.7z,.tar,.gz,.tar.gz,.tgz,.bz2,.tar.bz2,.xz', icon:'📦', info:'ZIP · RAR · 7Z · TAR · GZ · TAR.GZ · BZ2 · XZ', formats:['ZIP (repack)','Extract to ZIP'], mimeOut:{'ZIP (repack)':'application/zip','Extract to ZIP':'application/zip'}, extOut:{'ZIP (repack)':'zip','Extract to ZIP':'zip'} }
 };
 
 function switchCat(cat, btn) {
@@ -403,6 +411,7 @@ function switchCat(cat, btn) {
   document.getElementById('file-input').accept = c.accept;
   clearFile(true);
   if((cat==='audio'||cat==='video') && !_ffmpegReady && !_ffmpegLoading) loadFFmpeg();
+  if(cat==='archive' && !_archiveLibReady && !_archiveLibLoading) loadArchiveLibs();
 }
 
 /* Drag & drop */
@@ -484,6 +493,7 @@ function startConvert(){
   setProgress(5,'Reading file...');
   if(_cat==='image') convertImage();
   else if(_cat==='audio'||_cat==='video') convertAV();
+  else if(_cat==='archive') convertArchive();
   else convertDocument();
 }
 
@@ -514,147 +524,251 @@ function convertImage(){
   img.src=url;
 }
 
-/* AUDIO/VIDEO: Web Audio API (no CORS/SharedArrayBuffer needed) */
-function loadFFmpeg(){
-  /* FFmpeg.wasm requires SharedArrayBuffer which needs COOP/COEP headers
-     that static hosts don't provide. We use the Web Audio API instead
-     for audio extraction/conversion — works everywhere with zero headers. */
-  _ffmpegReady=true; _ffmpegLoading=false;
-  document.getElementById('ffmpeg-notice').style.display='none';
+/* AUDIO/VIDEO: FFmpeg.wasm single-thread ESM build — no SharedArrayBuffer needed */
+/* Uses toBlobURL trick to bypass CORS/Worker restrictions on static hosting */
+
+var _ffmpegScriptsLoaded = false;
+
+async function toBlobURL(url, mimeType) {
+  /* Fetch the remote script/wasm and serve it as a local blob URL —
+     this is what lets FFmpeg.wasm work on static hosts without COOP/COEP */
+  var resp = await fetch(url);
+  if(!resp.ok) throw new Error('Failed to fetch '+url+' ('+resp.status+')');
+  var buf = await resp.arrayBuffer();
+  var blob = new Blob([buf], {type: mimeType});
+  return URL.createObjectURL(blob);
+}
+
+async function loadFFmpegScripts() {
+  if(_ffmpegScriptsLoaded) return;
+  /* Load the UMD build of @ffmpeg/ffmpeg 0.12.x */
+  await new Promise(function(resolve, reject){
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js';
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+  _ffmpegScriptsLoaded = true;
+}
+
+async function loadFFmpeg(){
+  if(_ffmpegLoading||_ffmpegReady) return;
+  _ffmpegLoading = true;
+  document.getElementById('ffmpeg-notice').style.display = 'block';
+  document.getElementById('ffmpeg-pct').textContent = '0%';
+  log('Loading audio/video engine...','log-info');
+  try {
+    await loadFFmpegScripts();
+    var FFmpegLib = window.FFmpegWASM && window.FFmpegWASM.FFmpeg
+      ? window.FFmpegWASM.FFmpeg
+      : (window.FFmpeg && window.FFmpeg.FFmpeg ? window.FFmpeg.FFmpeg : null);
+    if(!FFmpegLib) throw new Error('FFmpeg class not found after script load');
+
+    log('Fetching FFmpeg core (~30 MB, one-time load)...','log-info');
+    document.getElementById('ffmpeg-pct').textContent = '10%';
+
+    /* Use ESM single-thread core — works on static hosting, no SharedArrayBuffer */
+    var coreBase = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm/';
+    var coreURL  = await toBlobURL(coreBase+'ffmpeg-core.js',   'text/javascript');
+    document.getElementById('ffmpeg-pct').textContent = '50%';
+    var wasmURL  = await toBlobURL(coreBase+'ffmpeg-core.wasm', 'application/wasm');
+    document.getElementById('ffmpeg-pct').textContent = '90%';
+
+    _ffmpeg = new FFmpegLib();
+    _ffmpeg.on('log', function(e){ if(e&&e.message&&!e.message.startsWith('Aborted')) log(e.message,'log-info'); });
+    _ffmpeg.on('progress', function(e){ if(e&&typeof e.progress==='number'){ var p=Math.round(e.progress*85)+10; setProgress(p,'Converting... '+Math.round(e.progress*100)+'%'); document.getElementById('ffmpeg-pct').textContent=p+'%'; } });
+
+    await _ffmpeg.load({ coreURL: coreURL, wasmURL: wasmURL });
+    _ffmpegReady = true; _ffmpegLoading = false;
+    document.getElementById('ffmpeg-notice').style.display = 'none';
+    log('Audio/video engine ready!','log-ok');
+  } catch(e) {
+    log('Engine load error: '+e.message,'log-err');
+    _ffmpegLoading = false;
+    document.getElementById('ffmpeg-notice').style.display = 'none';
+    document.getElementById('convert-btn').disabled = false;
+  }
 }
 
 function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
 
 async function convertAV(){
-  var fmt=_targetFmt, ext=CATS[_cat].extOut[fmt], mime=CATS[_cat].mimeOut[fmt];
-  log('Reading file...','log-info');
-  setProgress(10,'Reading file...');
-
-  /* For video→MP3/audio: use Web Audio API to decode and re-encode */
-  if(fmt==='MP3 (audio)'||fmt==='MP3'||fmt==='WAV'||fmt==='OGG'){
-    try{
-      var arrayBuf = await _file.arrayBuffer();
-      setProgress(30,'Decoding audio...');
-      log('Decoding audio track...','log-info');
-      var AudioCtx = window.AudioContext||window.webkitAudioContext;
-      if(!AudioCtx){ log('Web Audio API not supported in this browser','log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; return; }
-      var actx = new AudioCtx();
-      var decoded;
-      try{ decoded = await actx.decodeAudioData(arrayBuf); }
-      catch(e){ log('Could not decode audio. The file may be video-only or corrupted.','log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; actx.close(); return; }
-      setProgress(60,'Encoding output...');
-      log('Encoding as '+fmt+'...','log-info');
-      /* Render to WAV (PCM) — universally supported */
-      var wavBlob = audioBufferToWav(decoded);
-      actx.close();
-      /* For WAV output: done */
-      if(fmt==='WAV'){
-        setProgress(100,'Done!');
-        log('Done! Output: '+fmtSize(wavBlob.size),'log-ok');
-        showResult(wavBlob, _file.name.replace(/\.[^.]+$/,'')+'.wav', 'audio/wav');
-        return;
-      }
-      /* For MP3/OGG: use MediaRecorder to encode if supported, else fall back to WAV */
-      var encMime = fmt==='OGG'?'audio/ogg;codecs=vorbis':'audio/webm;codecs=opus';
-      if(fmt==='MP3 (audio)'||fmt==='MP3') encMime='audio/webm;codecs=opus';
-      if(!MediaRecorder.isTypeSupported(encMime)){ encMime='audio/webm'; }
-      var src = new (window.OfflineAudioContext||window.webkitOfflineAudioContext)(decoded.numberOfChannels,decoded.length,decoded.sampleRate);
-      var buf = src.createBuffer(decoded.numberOfChannels,decoded.length,decoded.sampleRate);
-      for(var ch=0;ch<decoded.numberOfChannels;ch++) buf.copyToChannel(decoded.getChannelData(ch),ch);
-      var srcNode = src.createBufferSource(); srcNode.buffer=buf; srcNode.connect(src.destination); srcNode.start();
-      var rendered = await src.startRendering();
-      /* Stream through MediaRecorder */
-      var streamCtx = new AudioCtx();
-      var streamBuf = streamCtx.createBuffer(rendered.numberOfChannels,rendered.length,rendered.sampleRate);
-      for(var ch=0;ch<rendered.numberOfChannels;ch++) streamBuf.copyToChannel(rendered.getChannelData(ch),ch);
-      var dest = streamCtx.createMediaStreamDestination();
-      var playSrc = streamCtx.createBufferSource(); playSrc.buffer=streamBuf; playSrc.connect(dest); playSrc.start();
-      var chunks=[], recorder=new MediaRecorder(dest.stream,{mimeType:encMime});
-      recorder.ondataavailable=function(e){ if(e.data.size>0) chunks.push(e.data); };
-      recorder.onstop=function(){
-        streamCtx.close();
-        var outMime=encMime.split(';')[0];
-        var outExt=outMime.includes('ogg')?'ogg':'webm';
-        var outFmtLabel=(fmt==='MP3 (audio)'||fmt==='MP3')?'webm (browser MP3 equivalent)':outExt;
-        var blob=new Blob(chunks,{type:outMime});
-        setProgress(100,'Done!');
-        log('Done! Saved as .'+outExt+' ('+fmtSize(blob.size)+')','log-ok');
-        log('Note: browser exported as '+outFmtLabel+' — rename .webm to .mp3 if needed, or use the WAV format for universal compatibility','log-info');
-        showResult(blob, _file.name.replace(/\.[^.]+$/,'')+'.'+outExt, outMime);
-      };
-      recorder.start(); setProgress(80,'Encoding...');
-      /* Stop after audio duration + 200ms */
-      setTimeout(function(){ try{recorder.stop();}catch(e){} }, (rendered.length/rendered.sampleRate*1000)+200);
-    }catch(e){ log('Audio conversion error: '+e.message,'log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; }
-    return;
+  if(!_ffmpegReady){
+    log('Loading audio/video engine...','log-info');
+    if(!_ffmpegLoading) loadFFmpeg();
+    var tries=0;
+    while(!_ffmpegReady && tries<90){ await sleep(1000); tries++; }
+    if(!_ffmpegReady){
+      log('Engine failed to load. Check your internet connection and try again.','log-err');
+      document.getElementById('convert-btn').disabled=false;
+      return;
+    }
   }
 
-  /* Video format conversion (MP4→WebM etc): use MediaRecorder on a video element */
-  if(fmt==='WebM'||fmt==='MP4'){
-    try{
-      var url=URL.createObjectURL(_file);
-      var video=document.createElement('video');
-      video.src=url; video.muted=true; video.playsInline=true;
-      await new Promise(function(res,rej){ video.onloadedmetadata=res; video.onerror=rej; video.load(); });
-      setProgress(20,'Setting up capture...');
-      log('Capturing video stream...','log-info');
-      var canvas2=document.createElement('canvas');
-      canvas2.width=video.videoWidth||1280; canvas2.height=video.videoHeight||720;
-      var ctx2=canvas2.getContext('2d');
-      var vStream=canvas2.captureStream(30);
-      /* add audio if possible */
-      var aCtx2=new (window.AudioContext||window.webkitAudioContext)();
-      var aSource=aCtx2.createMediaElementSource(video);
-      var aDest2=aCtx2.createMediaStreamDestination();
-      aSource.connect(aDest2); aSource.connect(aCtx2.destination);
-      var tracks=[...vStream.getVideoTracks(),...aDest2.stream.getAudioTracks()];
-      var combined=new MediaStream(tracks);
-      var recMime='video/webm;codecs=vp8,opus';
-      if(!MediaRecorder.isTypeSupported(recMime)) recMime='video/webm';
-      var vChunks=[],vRec=new MediaRecorder(combined,{mimeType:recMime});
-      vRec.ondataavailable=function(e){ if(e.data.size>0) vChunks.push(e.data); };
-      vRec.onstop=function(){
-        URL.revokeObjectURL(url); aCtx2.close();
-        var blob=new Blob(vChunks,{type:'video/webm'});
-        setProgress(100,'Done!');
-        log('Done! Output .webm ('+fmtSize(blob.size)+')','log-ok');
-        if(fmt==='MP4') log('Note: browser exported WebM — rename to .webm, or use a local converter for true MP4','log-info');
-        showResult(blob, _file.name.replace(/\.[^.]+$/,'')+'.webm', 'video/webm');
-      };
-      var drawLoop=function(){
-        if(video.paused||video.ended) return;
-        ctx2.drawImage(video,0,0,canvas2.width,canvas2.height);
-        setProgress(20+Math.round((video.currentTime/video.duration)*75),'Converting... '+Math.round(video.currentTime/video.duration*100)+'%');
-        requestAnimationFrame(drawLoop);
-      };
-      vRec.start(100);
-      video.play();
-      video.onplay=drawLoop;
-      video.onended=function(){ setTimeout(function(){ try{vRec.stop();}catch(e){} },300); };
-    }catch(e){ log('Video conversion error: '+e.message,'log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; }
+  var fmt = _targetFmt;
+  var ext = CATS[_cat].extOut[fmt];
+  var mime = CATS[_cat].mimeOut[fmt];
+  var inExt = (_file.name.split('.').pop()||'mp4').toLowerCase();
+  var inName  = 'input.'  + inExt;
+  var outName = 'output.' + ext;
+
+  try {
+    log('Reading file into engine...','log-info');
+    setProgress(5,'Reading file...');
+
+    /* Write file into FFmpeg virtual FS */
+    var arrBuf = await _file.arrayBuffer();
+    await _ffmpeg.writeFile(inName, new Uint8Array(arrBuf));
+    setProgress(10,'Starting conversion...');
+
+    /* Build FFmpeg args by output format */
+    var args = ['-i', inName];
+    if(fmt==='MP3 (audio)'){ args=args.concat(['-vn','-ar','44100','-ac','2','-b:a','192k','-f','mp3']); }
+    else if(fmt==='MP3'){    args=args.concat(['-vn','-ar','44100','-ac','2','-b:a','192k','-f','mp3']); }
+    else if(fmt==='WAV'){    args=args.concat(['-vn','-ar','44100','-ac','2']); }
+    else if(fmt==='OGG'){    args=args.concat(['-vn','-c:a','libvorbis','-q:a','5']); }
+    else if(fmt==='WebM'){   args=args.concat(['-c:v','libvpx','-crf','10','-b:v','1M','-c:a','libvorbis']); }
+    else if(fmt==='MP4'){    args=args.concat(['-c:v','mpeg4','-q:v','5','-c:a','aac']); }
+    args.push(outName);
+
+    log('Running FFmpeg: '+args.join(' '),'log-info');
+    await _ffmpeg.exec(args);
+
+    setProgress(96,'Reading output...');
+    var data = await _ffmpeg.readFile(outName);
+    var blob = new Blob([data.buffer], {type: mime});
+
+    setProgress(100,'Done!');
+    log('Done! Output: '+fmtSize(blob.size),'log-ok');
+    showResult(blob, _file.name.replace(/\.[^.]+$/,'') + '.' + ext, mime);
+
+    /* Clean up virtual FS */
+    try{ await _ffmpeg.deleteFile(inName); } catch(e){}
+    try{ await _ffmpeg.deleteFile(outName); } catch(e){}
+
+  } catch(e) {
+    log('Conversion failed: '+e.message,'log-err');
+    setProgress(0,'Failed');
+    document.getElementById('convert-btn').disabled = false;
   }
 }
 
-/* WAV encoder — converts AudioBuffer to WAV blob without any library */
-function audioBufferToWav(buffer){
-  var numCh=buffer.numberOfChannels, sampleRate=buffer.sampleRate, len=buffer.length;
-  var byteLen=len*numCh*2+44;
-  var ab=new ArrayBuffer(byteLen), view=new DataView(ab);
-  function ws(off,str){ for(var i=0;i<str.length;i++) view.setUint8(off+i,str.charCodeAt(i)); }
-  function wu16(off,v){ view.setUint16(off,v,true); }
-  function wu32(off,v){ view.setUint32(off,v,true); }
-  ws(0,'RIFF'); wu32(4,byteLen-8); ws(8,'WAVE');
-  ws(12,'fmt '); wu32(16,16); wu16(20,1); wu16(22,numCh);
-  wu32(24,sampleRate); wu32(28,sampleRate*numCh*2); wu16(32,numCh*2); wu16(34,16);
-  ws(36,'data'); wu32(40,len*numCh*2);
-  var offset=44;
-  for(var i=0;i<len;i++){
-    for(var ch=0;ch<numCh;ch++){
-      var s=Math.max(-1,Math.min(1,buffer.getChannelData(ch)[i]));
-      view.setInt16(offset,s<0?s*0x8000:s*0x7FFF,true); offset+=2;
-    }
+/* ARCHIVE: libarchive.js + JSZip for extraction/repacking */
+function loadArchiveLibs(){
+  if(_archiveLibLoading||_archiveLibReady) return;
+  _archiveLibLoading = true;
+  log('Loading archive engine...','log-info');
+  /* Load JSZip first (ZIP creation) */
+  var s1 = document.createElement('script');
+  s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  s1.onload = function(){
+    /* Then load libarchive.js for reading RAR/7z/TAR/GZ etc */
+    var s2 = document.createElement('script');
+    s2.src = 'https://cdn.jsdelivr.net/npm/libarchive.js@1.3.0/dist/libarchive.js';
+    s2.onload = function(){
+      try {
+        Archive.init({ workerUrl: 'https://cdn.jsdelivr.net/npm/libarchive.js@1.3.0/dist/worker-bundle.js' });
+        _archiveLibReady = true; _archiveLibLoading = false;
+        log('Archive engine ready!','log-ok');
+      } catch(e) {
+        /* libarchive might not need explicit init */
+        _archiveLibReady = true; _archiveLibLoading = false;
+        log('Archive engine ready!','log-ok');
+      }
+    };
+    s2.onerror = function(){
+      /* Fallback: JSZip alone — can read ZIP, create ZIP */
+      _archiveLibReady = true; _archiveLibLoading = false;
+      log('Archive engine ready (ZIP mode)','log-ok');
+    };
+    document.head.appendChild(s2);
+  };
+  s1.onerror = function(){
+    log('Failed to load archive engine','log-err');
+    _archiveLibLoading = false;
+  };
+  document.head.appendChild(s1);
+}
+
+async function convertArchive(){
+  if(!_archiveLibReady){
+    log('Loading archive engine...','log-info');
+    if(!_archiveLibLoading) loadArchiveLibs();
+    var tries=0;
+    while(!_archiveLibReady && tries<30){ await sleep(1000); tries++; }
+    if(!_archiveLibReady){ log('Archive engine failed to load','log-err'); document.getElementById('convert-btn').disabled=false; return; }
   }
-  return new Blob([ab],{type:'audio/wav'});
+
+  var inExt = (_file.name.split('.').pop()||'').toLowerCase();
+  setProgress(10,'Reading archive...');
+  log('Reading archive: '+_file.name,'log-info');
+
+  try {
+    var zip = new JSZip();
+
+    /* ZIP input: read directly with JSZip */
+    if(inExt==='zip'){
+      log('Reading ZIP entries...','log-info');
+      var inputZip = await JSZip.loadAsync(_file);
+      setProgress(40,'Extracting entries...');
+      var names = Object.keys(inputZip.files);
+      log('Found '+names.length+' entries','log-ok');
+      var done=0;
+      for(var i=0;i<names.length;i++){
+        var entry = inputZip.files[names[i]];
+        if(!entry.dir){
+          var data = await entry.async('uint8array');
+          zip.file(names[i], data);
+        } else { zip.folder(names[i]); }
+        done++;
+        setProgress(40+Math.round(done/names.length*50),'Packing '+done+'/'+names.length+'...');
+      }
+    }
+    /* RAR/7z/TAR/GZ etc: use libarchive.js */
+    else if(window.Archive){
+      log('Extracting '+inExt.toUpperCase()+' with libarchive...','log-info');
+      var archive = await Archive.open(_file);
+      var entries = await archive.extractFiles();
+      setProgress(50,'Packing as ZIP...');
+      var keys=Object.keys(entries); var done2=0;
+      for(var j=0;j<keys.length;j++){
+        var key=keys[j], val=entries[key];
+        if(val instanceof File||val instanceof Blob){
+          var ab=await val.arrayBuffer();
+          zip.file(key, new Uint8Array(ab));
+        } else if(typeof val==='object'){
+          /* nested dir object */
+          (function addDir(prefix,obj){
+            Object.keys(obj).forEach(function(k){
+              var v=obj[k];
+              if(v instanceof File||v instanceof Blob){
+                v.arrayBuffer().then(function(ab){ zip.file(prefix+k, new Uint8Array(ab)); });
+              } else if(typeof v==='object'){ addDir(prefix+k+'/',v); }
+            });
+          })(key+'/',val);
+        }
+        done2++;
+        setProgress(50+Math.round(done2/keys.length*40),'Packing '+done2+'/'+keys.length+'...');
+      }
+      await sleep(300); /* allow any async blob ops to complete */
+    } else {
+      log('RAR/7z/TAR support requires libarchive.js — only ZIP input supported right now','log-err');
+      log('Tip: try re-selecting the archive tab to reload the engine','log-info');
+      setProgress(0,'Unsupported format');
+      document.getElementById('convert-btn').disabled=false;
+      return;
+    }
+
+    setProgress(92,'Generating ZIP...');
+    var outBlob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}}, function(meta){ setProgress(92+Math.round(meta.percent*.07),'Compressing '+Math.round(meta.percent)+'%...'); });
+    setProgress(100,'Done!');
+    log('Done! Output ZIP: '+fmtSize(outBlob.size),'log-ok');
+    showResult(outBlob, _file.name.replace(/\.[^.]+$/,'')+'.zip', 'application/zip');
+  } catch(e) {
+    log('Archive error: '+e.message,'log-err');
+    setProgress(0,'Failed');
+    document.getElementById('convert-btn').disabled=false;
+  }
 }
 
 /* DOCUMENT: pure JS */
