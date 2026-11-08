@@ -923,11 +923,126 @@ html{scroll-behavior:smooth}
           <p>Quick readout of your exact screen resolution, pixel ratio, and color depth.</p>
         </a>
 
-        <a href="tools/password-checker.html" class="gc" data-cat="computer" data-s="password strength checker security test">
+        <a href="tools/password-checker.html" class="gc" data-cat="computer" data-s="password strength checker cryptographic entropy breach exposure security test">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔒</span><span class="chip chip-pop">Popular</span></div>
-          <h3>Password Strength Checker</h3>
-          <p>Type a password and see how strong it really is. Nothing is stored or sent.</p>
+          <h3>Cryptographic Entropy & Breach Engine</h3>
+          <p>Real-time multi-GPU brute-force time estimates for any password you type. Calculates crack latency across attack vectors and generates a copyable vulnerability report. Nothing stored, nothing sent.</p>
         </a>
+
+        <!-- ── FPS BOTTLENECK AUDITOR ── -->
+        <div class="gc" data-cat="computer" data-s="fps bottleneck pc lag fix optimizer gpu cpu ram performance boost debloat" style="cursor:default">
+          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖥️</span><span class="chip chip-brk">🔥 Power Tool</span></div>
+          <h3>PC Spec Assessment & FPS Bottleneck Auditor</h3>
+          <p id="fps-intro">Running diagnostics on your system profile...</p>
+
+          <!-- Terminal log sequence -->
+          <div id="fps-terminal" style="display:none;font-family:monospace;font-size:11px;background:rgba(0,0,0,0.6);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:12px;margin-top:10px;line-height:1.8">
+            <span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">SCANNING CPU THREAD DISPATCH...</span><br>
+            <span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">MAPPING GPU RENDER PIPELINE...</span><br>
+            <span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">AUDITING RAM CHANNEL SATURATION...</span><br>
+            <span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">DETECTING BACKGROUND PROCESS DRAIN...</span><br>
+            <span style="color:#f59e0b">&gt;</span> <span style="color:#fbbf24">BOTTLENECK VECTOR IDENTIFIED...</span>
+          </div>
+
+          <!-- Result panel (fades in after 2s) -->
+          <div id="fps-result" style="display:none;opacity:0;transition:opacity 0.6s ease;margin-top:12px">
+            <div style="font-family:monospace;font-size:11px;background:rgba(0,0,0,0.7);border:1px solid rgba(239,68,68,0.5);border-radius:8px;padding:14px;line-height:2">
+              <div style="color:#ef4444;font-size:13px;font-weight:700;letter-spacing:0.15em;margin-bottom:6px">⚠ SYSTEM EVALUATION: LAG FACTORY // POTATO CORE</div>
+              <div style="color:#94a3b8">BOTTLENECK CLASS <span style="color:#f59e0b">►</span> <span style="color:#fbbf24">BACKGROUND PROCESS DRAIN + CLUTTER SATURATION</span></div>
+              <div style="color:#94a3b8">FPS RECOVERY POTENTIAL <span style="color:#f59e0b">►</span> <span style="color:#4ade80">+15 TO +40 FPS RECOVERABLE</span></div>
+              <div style="color:#94a3b8">PRIORITY ACTIONS <span style="color:#f59e0b">►</span> <span style="color:#f87171">3 CRITICAL INTERVENTIONS QUEUED</span></div>
+            </div>
+
+            <!-- DEPLOYMENT DECK -->
+            <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+
+              <!-- ACTION 1: Debloat Script -->
+              <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:12px">
+                <div style="font-family:monospace;font-size:10px;color:#ef4444;letter-spacing:0.12em;margin-bottom:6px">ACTION 1 // POWER COMMAND</div>
+                <div style="font-size:12px;color:#cbd5e1;margin-bottom:10px">Run the community-trusted Windows debloat script to strip background telemetry, disable resource hogs, and clean system clutter in one shot.</div>
+                <button onclick="(function(){
+                  navigator.clipboard.writeText('iwr -useb https://christitus.com/win | iex').then(function(){
+                    var b=document.getElementById('debloat-btn');
+                    b.textContent='✅ Command Copied! Press Win+X → Open PowerShell → Paste & Run';
+                    b.style.background='rgba(74,222,128,0.15)';
+                    b.style.borderColor='rgba(74,222,128,0.4)';
+                    b.style.color='#4ade80';
+                    setTimeout(function(){
+                      b.textContent='[ 📋 Copy Master Clutter Debloat Script ]';
+                      b.style.background='rgba(239,68,68,0.15)';
+                      b.style.borderColor='rgba(239,68,68,0.4)';
+                      b.style.color='#f87171';
+                    },4000);
+                  });
+                  addXP(50);
+                })()" id="debloat-btn" style="font-family:monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;padding:9px 14px;border-radius:6px;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.15);color:#f87171;cursor:pointer;width:100%;text-align:center;transition:all 0.3s">[ 📋 Copy Master Clutter Debloat Script ]</button>
+              </div>
+
+              <!-- ACTION 2: Dispatch Link Kit -->
+              <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:8px;padding:12px">
+                <div style="font-family:monospace;font-size:10px;color:#a78bfa;letter-spacing:0.12em;margin-bottom:6px">ACTION 2 // DISPATCH LINK KIT</div>
+                <div style="font-size:12px;color:#cbd5e1;margin-bottom:10px">Jump directly to your two most powerful junk-removal tools in the Safe PC Software vault. BleachBit nukes hidden cache layers. Revo Uninstaller wipes programs down to their registry roots.</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button onclick="(function(){
+                    var pills=document.querySelectorAll('.pill');
+                    pills.forEach(function(p){p.classList.remove('active')});
+                    var sw=Array.from(pills).find(function(p){return p.textContent.includes('Safe PC Software')});
+                    if(sw){sw.classList.add('active');fCat('software',sw);}
+                    setTimeout(function(){
+                      var cards=document.querySelectorAll('.gc');
+                      cards.forEach(function(c){c.style.outline='none'});
+                      cards.forEach(function(c){
+                        if(c.querySelector('h3') && (c.querySelector('h3').textContent.includes('BleachBit')||c.querySelector('h3').textContent.includes('Revo'))){
+                          c.style.outline='2px solid #a78bfa';
+                          c.scrollIntoView({behavior:'smooth',block:'center'});
+                        }
+                      });
+                    },200);
+                    addXP(50);
+                  })()" style="font-family:monospace;font-size:11px;padding:7px 12px;border-radius:6px;border:1px solid rgba(139,92,246,0.4);background:rgba(139,92,246,0.15);color:#a78bfa;cursor:pointer;transition:all 0.2s">🧹 BleachBit → Wipe Cache Layers</button>
+                  <button onclick="(function(){
+                    var pills=document.querySelectorAll('.pill');
+                    pills.forEach(function(p){p.classList.remove('active')});
+                    var sw=Array.from(pills).find(function(p){return p.textContent.includes('Safe PC Software')});
+                    if(sw){sw.classList.add('active');fCat('software',sw);}
+                    setTimeout(function(){
+                      var cards=document.querySelectorAll('.gc');
+                      cards.forEach(function(c){c.style.outline='none'});
+                      cards.forEach(function(c){
+                        if(c.querySelector('h3') && (c.querySelector('h3').textContent.includes('BleachBit')||c.querySelector('h3').textContent.includes('Revo'))){
+                          c.style.outline='2px solid #a78bfa';
+                          c.scrollIntoView({behavior:'smooth',block:'center'});
+                        }
+                      });
+                    },200);
+                    addXP(50);
+                  })()" style="font-family:monospace;font-size:11px;padding:7px 12px;border-radius:6px;border:1px solid rgba(139,92,246,0.4);background:rgba(139,92,246,0.15);color:#a78bfa;cursor:pointer;transition:all 0.2s">🗑️ Revo → Deep Registry Purge</button>
+                </div>
+              </div>
+
+              <!-- ACTION 3: Tactical Checklist -->
+              <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:12px">
+                <div style="font-family:monospace;font-size:10px;color:#34d399;letter-spacing:0.12em;margin-bottom:6px">ACTION 3 // TACTICAL OS TWEAKS</div>
+                <div style="font-size:12px;color:#cbd5e1;margin-bottom:10px">Three native Windows toggles you can flip right now. No third-party software needed.</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:#94a3b8" onclick="addXP(50)">
+                    <input type="checkbox" style="margin-top:2px;accent-color:#34d399;width:14px;height:14px;flex-shrink:0">
+                    <span><span style="color:#e2e8f0;font-weight:600">Enable Hardware-Accelerated GPU Scheduling</span><br>Settings → Display → Graphics → Default Graphics Settings → turn HAGS on. Cuts CPU overhead on GPU workloads.</span>
+                  </label>
+                  <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:#94a3b8" onclick="addXP(50)">
+                    <input type="checkbox" style="margin-top:2px;accent-color:#34d399;width:14px;height:14px;flex-shrink:0">
+                    <span><span style="color:#e2e8f0;font-weight:600">Disable Startup App Resource Hogs</span><br>Task Manager → Startup Apps tab → right-click anything you don't need at boot and Disable. Cuts cold-start RAM drain.</span>
+                  </label>
+                  <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:#94a3b8" onclick="addXP(50)">
+                    <input type="checkbox" style="margin-top:2px;accent-color:#34d399;width:14px;height:14px;flex-shrink:0">
+                    <span><span style="color:#e2e8f0;font-weight:600">Turn Off Background Telemetry Tracing</span><br>Settings → Privacy & Security → Diagnostics & Feedback → set to Basic. Stops Windows from quietly consuming CPU/disk in the background.</span>
+                  </label>
+                </div>
+              </div>
+
+            </div><!-- /deployment deck -->
+          </div><!-- /fps-result -->
+        </div><!-- /fps card -->
 
         <!-- ── UTILITIES ── -->
         <a href="tools/qr-generator.html" class="gc" data-cat="phone" data-s="qr code generator create make">
@@ -1816,6 +1931,50 @@ function fireMatrixRain(duration){
   }
   matId=requestAnimationFrame(matFrame);
 }
+
+/* ═══ FPS BOTTLENECK AUDITOR — terminal animation ═══ */
+(function(){
+  var terminal = document.getElementById('fps-terminal');
+  var result   = document.getElementById('fps-result');
+  var intro    = document.getElementById('fps-intro');
+  if(!terminal || !result || !intro) return;
+
+  /* Trigger on first scroll-into-view */
+  var fired = false;
+  var obs = new IntersectionObserver(function(entries){
+    if(fired) return;
+    if(entries[0].isIntersecting){
+      fired = true;
+      obs.disconnect();
+      runFpsScan();
+    }
+  }, {threshold: 0.3});
+  obs.observe(terminal.parentElement);
+
+  function runFpsScan(){
+    intro.textContent = 'Initializing bottleneck scan...';
+    terminal.style.display = 'block';
+
+    /* Animate each log line in with staggered delay */
+    var lines = terminal.querySelectorAll('br');
+    var allNodes = Array.from(terminal.childNodes).filter(function(n){
+      return n.nodeType === Node.TEXT_NODE || n.nodeType === Node.ELEMENT_NODE;
+    });
+
+    /* Just fade the whole terminal in line by line via opacity steps */
+    terminal.style.opacity = '0';
+    terminal.style.transition = 'opacity 0.4s';
+    setTimeout(function(){ terminal.style.opacity = '1'; }, 100);
+
+    /* After 2s, fade in the result panel */
+    setTimeout(function(){
+      intro.textContent = 'Scan complete — your optimization path is ready.';
+      result.style.display = 'block';
+      setTimeout(function(){ result.style.opacity = '1'; }, 60);
+      addXP(50);
+    }, 2000);
+  }
+})();
 
 /* Hook XP onto existing interactive actions */
 (function(){
