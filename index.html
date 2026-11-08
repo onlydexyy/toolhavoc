@@ -5,23 +5,18 @@
 <script>
 /* ── Safari ad-redirect guard ── */
 (function(){
-  /* Block iframes from navigating the top frame */
   var _open = window.open;
   window.open = function(url, target, features){
-    /* Only allow opens triggered by real user gesture */
     if(!navigator.__havocAllow){ return null; }
     return _open.call(window, url, target, features);
   };
-  /* Track genuine user clicks */
   document.addEventListener('click', function(){ navigator.__havocAllow = true; setTimeout(function(){ navigator.__havocAllow = false; }, 500); }, true);
   document.addEventListener('touchend', function(){ navigator.__havocAllow = true; setTimeout(function(){ navigator.__havocAllow = false; }, 500); }, true);
-  /* Block top-frame navigation from iframes */
   window.addEventListener('beforeunload', function(e){
     if(document.activeElement && document.activeElement.tagName === 'IFRAME'){
       e.preventDefault(); e.returnValue = ''; return '';
     }
   });
-  /* Sandbox all ad iframes after they load */
   document.addEventListener('DOMContentLoaded', function(){
     setTimeout(function(){
       var iframes = document.querySelectorAll('iframe');
@@ -48,60 +43,33 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com/3.4.1"></script>
-<script>
-tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}
-</script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
 <style>
 @font-face{font-family:'New Rocker';src:url('fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 
-/* ══════════════════════════════════════════
-   SPLASH LOADER
-   ══════════════════════════════════════════ */
+/* ══ SPLASH ══ */
 #splash-screen{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;pointer-events:none;will-change:opacity;overflow:hidden}
 .sp-panel{position:absolute;left:0;right:0;height:50%;background:#000;will-change:transform;transform:translateZ(0);-webkit-transform:translateZ(0);transition:transform .7s cubic-bezier(.77,0,.175,1)}
-.sp-top{top:0}
-.sp-bot{bottom:0}
+.sp-top{top:0}.sp-bot{bottom:0}
 .sp-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
-.sp-havoc{
-  font-family:'New Rocker','Inter',sans-serif;color:#fff;
-  font-size:clamp(52px,10vw,100px);font-weight:700;letter-spacing:.25em;
-  display:flex;gap:4px;will-change:transform,opacity;transform:scale(.88);
-}
-.sp-havoc span{
-  opacity:0;transform:translateY(10px) scale(.9);
-  transition:opacity .4s ease,transform .4s ease;
-  filter:drop-shadow(0 0 20px rgba(79,172,254,.75)) drop-shadow(0 0 60px rgba(233,30,99,.2));
-}
+.sp-havoc{font-family:'New Rocker','Inter',sans-serif;color:#fff;font-size:clamp(52px,10vw,100px);font-weight:700;letter-spacing:.25em;display:flex;gap:4px;will-change:transform,opacity;transform:scale(.88)}
+.sp-havoc span{opacity:0;transform:translateY(10px) scale(.9);transition:opacity .4s ease,transform .4s ease;filter:drop-shadow(0 0 20px rgba(79,172,254,.75)) drop-shadow(0 0 60px rgba(233,30,99,.2))}
 .sp-havoc span.on{opacity:1;transform:translateY(0) scale(1)}
-.sp-pct{
-  color:rgba(148,163,184,.5);font-size:clamp(11px,1.5vw,15px);
-  font-family:'Inter',monospace;font-weight:400;letter-spacing:.4em;margin-top:18px;
-  will-change:opacity;text-transform:uppercase;
-}
+.sp-pct{color:rgba(148,163,184,.5);font-size:clamp(11px,1.5vw,15px);font-family:'Inter',monospace;font-weight:400;letter-spacing:.4em;margin-top:18px;will-change:opacity;text-transform:uppercase}
 
-/* ══════════════════════════════════════════
-   GLASS CARDS
-   ══════════════════════════════════════════ */
-.glass-panel{
-  background:rgba(9,13,22,.35)!important;
-  -webkit-backdrop-filter:blur(24px)!important;
-  backdrop-filter:blur(24px)!important;
-}
+/* ══ GLASS CARDS ══ */
+.glass-panel{background:rgba(9,13,22,.35)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important}
 .gc{
   background:rgba(9,13,22,.35);
   -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
   border:1px solid rgba(51,65,85,.6);border-radius:12px;padding:24px;
   box-shadow:inset 0 1px 1px rgba(255,255,255,.05);
   transition:border-color .3s,box-shadow .3s,transform .15s ease;
-  cursor:pointer;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between;color:inherit;
+  cursor:pointer;text-decoration:none;display:flex;flex-direction:column;color:inherit;
 }
-.gc:hover{
-  border-color:rgba(79,172,254,.5);
-  box-shadow:0 0 25px rgba(79,172,254,.15),inset 0 1px 1px rgba(255,255,255,.05);
-  transform:translateY(-3px);
-}
+.gc:hover{border-color:rgba(79,172,254,.5);box-shadow:0 0 25px rgba(79,172,254,.15),inset 0 1px 1px rgba(255,255,255,.05);transform:translateY(-3px)}
 .gc:active{transform:scale(.97);transition-duration:.08s}
 .gc h3{color:#f1f5f9;font-weight:600;font-size:17px;line-height:1.3;margin-bottom:6px;transition:color .3s}
 .gc:hover h3{color:#4facfe}
@@ -111,9 +79,11 @@ html{scroll-behavior:smooth}
 .gc-featured h3{font-size:20px}
 @media(min-width:1024px){.gc-featured h3{font-size:22px}}
 
-/* ══════════════════════════════════════════
-   TAG CHIPS
-   ══════════════════════════════════════════ */
+/* ══ CARD REVEAL ANIMATION ══ */
+@keyframes cardReveal{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.gc-revealed{animation:cardReveal .28s ease forwards}
+
+/* ══ CHIPS ══ */
 .chip{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:3px 8px;border-radius:5px;line-height:1}
 .chip-brk{background:rgba(249,115,22,.14);color:#fb923c;border:1px solid rgba(249,115,22,.22)}
 .chip-pop{background:rgba(233,30,99,.12);color:#f472b6;border:1px solid rgba(233,30,99,.2)}
@@ -125,466 +95,140 @@ html{scroll-behavior:smooth}
 .chip-viral{background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.2)}
 .chip-prank{background:rgba(236,72,153,.1);color:#f472b6;border:1px solid rgba(236,72,153,.18)}
 
-/* ══════════════════════════════════════════
-   FILTER PILLS
-   ══════════════════════════════════════════ */
-.pill{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:600;
-  border:1px solid rgba(51,65,85,.45);background:rgba(9,13,22,.4);color:#94a3b8;
-  cursor:pointer;transition:all .25s;white-space:nowrap}
+/* ══ FILTER PILLS ══ */
+.pill{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid rgba(51,65,85,.45);background:rgba(9,13,22,.4);color:#94a3b8;cursor:pointer;transition:all .25s;white-space:nowrap}
 .pill:hover{border-color:rgba(79,172,254,.35);color:#e2e8f0}
 .pill:active{transform:scale(.94);transition-duration:.08s}
-.pill.active{background:linear-gradient(135deg,#4facfe,#e91e63);border-color:transparent;color:#fff;
-  box-shadow:0 0 18px rgba(79,172,254,.2)}
+.pill.active{background:linear-gradient(135deg,#4facfe,#e91e63);border-color:transparent;color:#fff;box-shadow:0 0 18px rgba(79,172,254,.2)}
 
-/* ══════════════════════════════════════════
-   SEARCH
-   ══════════════════════════════════════════ */
-.sbox{background:rgba(9,13,22,.5);border:1px solid rgba(51,65,85,.5);border-radius:12px;
-  color:#e2e8f0;font-size:14px;outline:none;transition:border-color .3s,box-shadow .3s}
+/* ══ SEARCH ══ */
+.sbox{background:rgba(9,13,22,.5);border:1px solid rgba(51,65,85,.5);border-radius:12px;color:#e2e8f0;font-size:14px;outline:none;transition:border-color .3s,box-shadow .3s}
 .sbox:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172,254,.1),0 0 30px rgba(79,172,254,.06)}
 .sbox::placeholder{color:#475569}
 
-/* ══════════════════════════════════════════
-   AD FRAMES
-   ══════════════════════════════════════════ */
+/* ══ AD FRAMES ══ */
 .af{display:flex;align-items:center;justify-content:center;overflow:hidden;contain:layout style}
 .af-top{height:95px;min-height:90px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 @media(max-width:767px){.af-top{display:none}.pt-20.pb-2{padding-top:3.5rem;padding-bottom:0}}
-.af-grid{min-height:250px;background:rgba(9,13,22,.2);border:1px solid rgba(51,65,85,.4);border-radius:12px;contain:layout style}
 .af-sticky{min-height:70px;contain:layout style}
 
-/* ══════════════════════════════════════════
-   STICKY BANNER
-   ══════════════════════════════════════════ */
-.stk{position:fixed;bottom:0;left:0;right:0;z-index:90;border-top:1px solid rgba(51,65,85,.4);
-  background:rgba(2,2,5,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s,opacity .4s}
+/* ══ STICKY BANNER ══ */
+.stk{position:fixed;bottom:0;left:0;right:0;z-index:90;border-top:1px solid rgba(51,65,85,.4);background:rgba(2,2,5,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s,opacity .4s}
 .stk.off{transform:translateY(100%);opacity:0;pointer-events:none}
 
-/* ══════════════════════════════════════════
-   CARD HIDE
-   ══════════════════════════════════════════ */
-.hide{opacity:0;transform:scale(.95);pointer-events:none;position:absolute!important;width:0;height:0;overflow:hidden;margin:0;padding:0;border:0}
-
-/* ══════════════════════════════════════════
-   BOOT-HIDDEN CARDS (shown only via pill click / search)
-   ══════════════════════════════════════════ */
-.gc-boot-hidden{
-  display:none!important;
-}
-/* Fade-in animation when cards are revealed */
-@keyframes cardReveal{
-  from{opacity:0;transform:translateY(10px) scale(.97)}
-  to{opacity:1;transform:translateY(0) scale(1)}
-}
-.gc-revealed{
-  animation:cardReveal .28s ease forwards;
-}
-
-/* ══════════════════════════════════════════
-   EMPTY STATE PROMPT (shown when no pill is active)
-   ══════════════════════════════════════════ */
-#grid-empty-state{
-  grid-column:1/-1;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:60px 24px;
-  text-align:center;
-}
-#grid-empty-state .es-icon{font-size:48px;margin-bottom:16px;opacity:0.4}
-#grid-empty-state .es-title{
-  font-size:18px;font-weight:700;color:#334155;
-  font-family:monospace;letter-spacing:.1em;text-transform:uppercase;
-  margin-bottom:8px;
-}
-#grid-empty-state .es-sub{
-  font-size:13px;color:#1e293b;
-  max-width:360px;line-height:1.6;
-}
-#grid-empty-state .es-arrows{
-  margin-top:24px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
-}
-#grid-empty-state .es-arrow{
-  font-size:11px;font-family:monospace;letter-spacing:.08em;
-  color:rgba(79,172,254,.55);border:1px solid rgba(79,172,254,.18);
-  background:rgba(79,172,254,.04);border-radius:6px;padding:5px 12px;
-  text-transform:uppercase;cursor:pointer;transition:all .2s;
-}
-#grid-empty-state .es-arrow:hover{
-  color:rgba(79,172,254,.9);border-color:rgba(79,172,254,.45);
-  background:rgba(79,172,254,.08);
-}
-
-/* ══════════════════════════════════════════
-   SCROLLBAR
-   ══════════════════════════════════════════ */
+/* ══ SCROLLBAR ══ */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:#020205}
 ::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:#334155}
 
-/* ══════════════════════════════════════════
-   BLUEPRINT WING SYSTEM (xl+ only)
-   ══════════════════════════════════════════ */
-
-/* Wing containers — invisible on mobile / laptop */
-.wing{
-  display:none;
-  position:fixed;top:0;bottom:0;width:5vw;min-width:48px;max-width:80px;
-  pointer-events:none;z-index:5;flex-direction:column;align-items:center;
-  overflow:hidden;
-}
+/* ══ WING SYSTEM ══ */
+.wing{display:none;position:fixed;top:0;bottom:0;width:5vw;min-width:48px;max-width:80px;pointer-events:none;z-index:5;flex-direction:column;align-items:center;overflow:hidden}
 @media(min-width:1280px){.wing{display:flex}}
+.wing-line{position:absolute;top:0;bottom:0;width:1px;background:repeating-linear-gradient(to bottom,rgba(51,65,85,.18) 0px,rgba(51,65,85,.18) 4px,transparent 4px,transparent 10px)}
+.wing-left .wing-line{right:0}.wing-right .wing-line{left:0}
+.xhair{position:absolute;width:12px;height:12px;opacity:.35;flex-shrink:0}
+.xhair-top{top:56px}.xhair-bot{bottom:16px}
+.wing-coord{position:absolute;font-family:monospace;font-size:7px;letter-spacing:.08em;color:rgba(100,116,139,.28);text-transform:uppercase;white-space:nowrap;line-height:1}
+.wing-left .wing-coord{right:6px;top:50%;writing-mode:vertical-rl;transform:rotate(180deg) translateY(50%)}
+.wing-right .wing-coord{left:6px;top:50%;writing-mode:vertical-rl;transform:rotate(0deg) translateY(-50%)}
+.ticker-tunnel{position:absolute;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;overflow:hidden;width:28px}
+.wing-left .ticker-tunnel{left:4px}.wing-right .ticker-tunnel{right:4px}
+.ticker-track{display:flex;flex-direction:column;gap:20px;animation-timing-function:linear;animation-iteration-count:infinite;will-change:transform}
+.ticker-track-down{animation:tickDown 30s linear infinite}
+.ticker-track-up{animation:tickUp 34s linear infinite}
+@keyframes tickDown{0%{transform:translateY(-50%)}100%{transform:translateY(0%)}}
+@keyframes tickUp{0%{transform:translateY(0%)}100%{transform:translateY(-50%)}}
+.tick-item{font-family:monospace;font-size:7.5px;font-weight:400;letter-spacing:.12em;color:rgba(71,85,105,.38);text-transform:uppercase;white-space:nowrap;writing-mode:vertical-rl;line-height:1;user-select:none;-webkit-user-select:none}
+.tick-item.hi{color:rgba(79,172,254,.28)}.tick-item.mg{color:rgba(233,30,99,.22)}.tick-item.gr{color:rgba(34,197,94,.25)}
 
-/* The dashed 1px guide line running full height */
-.wing-line{
-  position:absolute;top:0;bottom:0;width:1px;
-  background:repeating-linear-gradient(
-    to bottom,
-    rgba(51,65,85,.18) 0px,
-    rgba(51,65,85,.18) 4px,
-    transparent 4px,
-    transparent 10px
-  );
-}
-.wing-left .wing-line{right:0}
-.wing-right .wing-line{left:0}
-
-/* Corner crosshair SVG marks */
-.xhair{
-  position:absolute;width:12px;height:12px;
-  opacity:.35;flex-shrink:0;
-}
-.xhair-top{top:56px}
-.xhair-bot{bottom:16px}
-
-/* Rotated coordinate readout label */
-.wing-coord{
-  position:absolute;
-  font-family:monospace;font-size:7px;letter-spacing:.08em;
-  color:rgba(100,116,139,.28);text-transform:uppercase;white-space:nowrap;
-  line-height:1;
-}
-.wing-left .wing-coord{
-  right:6px;top:50%;
-  writing-mode:vertical-rl;
-  transform:rotate(180deg) translateY(50%);
-}
-.wing-right .wing-coord{
-  left:6px;top:50%;
-  writing-mode:vertical-rl;
-  transform:rotate(0deg) translateY(-50%);
-}
-
-/* ═══ REQUEST MODAL ═══ */
-#request-modal{
-  position:fixed;inset:0;z-index:10000;
-  display:flex;align-items:center;justify-content:center;
-  padding:16px;
-  background:rgba(2,2,5,.75);
-  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
-  opacity:0;pointer-events:none;
-  transition:opacity .3s ease;
-}
+/* ══ REQUEST MODAL ══ */
+#request-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,2,5,.75);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .3s ease}
 #request-modal.open{opacity:1;pointer-events:all}
-.rmodal-box{
-  width:100%;max-width:460px;
-  background:rgba(9,13,22,.72);
-  border:1px solid rgba(79,172,254,.22);
-  border-radius:16px;padding:32px 28px;
-  box-shadow:0 0 60px rgba(79,172,254,.08),0 0 0 1px rgba(255,255,255,.04) inset;
-  transform:translateY(16px) scale(.97);
-  transition:transform .35s cubic-bezier(.22,1,.36,1);
-  position:relative;
-}
+.rmodal-box{width:100%;max-width:460px;background:rgba(9,13,22,.72);border:1px solid rgba(79,172,254,.22);border-radius:16px;padding:32px 28px;box-shadow:0 0 60px rgba(79,172,254,.08),0 0 0 1px rgba(255,255,255,.04) inset;transform:translateY(16px) scale(.97);transition:transform .35s cubic-bezier(.22,1,.36,1);position:relative}
 #request-modal.open .rmodal-box{transform:translateY(0) scale(1)}
 .rmodal-box h2{font-size:20px;font-weight:800;color:#f1f5f9;letter-spacing:-.01em;margin-bottom:4px}
 .rmodal-box p{font-size:13px;color:#64748b;margin-bottom:22px}
 .rf-label{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#475569;margin-bottom:5px}
-.rf-input{
-  width:100%;background:rgba(2,2,5,.55);
-  border:1px solid rgba(51,65,85,.55);border-radius:8px;
-  color:#e2e8f0;font-size:13px;padding:10px 13px;outline:none;
-  transition:border-color .25s,box-shadow .25s;
-  font-family:inherit;resize:none;
-}
+.rf-input{width:100%;background:rgba(2,2,5,.55);border:1px solid rgba(51,65,85,.55);border-radius:8px;color:#e2e8f0;font-size:13px;padding:10px 13px;outline:none;transition:border-color .25s,box-shadow .25s;font-family:inherit;resize:none}
 .rf-input:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172,254,.08)}
 .rf-input::placeholder{color:#334155}
 .rf-row{margin-bottom:15px}
-.rmodal-submit{
-  width:100%;margin-top:6px;padding:11px;border-radius:9px;border:none;cursor:pointer;
-  font-weight:700;font-size:13px;letter-spacing:.04em;color:#fff;
-  background:linear-gradient(135deg,#4facfe,#e91e63);
-  box-shadow:0 0 20px rgba(79,172,254,.18);
-  transition:opacity .2s,transform .15s;
-}
+.rmodal-submit{width:100%;margin-top:6px;padding:11px;border-radius:9px;border:none;cursor:pointer;font-weight:700;font-size:13px;letter-spacing:.04em;color:#fff;background:linear-gradient(135deg,#4facfe,#e91e63);box-shadow:0 0 20px rgba(79,172,254,.18);transition:opacity .2s,transform .15s}
 .rmodal-submit:hover{opacity:.88}
 .rmodal-submit:active{transform:scale(.96);transition-duration:.08s}
-.rmodal-close{
-  position:absolute;top:14px;right:16px;
-  background:none;border:none;cursor:pointer;
-  color:#475569;font-size:18px;line-height:1;
-  transition:color .2s;
-}
+.rmodal-close{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:#475569;font-size:18px;line-height:1;transition:color .2s}
 .rmodal-close:hover{color:#94a3b8}
-/* Mobile floating pill */
-.req-fab{
-  display:none;
-  position:fixed;bottom:72px;right:16px;z-index:200;
-  padding:9px 16px;border-radius:50px;border:none;cursor:pointer;
-  font-size:12px;font-weight:700;letter-spacing:.05em;color:#fff;
-  background:linear-gradient(135deg,#4facfe,#e91e63);
-  box-shadow:0 4px 20px rgba(79,172,254,.25);
-  transition:transform .15s,opacity .2s;
-}
+.req-fab{display:none;position:fixed;bottom:72px;right:16px;z-index:200;padding:9px 16px;border-radius:50px;border:none;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:.05em;color:#fff;background:linear-gradient(135deg,#4facfe,#e91e63);box-shadow:0 4px 20px rgba(79,172,254,.25);transition:transform .15s,opacity .2s}
 .req-fab:active{transform:scale(.93)}
 @media(max-width:767px){.req-fab{display:block;bottom:16px;right:16px}}
 
-/* ── Vertical Ticker Tunnel columns ── */
-.ticker-tunnel{
-  position:absolute;top:0;bottom:0;
-  display:flex;flex-direction:column;align-items:center;
-  overflow:hidden;
-  width:28px;
-}
-.wing-left .ticker-tunnel{left:4px}
-.wing-right .ticker-tunnel{right:4px}
-
-/* The scrolling track — duplicated content for seamless loop */
-.ticker-track{
-  display:flex;flex-direction:column;gap:20px;
-  animation-timing-function:linear;
-  animation-iteration-count:infinite;
-  will-change:transform;
-}
-/* Left scrolls DOWN (positive Y direction) */
-.ticker-track-down{animation:tickDown 30s linear infinite}
-/* Right scrolls UP (negative Y direction) */
-.ticker-track-up{animation:tickUp 34s linear infinite}
-
-@keyframes tickDown{
-  0%  {transform:translateY(-50%)}
-  100%{transform:translateY(0%)}
-}
-@keyframes tickUp{
-  0%  {transform:translateY(0%)}
-  100%{transform:translateY(-50%)}
-}
-
-/* Individual data log entries */
-.tick-item{
-  font-family:monospace;font-size:7.5px;font-weight:400;letter-spacing:.12em;
-  color:rgba(71,85,105,.38);text-transform:uppercase;white-space:nowrap;
-  writing-mode:vertical-rl;line-height:1;
-  user-select:none;-webkit-user-select:none;
-}
-/* Accent colour overrides */
-.tick-item.hi{color:rgba(79,172,254,.28)}
-.tick-item.mg{color:rgba(233,30,99,.22)}
-.tick-item.gr{color:rgba(34,197,94,.25)}
-
-/* ── Command Search Matrix ── */
-#cmdOverlay{
-  display:none;
-  position:fixed;top:0;left:0;right:0;bottom:0;
-  z-index:10000;
-  background:rgba(2,2,5,.88);
-  -webkit-backdrop-filter:blur(28px);
-  backdrop-filter:blur(28px);
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-  padding-top:clamp(60px,12vh,120px);
-  animation:cmdFadeIn .18s ease;
-}
+/* ══ COMMAND SEARCH ══ */
+#cmdOverlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(2,2,5,.88);-webkit-backdrop-filter:blur(28px);backdrop-filter:blur(28px);flex-direction:column;align-items:center;justify-content:flex-start;padding-top:clamp(60px,12vh,120px);animation:cmdFadeIn .18s ease}
 #cmdOverlay.open{display:flex}
 @keyframes cmdFadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-
-#cmdBox{
-  width:100%;max-width:620px;
-  padding:0 16px;
-  position:relative;
-}
-#cmdSearch{
-  width:100%;
-  background:rgba(9,13,22,.72);
-  border:1.5px solid rgba(79,172,254,.35);
-  border-radius:14px;
-  padding:16px 20px 16px 52px;
-  font-family:monospace;
-  font-size:17px;
-  color:#e2e8f0;
-  outline:none;
-  box-shadow:0 0 40px rgba(79,172,254,.12),0 2px 32px rgba(0,0,0,.7);
-  transition:border-color .15s;
-  caret-color:#4facfe;
-}
+#cmdBox{width:100%;max-width:620px;padding:0 16px;position:relative}
+#cmdSearch{width:100%;background:rgba(9,13,22,.72);border:1.5px solid rgba(79,172,254,.35);border-radius:14px;padding:16px 20px 16px 52px;font-family:monospace;font-size:17px;color:#e2e8f0;outline:none;box-shadow:0 0 40px rgba(79,172,254,.12),0 2px 32px rgba(0,0,0,.7);transition:border-color .15s;caret-color:#4facfe}
 #cmdSearch::placeholder{color:rgba(100,116,139,.55)}
 #cmdSearch:focus{border-color:rgba(79,172,254,.65)}
-.cmd-slash{
-  position:absolute;left:28px;top:50%;transform:translateY(-50%);
-  font-family:monospace;font-size:16px;
-  color:rgba(79,172,254,.55);
-  pointer-events:none;
-  user-select:none;
-}
-#cmdResults{
-  width:100%;max-width:620px;
-  padding:12px 16px 0;
-  display:flex;flex-direction:column;gap:4px;
-  max-height:60vh;overflow-y:auto;
-}
+.cmd-slash{position:absolute;left:28px;top:50%;transform:translateY(-50%);font-family:monospace;font-size:16px;color:rgba(79,172,254,.55);pointer-events:none;user-select:none}
+#cmdResults{width:100%;max-width:620px;padding:12px 16px 0;display:flex;flex-direction:column;gap:4px;max-height:60vh;overflow-y:auto}
 #cmdResults::-webkit-scrollbar{width:4px}
 #cmdResults::-webkit-scrollbar-track{background:transparent}
 #cmdResults::-webkit-scrollbar-thumb{background:rgba(79,172,254,.2);border-radius:2px}
-
-.cmd-item{
-  display:flex;align-items:center;gap:14px;
-  padding:12px 16px;
-  border-radius:10px;
-  border:1px solid transparent;
-  cursor:pointer;
-  transition:background .12s,border-color .12s;
-  text-decoration:none;
-  color:inherit;
-}
-.cmd-item:hover,.cmd-item.cmd-sel{
-  background:rgba(79,172,254,.07);
-  border-color:rgba(79,172,254,.18);
-}
+.cmd-item{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:background .12s,border-color .12s;text-decoration:none;color:inherit}
+.cmd-item:hover,.cmd-item.cmd-sel{background:rgba(79,172,254,.07);border-color:rgba(79,172,254,.18)}
 .cmd-item-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
 .cmd-item-name{font-size:14px;font-weight:600;color:#e2e8f0}
 .cmd-item-desc{font-size:12px;color:rgba(100,116,139,.8);margin-top:1px;line-height:1.3}
-.cmd-item-chip{
-  margin-left:auto;flex-shrink:0;
-  font-size:9px;font-family:monospace;letter-spacing:.08em;
-  padding:2px 7px;border-radius:4px;
-  background:rgba(9,13,22,.6);
-  color:rgba(79,172,254,.7);
-  border:1px solid rgba(79,172,254,.2);
-  text-transform:uppercase;
-}
-#cmdNoResult{
-  display:none;
-  padding:28px 16px;text-align:center;
-}
+.cmd-item-chip{margin-left:auto;flex-shrink:0;font-size:9px;font-family:monospace;letter-spacing:.08em;padding:2px 7px;border-radius:4px;background:rgba(9,13,22,.6);color:rgba(79,172,254,.7);border:1px solid rgba(79,172,254,.2);text-transform:uppercase}
+#cmdNoResult{display:none;padding:28px 16px;text-align:center}
 #cmdNoResult p{color:rgba(100,116,139,.7);font-size:13px;margin-bottom:14px}
-#cmdNoResult a{
-  display:inline-block;
-  padding:9px 20px;border-radius:9px;
-  font-size:12px;font-weight:600;
-  color:#4facfe;
-  border:1px solid rgba(79,172,254,.25);
-  background:rgba(79,172,254,.06);
-  text-decoration:none;
-  cursor:pointer;
-  transition:border-color .15s,background .15s;
-}
+#cmdNoResult a{display:inline-block;padding:9px 20px;border-radius:9px;font-size:12px;font-weight:600;color:#4facfe;border:1px solid rgba(79,172,254,.25);background:rgba(79,172,254,.06);text-decoration:none;cursor:pointer;transition:border-color .15s,background .15s}
 #cmdNoResult a:hover{border-color:rgba(79,172,254,.55);background:rgba(79,172,254,.12)}
-#cmdHint{
-  margin-top:18px;
-  font-size:10px;font-family:monospace;letter-spacing:.1em;
-  color:rgba(71,85,105,.55);text-transform:uppercase;text-align:center;
-}
-/* Mobile search trigger chip */
-#mobileSearchTrigger{
-  display:none;
-  position:fixed;bottom:72px;left:50%;transform:translateX(-50%);
-  z-index:9000;
-  padding:10px 22px;border-radius:999px;
-  background:rgba(9,13,22,.88);
-  border:1px solid rgba(79,172,254,.25);
-  color:rgba(79,172,254,.85);
-  font-size:12px;font-family:monospace;letter-spacing:.12em;
-  text-transform:uppercase;
-  cursor:pointer;
-  backdrop-filter:blur(12px);
-  box-shadow:0 4px 24px rgba(0,0,0,.5);
-  animation:floatPulse 3s ease-in-out infinite;
-}
-@keyframes floatPulse{0%,100%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 0 rgba(79,172,254,.0)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 6px rgba(79,172,254,.08)}}
+#cmdHint{margin-top:18px;font-size:10px;font-family:monospace;letter-spacing:.1em;color:rgba(71,85,105,.55);text-transform:uppercase;text-align:center}
+#mobileSearchTrigger{display:none;position:fixed;bottom:72px;left:50%;transform:translateX(-50%);z-index:9000;padding:10px 22px;border-radius:999px;background:rgba(9,13,22,.88);border:1px solid rgba(79,172,254,.25);color:rgba(79,172,254,.85);font-size:12px;font-family:monospace;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.5);animation:floatPulse 3s ease-in-out infinite}
+@keyframes floatPulse{0%,100%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 0 rgba(79,172,254,0)}50%{box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 6px rgba(79,172,254,.08)}}
 @media(max-width:767px){#mobileSearchTrigger{display:block;bottom:62px;left:50%;transform:translateX(-50%)}}
 
-/* ── Arcade Game Modal ── */
-#arcadeOverlay{
-  display:none;position:fixed;inset:0;z-index:20000;
-  background:rgba(2,2,5,.95);
-  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
-  flex-direction:column;align-items:center;justify-content:center;
-  padding:16px;
-}
+/* ══ ARCADE MODAL ══ */
+#arcadeOverlay{display:none;position:fixed;inset:0;z-index:20000;background:rgba(2,2,5,.95);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;padding:16px}
 #arcadeOverlay.open{display:flex}
-#arcadeBox{
-  width:100%;max-width:900px;
-  background:rgba(9,13,22,.72);
-  border:1px solid rgba(79,172,254,.22);
-  border-radius:16px;overflow:hidden;
-  box-shadow:0 0 60px rgba(79,172,254,.12);
-  display:flex;flex-direction:column;
-}
-#arcadeHeader{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 20px;
-  border-bottom:1px solid rgba(51,65,85,.5);
-  background:rgba(2,2,5,.6);
-}
+#arcadeBox{width:100%;max-width:900px;background:rgba(9,13,22,.72);border:1px solid rgba(79,172,254,.22);border-radius:16px;overflow:hidden;box-shadow:0 0 60px rgba(79,172,254,.12);display:flex;flex-direction:column}
+#arcadeHeader{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(51,65,85,.5);background:rgba(2,2,5,.6)}
 #arcadeTitle{font-family:monospace;font-size:13px;letter-spacing:.1em;color:#4facfe;font-weight:700}
 #arcadeClose{background:none;border:none;cursor:pointer;color:#475569;font-size:20px;line-height:1;transition:color .2s}
 #arcadeClose:hover{color:#94a3b8}
 #arcadeFrame{width:100%;height:70vh;border:0;background:#000;display:block}
 
-/* ── Session XP Chip ── */
-#xp-wrap{
-  display:inline-flex;align-items:center;gap:5px;
-  font-family:monospace;font-size:10px;letter-spacing:.06em;
-}
-#xp-levelup{
-  display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);
-  z-index:30000;
-  padding:10px 22px;border-radius:8px;
-  background:rgba(0,255,65,.08);
-  border:1px solid rgba(0,255,65,.35);
-  color:#4ade80;font-family:monospace;font-size:11px;letter-spacing:.1em;
-  box-shadow:0 0 30px rgba(0,255,65,.15);
-  pointer-events:none;
-  animation:xpChipIn .3s ease;
-}
+/* ══ XP SYSTEM ══ */
+#xp-wrap{display:inline-flex;align-items:center;gap:5px;font-family:monospace;font-size:10px;letter-spacing:.06em}
+#xp-levelup{display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:30000;padding:10px 22px;border-radius:8px;background:rgba(0,255,65,.08);border:1px solid rgba(0,255,65,.35);color:#4ade80;font-family:monospace;font-size:11px;letter-spacing:.1em;box-shadow:0 0 30px rgba(0,255,65,.15);pointer-events:none}
 @keyframes xpChipIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-/* ── Sandboxed Ad Wrapper ── */
-.ad-sandbox-wrap{
-  min-height:95px;width:100%;
-  background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);
-  border-radius:12px;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-  position:relative;
+/* ══ TOOLS DISPLAY GRID empty state ══ */
+#grid-empty-state{
+  grid-column:1/-1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:72px 24px;text-align:center;
 }
-.ad-sandbox-label{
-  position:absolute;top:3px;left:12px;
-  font-size:9px;color:rgba(100,116,139,.4);
-  letter-spacing:.12em;font-family:monospace;text-transform:uppercase;
-}
+#grid-empty-state .es-icon{font-size:52px;margin-bottom:18px;opacity:.25;line-height:1}
+#grid-empty-state .es-title{font-size:13px;font-weight:700;color:#334155;font-family:monospace;letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+#grid-empty-state .es-sub{font-size:12px;color:#1e293b;max-width:320px;line-height:1.6}
 
 </style>
 </head>
 
 <body class="relative min-h-screen overflow-x-hidden font-sans text-slate-300" style="background:#020205">
 
-<!-- ┌─────────────────────────────────────────┐
-     │  CANVAS BACKGROUND ENGINE (z-0)        │
-     └─────────────────────────────────────────┘ -->
-
 <!-- Mobile Command Search Trigger -->
 <button id="mobileSearchTrigger" onclick="openCmd()" aria-label="Open search">⌨ Search Tools</button>
 
 <canvas id="bg-canvas" class="fixed top-0 left-0 w-screen h-screen z-0 pointer-events-none" style="background:#020205"></canvas>
 
-<!-- ┌──────────────────────────────────────────────┐
-     │  LEFT BLUEPRINT WING  (xl+ desktop only)    │
-     └──────────────────────────────────────────────┘ -->
+<!-- ── LEFT WING ── -->
 <div class="wing wing-left" style="left:1.5vw" aria-hidden="true">
-  <!-- Full-height dashed guide line -->
   <div class="wing-line"></div>
-
-  <!-- Top crosshair mark -->
   <div class="xhair xhair-top" style="right:-1px">
     <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
       <line x1="6" y1="0" x2="6" y2="4" stroke="rgba(79,172,254,.4)" stroke-width="1"/>
@@ -592,8 +236,6 @@ html{scroll-behavior:smooth}
       <circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.5)"/>
     </svg>
   </div>
-
-  <!-- Bottom crosshair mark -->
   <div class="xhair xhair-bot" style="right:-1px">
     <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
       <line x1="6" y1="12" x2="6" y2="8" stroke="rgba(79,172,254,.25)" stroke-width="1"/>
@@ -601,14 +243,9 @@ html{scroll-behavior:smooth}
       <circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.3)"/>
     </svg>
   </div>
-
-  <!-- Vertical coordinate label -->
   <span class="wing-coord">X:0.00 · Y:0.00</span>
-
-  <!-- Ticker tunnel — data stream scrolls DOWN -->
   <div class="ticker-tunnel">
     <div class="ticker-track ticker-track-down">
-      <!-- Block A (original) -->
       <span class="tick-item hi">[SYSTEM_OK]</span>
       <span class="tick-item">——————</span>
       <span class="tick-item gr">[SCANNER_CORE_01]</span>
@@ -629,7 +266,6 @@ html{scroll-behavior:smooth}
       <span class="tick-item">0x00 00 05</span>
       <span class="tick-item">[BOOT_SEQ: OK]</span>
       <span class="tick-item gr">——————</span>
-      <!-- Block B (seamless duplicate) -->
       <span class="tick-item hi">[SYSTEM_OK]</span>
       <span class="tick-item">——————</span>
       <span class="tick-item gr">[SCANNER_CORE_01]</span>
@@ -654,14 +290,9 @@ html{scroll-behavior:smooth}
   </div>
 </div>
 
-<!-- ┌──────────────────────────────────────────────┐
-     │  RIGHT BLUEPRINT WING  (xl+ desktop only)   │
-     └──────────────────────────────────────────────┘ -->
+<!-- ── RIGHT WING ── -->
 <div class="wing wing-right" style="right:1.5vw" aria-hidden="true">
-  <!-- Full-height dashed guide line -->
   <div class="wing-line"></div>
-
-  <!-- Top crosshair mark -->
   <div class="xhair xhair-top" style="left:-1px">
     <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
       <line x1="6" y1="0" x2="6" y2="4" stroke="rgba(233,30,99,.35)" stroke-width="1"/>
@@ -669,8 +300,6 @@ html{scroll-behavior:smooth}
       <circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.4)"/>
     </svg>
   </div>
-
-  <!-- Bottom crosshair mark -->
   <div class="xhair xhair-bot" style="left:-1px">
     <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
       <line x1="6" y1="12" x2="6" y2="8" stroke="rgba(233,30,99,.2)" stroke-width="1"/>
@@ -678,14 +307,9 @@ html{scroll-behavior:smooth}
       <circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.25)"/>
     </svg>
   </div>
-
-  <!-- Vertical coordinate label -->
   <span class="wing-coord">W:100% · H:∞</span>
-
-  <!-- Ticker tunnel — data stream scrolls UP -->
   <div class="ticker-tunnel">
     <div class="ticker-track ticker-track-up">
-      <!-- Block A (original) -->
       <span class="tick-item hi">[HAVOC_MATRIX]</span>
       <span class="tick-item">——————</span>
       <span class="tick-item mg">[BLOB_GEN: READY]</span>
@@ -705,7 +329,6 @@ html{scroll-behavior:smooth}
       <span class="tick-item">SRC: ADSTERRA</span>
       <span class="tick-item gr">[DEXYY_BUILD]</span>
       <span class="tick-item">——————</span>
-      <!-- Block B (seamless duplicate) -->
       <span class="tick-item hi">[HAVOC_MATRIX]</span>
       <span class="tick-item">——————</span>
       <span class="tick-item mg">[BLOB_GEN: READY]</span>
@@ -729,9 +352,7 @@ html{scroll-behavior:smooth}
   </div>
 </div>
 
-<!-- ┌─────────────────────────────────────────┐
-     │  SPLASH LOADER                          │
-     └─────────────────────────────────────────┘ -->
+<!-- ── SPLASH LOADER ── -->
 <div id="splash-screen">
   <div class="sp-panel sp-top" id="spTop"></div>
   <div class="sp-panel sp-bot" id="spBot"></div>
@@ -741,78 +362,59 @@ html{scroll-behavior:smooth}
   </div>
 </div>
 
-<!-- ┌─────────────────────────────────────────┐
-     │  MASTER CONTENT LAYER (z-10)            │
-     └─────────────────────────────────────────┘ -->
+<!-- ── MASTER CONTENT LAYER ── -->
 <div class="relative z-10">
 
-  <!-- ═══════════════════════════════════════
-       NAVBAR
-       ═══════════════════════════════════════ -->
+  <!-- NAVBAR -->
   <nav class="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/40" style="background:rgba(2,2,5,.7);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)">
     <div class="max-w-7xl mx-auto px-4 h-14 flex items-center relative">
-      <!-- LEFT: burger (mobile) / nav links (desktop) -->
       <div class="flex items-center w-1/3">
-        <button class="md:hidden text-slate-400 text-xl" onclick="document.getElementById('mob').classList.toggle('hide')">☰</button>
+        <button class="md:hidden text-slate-400 text-xl" onclick="document.getElementById('mob').classList.toggle('hide-menu')">☰</button>
         <div class="hidden md:flex items-center gap-0">
           <a href="#tools" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white border-r border-slate-800/40 transition" style="text-decoration:none">Tools</a>
           <a href="#tools" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white border-r border-slate-800/40 transition" style="text-decoration:none" onclick="event.preventDefault();fTrending();document.getElementById('tools').scrollIntoView({behavior:'smooth'})">Trending</a>
         </div>
       </div>
-      <!-- CENTER: HAVOC branding — dead centered via flex-1 -->
       <div class="flex-1 flex justify-center">
         <a href="#" class="text-white text-2xl md:text-3xl font-extrabold tracking-widest" style="text-decoration:none;font-family:'New Rocker','Inter',sans-serif;text-shadow:0 1px 0 #cbd5e1,0 2px 0 #94a3b8,0 3px 0 #475569,0 4px 10px rgba(6,182,212,0.5);filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8))">HAVOC</a>
       </div>
-      <!-- RIGHT: Live Matrix (sm only) / TikTok (desktop) -->
       <div class="flex items-center justify-end w-1/3">
         <div class="hidden sm:inline-flex md:hidden lg:hidden items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] text-slate-400 font-mono tracking-widest uppercase" style="background:rgba(9,13,22,.6);border:1px solid rgba(51,65,85,.8)">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           Live Matrix
         </div>
         <div class="hidden md:flex items-center gap-1">
-          <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white transition" style="text-decoration:none">TikTok</a>
+          <a href="https://tiktok.com/@dexyy" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 text-[13px] text-slate-400 hover:text-white transition" style="text-decoration:none">TikTok</a>
           <button onclick="openReqModal()" class="px-3 py-1 rounded-lg text-[12px] font-semibold tracking-wide transition" style="cursor:pointer;color:#4facfe;border:1px solid rgba(79,172,254,.22);background:transparent" onmouseover="this.style.borderColor='rgba(79,172,254,.5)';this.style.background='rgba(79,172,254,.06)'" onmouseout="this.style.borderColor='rgba(79,172,254,.22)';this.style.background='transparent'">+ Request Tool</button>
         </div>
       </div>
     </div>
   </nav>
 
-  <!-- Mobile floating action pill -->
   <button class="req-fab" onclick="openReqModal()">+ Request Tool</button>
 
-  <!-- Mobile Menu -->
-  <div id="mob" class="hide fixed top-14 left-0 right-0 z-40 border-b border-slate-800/40" style="background:rgba(2,2,5,.95);backdrop-filter:blur(20px)">
+  <div id="mob" class="hide-menu fixed top-14 left-0 right-0 z-40 border-b border-slate-800/40" style="background:rgba(2,2,5,.95);backdrop-filter:blur(20px)">
     <div class="p-4 flex flex-col gap-2 max-w-7xl mx-auto">
-      <a href="#tools" class="px-4 py-2.5 text-sm text-slate-400 hover:text-white rounded border border-slate-800/40 transition" style="text-decoration:none" onclick="document.getElementById('mob').classList.add('hide')">Tools</a>
-      <a href="#tools" class="px-4 py-2.5 text-sm text-slate-400 hover:text-white rounded border border-slate-800/40 transition" style="text-decoration:none" onclick="event.preventDefault();document.getElementById('mob').classList.add('hide');fTrending();document.getElementById('tools').scrollIntoView({behavior:'smooth'})">Trending</a>
-      <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 text-sm text-slate-400 hover:text-white rounded border border-slate-800/40 transition" style="text-decoration:none">TikTok</a>
+      <a href="#tools" class="px-4 py-2.5 text-sm text-slate-400 hover:text-white rounded border border-slate-800/40 transition" style="text-decoration:none" onclick="document.getElementById('mob').classList.add('hide-menu')">Tools</a>
+      <a href="#tools" class="px-4 py-2.5 text-sm text-slate-400 hover:text-white rounded border border-slate-800/40 transition" style="text-decoration:none" onclick="event.preventDefault();document.getElementById('mob').classList.add('hide-menu');fTrending();document.getElementById('tools').scrollIntoView({behavior:'smooth'})">Trending</a>
+      <a href="https://tiktok.com/@dexyy" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 text-sm text-slate-400 hover:text-white rounded border border-slate-800/40 transition" style="text-decoration:none">TikTok</a>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════
-       SLOT A: TOP LEADERBOARD AD
-       ═══════════════════════════════════════ -->
+  <!-- SLOT A: TOP LEADERBOARD AD -->
   <div class="pt-20 pb-2">
     <div class="max-w-7xl mx-auto px-4 my-6">
       <div class="af af-top mx-auto" style="max-width:728px;position:relative">
         <span style="position:absolute;top:3px;left:12px;font-size:9px;color:rgba(100,116,139,.4);letter-spacing:.12em;font-family:monospace;text-transform:uppercase;pointer-events:none">Community Partner</span>
         <script>
-          atOptions = {
-            'key' : '76f41da819582075b2e5619851f50a31',
-            'format' : 'iframe',
-            'height' : 90,
-            'width' : 728,
-            'params' : {}
-          };
+          atOptions = {'key':'76f41da819582075b2e5619851f50a31','format':'iframe','height':90,'width':728,'params':{}};
         </script>
         <script src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════
-       HERO
-       ═══════════════════════════════════════ -->
+  <!-- HERO -->
   <section class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 py-16 md:py-24">
     <div class="max-w-3xl mx-auto text-center">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono tracking-wide mb-4" style="background:rgba(6,182,212,.05);border:1px solid rgba(6,182,212,.2);color:rgba(34,211,238,.85);box-shadow:0 0 15px rgba(6,182,212,.05)">
@@ -834,9 +436,7 @@ html{scroll-behavior:smooth}
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════
-       CATEGORY PILLS
-       ═══════════════════════════════════════ -->
+  <!-- CATEGORY PILLS (single authoritative row) -->
   <section class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-10" id="tools">
     <div class="border-b border-slate-800/40 pb-6">
       <div class="flex flex-wrap gap-2 justify-center" id="pillWrap">
@@ -849,444 +449,30 @@ html{scroll-behavior:smooth}
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════
-       TOOL GRID
-       ═══════════════════════════════════════ -->
+  <!-- TOOL INJECTION ZONE -->
   <section class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
-    <div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="toolGrid">
 
-        <!-- ── EMPTY STATE (shown when no pill is active) ── -->
-        <div id="grid-empty-state">
-          <div class="es-icon">⚡</div>
-          <div class="es-title">// SELECT A CATEGORY</div>
-          <div class="es-sub">Pick a category below to load your toolkit — or search above to find any tool instantly.</div>
-          <div class="es-arrows">
-            <span class="es-arrow" onclick="fCat('computer',document.querySelectorAll('.pill')[1])">💻 Computer</span>
-            <span class="es-arrow" onclick="fCat('phone',document.querySelectorAll('.pill')[2])">📱 Phone</span>
-            <span class="es-arrow" onclick="fCat('games',document.querySelectorAll('.pill')[3])">🎮 Games</span>
-            <span class="es-arrow" onclick="fCat('software',document.querySelectorAll('.pill')[4])">💻 Software</span>
-          </div>
+    <!-- SLOT B: MID-GRID NATIVE AD (always visible) -->
+    <div id="mid-ad-slot" class="mb-6 flex flex-col items-center justify-center" style="min-height:260px;background:rgba(9,13,22,.2);border:1px solid rgba(51,65,85,.4);border-radius:12px;contain:layout style;display:none">
+      <span class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-3 block">Community Partner</span>
+      <script async="async" data-cfasync="false" src="https://bauval.org/21/d0f677b4d72b913f07ead837adf17f31"></script>
+      <div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
+    </div>
+
+    <!-- PRIMARY INJECTION GRID -->
+    <div id="tools-display-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Empty state shown on boot, replaced when pill clicked -->
+      <div id="grid-empty-state" style="grid-column:1/-1">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center">
+          <div style="font-size:48px;margin-bottom:20px;opacity:.2">⚡</div>
+          <div style="font-size:12px;font-weight:700;color:#334155;font-family:monospace;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px">// SELECT A CATEGORY</div>
+          <div style="font-size:12px;color:#1e293b;max-width:300px;line-height:1.6">Pick a category above to load your toolkit — or search to find any tool instantly.</div>
         </div>
-
-        <!-- ── TRENDING / BREAKOUT ── -->
-        <a href="tools/ai-image-detector.html" class="gc gc-featured gc-boot-hidden" data-cat="computer" data-s="ai image detector fake photo exif metadata scan">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖼️</span><span class="chip chip-brk">Breakout</span></div>
-          <h3>AI Image Detector</h3>
-          <p>Drop any image and find out if it's AI-generated. Scans EXIF data and pixel patterns — no uploads, runs locally.</p>
-        </a>
-
-        <a href="tools/ai-text-detector.html" class="gc gc-featured gc-boot-hidden" data-cat="computer" data-s="ai text detector gpt chatgpt writing check">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🤖</span><span class="chip chip-pop">Popular</span></div>
-          <h3>AI Text Detector</h3>
-          <p>Paste any text and see if ChatGPT probably wrote it. Checks for robotic patterns humans don't use.</p>
-        </a>
-
-        <a href="tools/citation-generator.html" class="gc gc-boot-hidden" data-cat="computer" data-s="apa mla citation generator bibliography reference">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📚</span><span class="chip chip-util">Utility</span></div>
-          <h3>APA & MLA Citation Generator</h3>
-          <p>Plug in a URL or book title and get a perfect APA or MLA citation. Copy-paste ready.</p>
-        </a>
-
-        <a href="tools/pdf-link-generator.html" class="gc gc-boot-hidden" data-cat="computer" data-s="pdf link generator share document url">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📄</span><span class="chip chip-util">Utility</span></div>
-          <h3>PDF Link Generator</h3>
-          <p>Turn any PDF on your device into a shareable link. Works offline, nothing gets uploaded.</p>
-        </a>
-
-        <!-- ── COMPUTER ── -->
-        <a href="tools/pc-age.html" class="gc gc-boot-hidden" data-cat="computer" data-s="how old is my pc device age scanner">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">💻</span><span class="chip chip-pop">Popular</span></div>
-          <h3>How Old Is My PC?</h3>
-          <p>Scans your GPU, CPU cores, and RAM to estimate your device's age — then roasts it.</p>
-        </a>
-
-        <a href="tools/keyboard-test.html" class="gc gc-boot-hidden" data-cat="computer" data-s="keyboard tester key test gaming">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">⌨️</span><span class="chip chip-comp">Computer</span></div>
-          <h3>Keyboard Tester</h3>
-          <p>Press any key and see it light up. Find dead keys, test rollover, perfect for gamers.</p>
-        </a>
-
-        <a href="tools/webcam-test.html" class="gc gc-boot-hidden" data-cat="computer" data-s="webcam tester camera test video">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📷</span><span class="chip chip-comp">Computer</span></div>
-          <h3>Webcam Tester</h3>
-          <p>Check if your camera works. See resolution, frame rate, and preview your feed.</p>
-        </a>
-
-        <a href="tools/mic-test.html" class="gc gc-boot-hidden" data-cat="computer" data-s="microphone tester mic test audio">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎤</span><span class="chip chip-comp">Computer</span></div>
-          <h3>Microphone Tester</h3>
-          <p>Test if your mic is picking up sound. See the live waveform and volume levels.</p>
-        </a>
-
-        <a href="tools/dead-pixel.html" class="gc gc-boot-hidden" data-cat="computer" data-s="dead pixel tester monitor screen test">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖥️</span><span class="chip chip-comp">Computer</span></div>
-          <h3>Dead Pixel Tester</h3>
-          <p>Fullscreen color test to find stuck or dead pixels on your monitor.</p>
-        </a>
-
-        <a href="tools/speaker-test.html" class="gc gc-boot-hidden" data-cat="computer" data-s="speaker audio test left right channel">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔊</span><span class="chip chip-comp">Computer</span></div>
-          <h3>Speaker Tester</h3>
-          <p>Test left and right audio channels. Make sure both speakers are working.</p>
-        </a>
-
-        <!-- ═══ SLOT B: MID-GRID NATIVE AD ═══ -->
-        <div class="gc glass-panel flex flex-col items-center justify-center min-h-[280px] sm:col-span-2 lg:col-span-1" style="cursor:default;contain:layout style" data-cat="all">
-          <span class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2 block self-start">Community Partner</span>
-          <div class="flex items-center justify-center flex-1 w-full">
-            <script async="async" data-cfasync="false" src="https://bauval.org/21/d0f677b4d72b913f07ead837adf17f31"></script>
-            <div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
-          </div>
-        </div>
-
-        <!-- ── PHONE ── -->
-        <a href="tools/device-info.html" class="gc gc-boot-hidden" data-cat="phone" data-s="device info phone scanner specs">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📱</span><span class="chip chip-phone">Phone</span></div>
-          <h3>Device Scanner</h3>
-          <p>Tells you exactly what phone you have — model, screen size, OS, browser. The works.</p>
-        </a>
-
-        <a href="tools/touch-test.html" class="gc gc-boot-hidden" data-cat="phone" data-s="touchscreen tester touch test phone tablet">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">👆</span><span class="chip chip-phone">Phone</span></div>
-          <h3>Touchscreen Tester</h3>
-          <p>Draw on screen to test for dead zones. Checks multi-touch support too.</p>
-        </a>
-
-        <a href="tools/gyroscope-test.html" class="gc gc-boot-hidden" data-cat="phone" data-s="gyroscope accelerometer sensor test phone">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🧭</span><span class="chip chip-phone">Phone</span></div>
-          <h3>Gyroscope Tester</h3>
-          <p>Tilt your phone around and watch the sensor data move in real time. Oddly satisfying.</p>
-        </a>
-
-        <a href="tools/vibration-test.html" class="gc gc-boot-hidden" data-cat="phone" data-s="vibration motor test phone android">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📳</span><span class="chip chip-phone">Phone</span></div>
-          <h3>Vibration Tester</h3>
-          <p>Test your phone's vibration motor with different patterns. Android only.</p>
-        </a>
-
-        <!-- ── INTERNET ── -->
-        <a href="tools/browser-check.html" class="gc gc-boot-hidden" data-cat="computer" data-s="what browser am i using version check update">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🌐</span><span class="chip chip-pop">Popular</span></div>
-          <h3>What Browser Am I Using?</h3>
-          <p>Detects your browser name, version, and tells you if it's up to date.</p>
-        </a>
-
-        <a href="tools/ip-lookup.html" class="gc gc-boot-hidden" data-cat="computer" data-s="what is my ip address location lookup">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔍</span><span class="chip chip-net">Internet</span></div>
-          <h3>What's My IP Address?</h3>
-          <p>Shows your public IP address and approximate location instantly.</p>
-        </a>
-
-        <a href="tools/screen-resolution.html" class="gc gc-boot-hidden" data-cat="computer" data-s="what is my screen resolution display size">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📐</span><span class="chip chip-net">Internet</span></div>
-          <h3>Screen Resolution</h3>
-          <p>Quick readout of your exact screen resolution, pixel ratio, and color depth.</p>
-        </a>
-
-        <a href="tools/password-checker.html" class="gc gc-boot-hidden" data-cat="computer" data-s="password strength checker cryptographic entropy breach exposure security test">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔒</span><span class="chip chip-pop">Popular</span></div>
-          <h3>Cryptographic Entropy & Breach Engine</h3>
-          <p>Real-time multi-GPU brute-force time estimates for any password you type. Calculates crack latency across attack vectors and generates a copyable vulnerability report. Nothing stored, nothing sent.</p>
-        </a>
-
-        <!-- ── FPS BOTTLENECK AUDITOR ── -->
-        <a href="tools/fps-bottleneck.html" class="gc gc-boot-hidden" data-cat="computer" data-s="fps bottleneck pc lag fix optimizer gpu cpu ram performance boost debloat" style="cursor:pointer;text-decoration:none;color:inherit">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖥️</span><span class="chip chip-brk">🔥 Power Tool</span></div>
-          <h3>PC Spec Assessment & FPS Bottleneck Auditor</h3>
-          <p id="fps-intro">Running diagnostics on your system profile...</p>
-
-          <!-- Terminal log sequence -->
-          <div id="fps-terminal" style="display:none;font-family:monospace;font-size:11px;background:rgba(0,0,0,0.6);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:12px;margin-top:10px;line-height:1.8">
-            <span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">SCANNING CPU THREAD DISPATCH...</span><br>
-            <span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">MAPPING GPU RENDER PIPELINE...</span><br>
-            <span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">AUDITING RAM CHANNEL SATURATION...</span><br>
-            <span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">DETECTING BACKGROUND PROCESS DRAIN...</span><br>
-            <span style="color:#f59e0b">&gt;</span> <span style="color:#fbbf24">BOTTLENECK VECTOR IDENTIFIED...</span>
-          </div>
-
-          <!-- Result panel (fades in after 2s) -->
-          <div id="fps-result" style="display:none;opacity:0;transition:opacity 0.6s ease;margin-top:12px">
-            <div style="font-family:monospace;font-size:11px;background:rgba(0,0,0,0.7);border:1px solid rgba(239,68,68,0.5);border-radius:8px;padding:14px;line-height:2">
-              <div style="color:#ef4444;font-size:13px;font-weight:700;letter-spacing:0.15em;margin-bottom:6px">⚠ SYSTEM EVALUATION: LAG FACTORY // POTATO CORE</div>
-              <div style="color:#94a3b8">BOTTLENECK CLASS <span style="color:#f59e0b">►</span> <span style="color:#fbbf24">BACKGROUND PROCESS DRAIN + CLUTTER SATURATION</span></div>
-              <div style="color:#94a3b8">FPS RECOVERY POTENTIAL <span style="color:#f59e0b">►</span> <span style="color:#4ade80">+15 TO +40 FPS RECOVERABLE</span></div>
-              <div style="color:#94a3b8">PRIORITY ACTIONS <span style="color:#f59e0b">►</span> <span style="color:#f87171">3 CRITICAL INTERVENTIONS QUEUED</span></div>
-            </div>
-
-            <!-- DEPLOYMENT DECK toggle -->
-            <button onclick="(function(btn){
-              var deck=document.getElementById('fps-deck');
-              var open=deck.style.display==='flex';
-              deck.style.display=open?'none':'flex';
-              btn.textContent=open?'▼ Show Fix Plan':'▲ Hide Fix Plan';
-              addXP(50);
-            })(this)" style="margin-top:12px;width:100%;font-family:monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;padding:8px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:#f87171;cursor:pointer;transition:all 0.2s">▼ Show Fix Plan</button>
-
-            <!-- DEPLOYMENT DECK -->
-            <div id="fps-deck" style="display:none;margin-top:4px;flex-direction:column;gap:10px">
-
-              <!-- ACTION 1: Debloat Script -->
-              <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:12px">
-                <div style="font-family:monospace;font-size:10px;color:#ef4444;letter-spacing:0.12em;margin-bottom:6px">ACTION 1 // POWER COMMAND</div>
-                <div style="font-size:12px;color:#cbd5e1;margin-bottom:10px">Run the community-trusted Windows debloat script to strip background telemetry, disable resource hogs, and clean system clutter in one shot.</div>
-                <button onclick="(function(){
-                  navigator.clipboard.writeText('iwr -useb https://christitus.com/win | iex').then(function(){
-                    var b=document.getElementById('debloat-btn');
-                    b.textContent='✅ Command Copied! Press Win+X → Open PowerShell → Paste & Run';
-                    b.style.background='rgba(74,222,128,0.15)';
-                    b.style.borderColor='rgba(74,222,128,0.4)';
-                    b.style.color='#4ade80';
-                    setTimeout(function(){
-                      b.textContent='[ 📋 Copy Master Clutter Debloat Script ]';
-                      b.style.background='rgba(239,68,68,0.15)';
-                      b.style.borderColor='rgba(239,68,68,0.4)';
-                      b.style.color='#f87171';
-                    },4000);
-                  });
-                  addXP(50);
-                })()" id="debloat-btn" style="font-family:monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;padding:9px 14px;border-radius:6px;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.15);color:#f87171;cursor:pointer;width:100%;text-align:center;transition:all 0.3s">[ 📋 Copy Master Clutter Debloat Script ]</button>
-              </div>
-
-              <!-- ACTION 2: Dispatch Link Kit -->
-              <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:8px;padding:12px">
-                <div style="font-family:monospace;font-size:10px;color:#a78bfa;letter-spacing:0.12em;margin-bottom:6px">ACTION 2 // DISPATCH LINK KIT</div>
-                <div style="font-size:12px;color:#cbd5e1;margin-bottom:10px">Jump directly to your two most powerful junk-removal tools in the Safe PC Software vault. BleachBit nukes hidden cache layers. Revo Uninstaller wipes programs down to their registry roots.</div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap">
-                  <button onclick="(function(){
-                    var pills=document.querySelectorAll('.pill');
-                    pills.forEach(function(p){p.classList.remove('active')});
-                    var sw=Array.from(pills).find(function(p){return p.textContent.includes('Safe PC Software')});
-                    if(sw){sw.classList.add('active');fCat('software',sw);}
-                    setTimeout(function(){
-                      var cards=document.querySelectorAll('.gc');
-                      cards.forEach(function(c){c.style.outline='none'});
-                      cards.forEach(function(c){
-                        if(c.querySelector('h3') && (c.querySelector('h3').textContent.includes('BleachBit')||c.querySelector('h3').textContent.includes('Revo'))){
-                          c.style.outline='2px solid #a78bfa';
-                          c.scrollIntoView({behavior:'smooth',block:'center'});
-                        }
-                      });
-                    },200);
-                    addXP(50);
-                  })()" style="font-family:monospace;font-size:11px;padding:7px 12px;border-radius:6px;border:1px solid rgba(139,92,246,0.4);background:rgba(139,92,246,0.15);color:#a78bfa;cursor:pointer;transition:all 0.2s">🧹 BleachBit → Wipe Cache Layers</button>
-                  <button onclick="(function(){
-                    var pills=document.querySelectorAll('.pill');
-                    pills.forEach(function(p){p.classList.remove('active')});
-                    var sw=Array.from(pills).find(function(p){return p.textContent.includes('Safe PC Software')});
-                    if(sw){sw.classList.add('active');fCat('software',sw);}
-                    setTimeout(function(){
-                      var cards=document.querySelectorAll('.gc');
-                      cards.forEach(function(c){c.style.outline='none'});
-                      cards.forEach(function(c){
-                        if(c.querySelector('h3') && (c.querySelector('h3').textContent.includes('BleachBit')||c.querySelector('h3').textContent.includes('Revo'))){
-                          c.style.outline='2px solid #a78bfa';
-                          c.scrollIntoView({behavior:'smooth',block:'center'});
-                        }
-                      });
-                    },200);
-                    addXP(50);
-                  })()" style="font-family:monospace;font-size:11px;padding:7px 12px;border-radius:6px;border:1px solid rgba(139,92,246,0.4);background:rgba(139,92,246,0.15);color:#a78bfa;cursor:pointer;transition:all 0.2s">🗑️ Revo → Deep Registry Purge</button>
-                </div>
-              </div>
-
-              <!-- ACTION 3: Tactical Checklist -->
-              <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:12px">
-                <div style="font-family:monospace;font-size:10px;color:#34d399;letter-spacing:0.12em;margin-bottom:6px">ACTION 3 // TACTICAL OS TWEAKS</div>
-                <div style="font-size:12px;color:#cbd5e1;margin-bottom:10px">Three native Windows toggles you can flip right now. No third-party software needed.</div>
-                <div style="display:flex;flex-direction:column;gap:8px">
-                  <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:#94a3b8" onclick="addXP(50)">
-                    <input type="checkbox" style="margin-top:2px;accent-color:#34d399;width:14px;height:14px;flex-shrink:0">
-                    <span><span style="color:#e2e8f0;font-weight:600">Enable Hardware-Accelerated GPU Scheduling</span><br>Settings → Display → Graphics → Default Graphics Settings → turn HAGS on. Cuts CPU overhead on GPU workloads.</span>
-                  </label>
-                  <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:#94a3b8" onclick="addXP(50)">
-                    <input type="checkbox" style="margin-top:2px;accent-color:#34d399;width:14px;height:14px;flex-shrink:0">
-                    <span><span style="color:#e2e8f0;font-weight:600">Disable Startup App Resource Hogs</span><br>Task Manager → Startup Apps tab → right-click anything you don't need at boot and Disable. Cuts cold-start RAM drain.</span>
-                  </label>
-                  <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:#94a3b8" onclick="addXP(50)">
-                    <input type="checkbox" style="margin-top:2px;accent-color:#34d399;width:14px;height:14px;flex-shrink:0">
-                    <span><span style="color:#e2e8f0;font-weight:600">Turn Off Background Telemetry Tracing</span><br>Settings → Privacy & Security → Diagnostics & Feedback → set to Basic. Stops Windows from quietly consuming CPU/disk in the background.</span>
-                  </label>
-                </div>
-              </div>
-
-            </div><!-- /deployment deck -->
-          </div><!-- /fps-result -->
-        </a><!-- /fps card -->
-
-        <!-- ── UTILITIES ── -->
-        <a href="tools/qr-generator.html" class="gc gc-boot-hidden" data-cat="phone" data-s="qr code generator create make">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📱</span><span class="chip chip-util">Utility</span></div>
-          <h3>QR Code Generator</h3>
-          <p>Paste any URL or text and get a QR code instantly. Download as PNG.</p>
-        </a>
-
-        <a href="tools/word-counter.html" class="gc gc-boot-hidden" data-cat="computer" data-s="word counter character count text">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📝</span><span class="chip chip-util">Utility</span></div>
-          <h3>Word & Character Counter</h3>
-          <p>Paste your text — get word count, character count, sentences, and reading time. That's it.</p>
-        </a>
-
-        <a href="tools/color-picker.html" class="gc gc-boot-hidden" data-cat="computer" data-s="color picker palette generator hex rgb">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎨</span><span class="chip chip-util">Utility</span></div>
-          <h3>Color Picker</h3>
-          <p>Pick any color, grab the hex/RGB code, and build a matching palette around it.</p>
-        </a>
-
-        <a href="tools/text-converter.html" class="gc gc-boot-hidden" data-cat="computer" data-s="text case converter uppercase lowercase title">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔤</span><span class="chip chip-util">Utility</span></div>
-          <h3>Text Case Converter</h3>
-          <p>Convert text to UPPERCASE, lowercase, Title Case, or aLtErNaTiNg.</p>
-        </a>
-
-        <a href="tools/timer.html" class="gc gc-boot-hidden" data-cat="phone" data-s="countdown timer stopwatch clock">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">⏱️</span><span class="chip chip-util">Utility</span></div>
-          <h3>Timer & Stopwatch</h3>
-          <p>Clean countdown timer and stopwatch with lap tracking.</p>
-        </a>
-
-        <!-- ── GAMES & ROASTS ── -->
-        <a href="tools/hacker-terminal.html" class="gc gc-boot-hidden" data-cat="games" data-s="hacker terminal simulator typing matrix">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🖥️</span><span class="chip chip-viral">🔥 Viral</span></div>
-          <h3>Hacker Terminal</h3>
-          <p>Type literally anything and look like you're hacking NASA. Full Matrix vibes.</p>
-        </a>
-
-        <a href="tools/typing-test.html" class="gc gc-boot-hidden" data-cat="games" data-s="typing speed test wpm roast fast slow">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">⚡</span><span class="chip chip-viral">🔥 Viral</span></div>
-          <h3>Typing Speed Test</h3>
-          <p>Test your WPM then get brutally roasted based on how fast (or slow) you type.</p>
-        </a>
-
-        <a href="tools/wifi-names.html" class="gc gc-boot-hidden" data-cat="games" data-s="wifi name generator funny network ssid">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📶</span><span class="chip chip-fun">Fun</span></div>
-          <h3>WiFi Name Generator</h3>
-          <p>Get WiFi names that'll make your neighbors question everything. One-tap copy.</p>
-        </a>
-
-        <a href="tools/hacker-name.html" class="gc gc-boot-hidden" data-cat="games" data-s="hacker name generator alias cyber identity">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🥷</span><span class="chip chip-fun">Fun</span></div>
-          <h3>Hacker Name Generator</h3>
-          <p>Enter your name and get your elite hacker alias. Share your cyber identity.</p>
-        </a>
-
-        <a href="tools/internet-quiz.html" class="gc gc-boot-hidden" data-cat="games" data-s="what type of internet user quiz personality">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🧠</span><span class="chip chip-fun">Fun</span></div>
-          <h3>What Internet User Are You?</h3>
-          <p>Take the quiz and find out your internet personality type. Scarily accurate.</p>
-        </a>
-
-        <a href="tools/fake-error.html" class="gc gc-boot-hidden" data-cat="games" data-s="fake error message generator windows prank">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">⚠️</span><span class="chip chip-prank">Prank</span></div>
-          <h3>Fake Error Generator</h3>
-          <p>Build a fake error popup that looks 100% real. Watch the panic unfold.</p>
-        </a>
-
-        <a href="tools/fake-bsod.html" class="gc gc-boot-hidden" data-cat="games" data-s="fake blue screen of death bsod windows prank">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">💀</span><span class="chip chip-prank">Prank</span></div>
-          <h3>Blue Screen of Death</h3>
-          <p>Fullscreen fake BSOD. Press F11 for maximum panic. ESC to escape.</p>
-        </a>
-
-        <a href="tools/fake-update.html" class="gc gc-boot-hidden" data-cat="games" data-s="fake windows update screen prank loading">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔄</span><span class="chip chip-prank">Prank</span></div>
-          <h3>Fake Update Screen</h3>
-          <p>Fullscreen fake Windows update that never finishes. Classic prank.</p>
-        </a>
-
-        <!-- ── ARCADE .IO GAMES ── -->
-        <div class="gc gc-boot-hidden" data-cat="games" data-s="slither io snake multiplayer arcade game online" onclick="launchGame('https://slither.io/')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🐍</span><span class="chip chip-viral">🔥 Arcade</span></div>
-          <h3>Slither.io Arena</h3>
-          <p>Multiplayer snake survival — eat, grow, and outlast everyone. Opens in a new tab, zero installs needed.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="games" data-s="retro snake multiplayer game arcade classic" onclick="launchGame('https://playsnake.org/')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🕹️</span><span class="chip chip-fun">Arcade</span></div>
-          <h3>Retro Snake Multiplayer</h3>
-          <p>Classic snake reborn in competitive multiplayer mode. Pure reflex gaming, opens in new tab.</p>
-        </div>
-
-        <!-- ── SAFE PC SOFTWARE (hidden unless software tab active) ── -->
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="obs studio screen recorder streaming capture free open source" onclick="window.open('https://obsproject.com/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎥</span><span class="chip chip-comp">Free · Open Source</span></div>
-          <h3>OBS Studio</h3>
-          <p>The screen capture bible. Records your desktop, game feed, or webcam in broadcast quality — no watermarks, no subscriptions, no nonsense. What every streamer and content creator actually runs.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="7zip file archiver extractor zip rar 7z tar iso free open source" onclick="window.open('https://www.7-zip.org/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">📦</span><span class="chip chip-util">Free · Open Source</span></div>
-          <h3>7-Zip</h3>
-          <p>The zero-nag archiver. Opens ZIP, RAR, 7z, TAR, ISO and a dozen more formats without pestering you to upgrade. Tiny installer, no bundled junk, just works every single time.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="bleachbit system cleaner privacy junk files browser cache free open source" onclick="window.open('https://www.bleachbit.org/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🧹</span><span class="chip chip-net">Free · Open Source</span></div>
-          <h3>BleachBit</h3>
-          <p>System shredder core. Wipes browser caches, temp files, log clutter, and privacy traces down to the bone. Goes places Windows Disk Cleanup won't even look at.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="revo uninstaller remove programs registry leftover deep clean free" onclick="window.open('https://www.revouninstaller.com/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🗑️</span><span class="chip chip-prank">Free</span></div>
-          <h3>Revo Uninstaller</h3>
-          <p>Deep trace cleaner. Removes the program and hunts down every registry key, leftover folder, and hidden file it left behind. Standard Windows uninstall doesn't come close to this.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="vlc media player video audio codec free open source universal" onclick="window.open('https://www.videolan.org/vlc/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎬</span><span class="chip chip-comp">Free · Open Source</span></div>
-          <h3>VLC Media Player</h3>
-          <p>Universal codec player. If VLC can't open your video or audio file, the file is broken. Plays MKV, MP4, FLAC, ISO, streams, and formats that haven't been invented yet. No extra codecs ever needed.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="handbrake video converter compress transcode encode free open source" onclick="window.open('https://handbrake.fr/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🎞️</span><span class="chip chip-util">Free · Open Source</span></div>
-          <h3>HandBrake</h3>
-          <p>Video compression warp. Converts and shrinks any video file for sharing, uploading, or archiving without torching the quality. The go-to for anyone who moves large video files regularly.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="microsoft powertoys windows utilities fancy zones keyboard layout power user" onclick="window.open('https://github.com/microsoft/PowerToys/releases','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">⚡</span><span class="chip chip-comp">Free · Open Source</span></div>
-          <h3>Microsoft PowerToys</h3>
-          <p>Advanced layout utilities straight from Microsoft. Snap windows into custom grid zones, remap any key on your keyboard, bulk-rename files, preview almost any file type in Explorer. Power user stuff the OS should've shipped with.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="everything voidtools instant file search windows fast free" onclick="window.open('https://www.voidtools.com/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔍</span><span class="chip chip-util">Free</span></div>
-          <h3>Voidtools Everything</h3>
-          <p>Instant search matrix for your entire drive. Finds any file or folder on your PC the moment you start typing — no indexing delays, no spinner. Windows Search feels broken after you've used this once.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="keepassxc password manager encrypted local vault offline free open source" onclick="window.open('https://keepassxc.org/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🔐</span><span class="chip chip-net">Free · Open Source</span></div>
-          <h3>KeePassXC</h3>
-          <p>Local encrypted vault. Stores every password you have in an AES-256 encrypted database that never touches the cloud. Your passwords live on your machine — no subscription, no breach exposure, no company holding your keys.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="wiztree disk space analyzer visual treemap drive usage free" onclick="window.open('https://www.diskanalyzer.com/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">💾</span><span class="chip chip-util">Free</span></div>
-          <h3>WizTree</h3>
-          <p>Visual space finder. Shows you exactly what's eating your hard drive as a color-coded treemap — giant files you forgot existed surface in seconds. Scans a 2TB drive faster than anything else out there.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="rufus bootable usb iso windows linux installer free" onclick="window.open('https://rufus.ie/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">💿</span><span class="chip chip-prank">Free</span></div>
-          <h3>Rufus</h3>
-          <p>Bootable ISO builder. Turns any Windows or Linux ISO file into a working bootable USB drive in a few clicks. Single .exe file, no installation required. The first tool you grab when setting up a new machine.</p>
-        </div>
-
-        <div class="gc gc-boot-hidden" data-cat="software" data-s="crystaldiskinfo drive health ssd hdd monitor smart status free" onclick="window.open('https://crystalmark.info/en/software/crystaldiskinfo/','_blank')" style="cursor:pointer">
-          <div class="flex items-start justify-between mb-3"><span class="text-2xl">🩺</span><span class="chip chip-comp">Free · Open Source</span></div>
-          <h3>CrystalDiskInfo</h3>
-          <p>Drive health scanner. Reads the S.M.A.R.T. data your SSD and HDD report internally and translates it into a plain health rating. Catch a failing drive before it takes your data with it.</p>
-        </div>
-
       </div>
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════
-       CTA
-       ═══════════════════════════════════════ -->
+  <!-- CTA -->
   <section class="py-20 px-4">
     <div class="max-w-lg mx-auto text-center">
       <div class="mx-auto mb-6" style="width:50px;height:1px;background:linear-gradient(90deg,transparent,#4facfe,transparent)"></div>
@@ -1296,9 +482,7 @@ html{scroll-behavior:smooth}
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════
-       LIVE STATS GRID
-       ═══════════════════════════════════════ -->
+  <!-- LIVE STATS GRID -->
   <div style="border-top:1px solid rgba(51,65,85,.4);background:rgba(2,2,5,.45);backdrop-filter:blur(10px)">
     <div class="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8" style="border-left:1px solid rgba(51,65,85,.4)">
       <div class="px-4 py-3.5 flex items-center gap-2" style="border-right:1px solid rgba(51,65,85,.4);border-bottom:1px solid rgba(51,65,85,.4)">
@@ -1330,36 +514,30 @@ html{scroll-behavior:smooth}
         <div class="text-sm font-bold font-mono text-emerald-400">99.9%</div>
       </div>
       <div class="px-4 py-3.5" style="border-right:1px solid rgba(51,65,85,.4);border-bottom:1px solid rgba(51,65,85,.4)">
-        <div class="text-[9px] font-semibold tracking-wider text-slate-600 uppercase mb-0.5">Security Checks</div>
-        <div class="text-sm font-bold font-mono text-[#e040fb]">24</div>
-      </div>
-      <div class="px-4 py-3.5" style="border-right:1px solid rgba(51,65,85,.4);border-bottom:1px solid rgba(51,65,85,.4)">
         <div class="text-[9px] font-semibold tracking-wider text-slate-600 uppercase mb-0.5">Categories</div>
-        <div class="text-sm font-bold font-mono text-[#4facfe]">7</div>
+        <div class="text-sm font-bold font-mono text-[#4facfe]">5</div>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════
-       FOOTER
-       ═══════════════════════════════════════ -->
+  <!-- FOOTER -->
   <footer style="border-top:1px solid rgba(51,65,85,.4);background:rgba(2,2,5,.35)">
     <div class="max-w-6xl mx-auto px-4 py-12 text-center">
       <div class="text-xl font-extrabold mb-5">
         <span class="text-white tracking-widest" style="font-family:'New Rocker','Inter',sans-serif;text-shadow:0 1px 0 #cbd5e1,0 2px 0 #94a3b8,0 3px 0 #475569,0 4px 10px rgba(6,182,212,0.5)">HAVOC</span>
       </div>
       <div class="flex flex-wrap justify-center gap-6 mb-6">
-        <a href="#tools" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">All Tools</a>
-        <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('computer',document.querySelectorAll('.pill')[1]);return false">Computer</a>
-        <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('phone',document.querySelectorAll('.pill')[2]);return false">Phone</a>
-        <a href="#" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('games',document.querySelectorAll('.pill')[3]);return false">Games & Roasts</a>
-        <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">TikTok</a>
+        <a href="#tools" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('all',document.querySelectorAll('.pill')[0]);return false">All Tools</a>
+        <a href="#tools" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('computer',document.querySelectorAll('.pill')[1]);return false">Computer</a>
+        <a href="#tools" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('phone',document.querySelectorAll('.pill')[2]);return false">Phone</a>
+        <a href="#tools" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none" onclick="fCat('games',document.querySelectorAll('.pill')[3]);return false">Games & Roasts</a>
+        <a href="https://tiktok.com/@dexyy" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-slate-300 transition" style="text-decoration:none">TikTok</a>
       </div>
       <div class="text-[11px] text-slate-700 mt-2">© 2026 ToolHavoc.com — Made by Dexyy</div>
     </div>
   </footer>
 
-  <!-- ═══ REQUEST A TOOL MODAL ═══ -->
+  <!-- REQUEST MODAL -->
   <div id="request-modal" role="dialog" aria-modal="true" aria-labelledby="rmodal-title" onclick="if(event.target===this)closeReqModal()">
     <div class="rmodal-box">
       <button class="rmodal-close" onclick="closeReqModal()" aria-label="Close">✕</button>
@@ -1379,64 +557,545 @@ html{scroll-behavior:smooth}
     </div>
   </div>
 
-
-<!-- ═══ ARCADE GAME MODAL ═══ -->
-<div id="arcadeOverlay" role="dialog" aria-modal="true" onclick="if(event.target===this)closeArcade()">
-  <div id="arcadeBox">
-    <div id="arcadeHeader">
-      <span id="arcadeTitle">🎮 ARCADE MODE</span>
-      <button id="arcadeClose" onclick="closeArcade()" aria-label="Close">✕</button>
+  <!-- ARCADE MODAL -->
+  <div id="arcadeOverlay" role="dialog" aria-modal="true" onclick="if(event.target===this)closeArcade()">
+    <div id="arcadeBox">
+      <div id="arcadeHeader">
+        <span id="arcadeTitle">🎮 ARCADE MODE</span>
+        <button id="arcadeClose" onclick="closeArcade()" aria-label="Close">✕</button>
+      </div>
+      <iframe id="arcadeFrame" src="" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" scrolling="auto" allowfullscreen></iframe>
     </div>
-    <iframe id="arcadeFrame" src="" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" scrolling="auto" allowfullscreen></iframe>
   </div>
-</div>
 
-<!-- ═══ XP LEVEL-UP CHIP ═══ -->
-<div id="xp-levelup">[SUCCESS: LEVEL UP // INTERFACE ACCESS TIER 02 SECURED]</div>
+  <!-- XP LEVEL-UP CHIP -->
+  <div id="xp-levelup">[SUCCESS: LEVEL UP // INTERFACE ACCESS TIER 02 SECURED]</div>
 
-<!-- ═══ COMMAND SEARCH MATRIX MODAL ═══ -->
-<div id="cmdOverlay" role="dialog" aria-modal="true" aria-label="Command Search" onclick="if(event.target===this)closeCmd()">
-  <div id="cmdBox">
-    <span class="cmd-slash">/</span>
-    <input id="cmdSearch" type="text" placeholder="Search 35+ tools…" autocomplete="off" autocorrect="off" spellcheck="false" oninput="cmdFilter(this.value)" onkeydown="cmdKey(event)" aria-label="Search tools">
+  <!-- COMMAND SEARCH -->
+  <div id="cmdOverlay" role="dialog" aria-modal="true" aria-label="Command Search" onclick="if(event.target===this)closeCmd()">
+    <div id="cmdBox">
+      <span class="cmd-slash">/</span>
+      <input id="cmdSearch" type="text" placeholder="Search 35+ tools…" autocomplete="off" autocorrect="off" spellcheck="false" oninput="cmdFilter(this.value)" onkeydown="cmdKey(event)" aria-label="Search tools">
+    </div>
+    <div id="cmdResults"></div>
+    <div id="cmdNoResult">
+      <p>No tools match that search.</p>
+      <a onclick="closeCmd();openReqModal()">🛠️ Request a Tool →</a>
+    </div>
+    <div id="cmdHint">↑↓ navigate &nbsp;·&nbsp; ↵ open &nbsp;·&nbsp; esc close</div>
   </div>
-  <div id="cmdResults"></div>
-  <div id="cmdNoResult">
-    <p>No tools match that search.</p>
-    <a onclick="closeCmd();openReqModal()">🛠️ Request a Tool →</a>
-  </div>
-  <div id="cmdHint">↑↓ navigate &nbsp;·&nbsp; ↵ open &nbsp;·&nbsp; esc close</div>
-</div>
 
-</div><!-- end z-10 master -->
+</div><!-- /z-10 master -->
 
-<!-- ═══════════════════════════════════════
-     SLOT C: BOTTOM STICKY DISMISSIBLE AD
-     ═══════════════════════════════════════ -->
+<!-- SLOT C: BOTTOM STICKY DISMISSIBLE AD -->
 <div id="stickyAd" class="stk">
   <div class="af-sticky flex items-center justify-center py-2 relative max-w-7xl mx-auto px-4">
     <button onclick="document.getElementById('stickyAd').classList.add('off')" class="absolute top-1 right-4 text-slate-600 hover:text-slate-300 text-xs font-bold z-10 cursor-pointer" aria-label="Close ad">✕</button>
     <div style="max-width:320px;min-height:260px;position:relative">
       <span style="position:absolute;top:3px;left:12px;font-size:9px;color:rgba(100,116,139,.4);letter-spacing:.12em;font-family:monospace;text-transform:uppercase;pointer-events:none">Community Partner</span>
       <script>
-        atOptions = {
-          'key' : '4eb8d16a9cbab1deebe011d440079990',
-          'format' : 'iframe',
-          'height' : 250,
-          'width' : 300,
-          'params' : {}
-        };
+        atOptions = {'key':'4eb8d16a9cbab1deebe011d440079990','format':'iframe','height':250,'width':300,'params':{}};
       </script>
       <script src="//bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
+<!-- ══════════════════════════════════════════
      JAVASCRIPT
-     ═══════════════════════════════════════ -->
+══════════════════════════════════════════ -->
 <script>
-/* ═══ SPLASH LOADER ═══ */
+/* ══════════════════════════════════════
+   TOOL DATA — single source of truth
+══════════════════════════════════════ */
+var TOOLS = [
+  /* ── TRENDING / BREAKOUT ── */
+  {cat:'computer', href:'tools/ai-image-detector.html', icon:'🖼️', chip:'chip-brk', chipLabel:'Breakout', featured:true,
+   name:'AI Image Detector',
+   desc:'Drop any image and find out if it\'s AI-generated. Scans EXIF data and pixel patterns — no uploads, runs locally.',
+   s:'ai image detector fake photo exif metadata scan'},
+  {cat:'computer', href:'tools/ai-text-detector.html', icon:'🤖', chip:'chip-pop', chipLabel:'Popular', featured:true,
+   name:'AI Text Detector',
+   desc:'Paste any text and see if ChatGPT probably wrote it. Checks for robotic patterns humans don\'t use.',
+   s:'ai text detector gpt chatgpt writing check'},
+  {cat:'computer', href:'tools/citation-generator.html', icon:'📚', chip:'chip-util', chipLabel:'Utility',
+   name:'APA & MLA Citation Generator',
+   desc:'Plug in a URL or book title and get a perfect APA or MLA citation. Copy-paste ready.',
+   s:'apa mla citation generator bibliography reference'},
+  {cat:'computer', href:'tools/pdf-link-generator.html', icon:'📄', chip:'chip-util', chipLabel:'Utility',
+   name:'PDF Link Generator',
+   desc:'Turn any PDF on your device into a shareable link. Works offline, nothing gets uploaded.',
+   s:'pdf link generator share document url'},
+  /* ── COMPUTER ── */
+  {cat:'computer', href:'tools/pc-age.html', icon:'💻', chip:'chip-pop', chipLabel:'Popular',
+   name:'How Old Is My PC?',
+   desc:'Scans your GPU, CPU cores, and RAM to estimate your device\'s age — then roasts it.',
+   s:'how old is my pc device age scanner'},
+  {cat:'computer', href:'tools/keyboard-test.html', icon:'⌨️', chip:'chip-comp', chipLabel:'Computer',
+   name:'Keyboard Tester',
+   desc:'Press any key and see it light up. Find dead keys, test rollover, perfect for gamers.',
+   s:'keyboard tester key test gaming'},
+  {cat:'computer', href:'tools/webcam-test.html', icon:'📷', chip:'chip-comp', chipLabel:'Computer',
+   name:'Webcam Tester',
+   desc:'Check if your camera works. See resolution, frame rate, and preview your feed.',
+   s:'webcam tester camera test video'},
+  {cat:'computer', href:'tools/mic-test.html', icon:'🎤', chip:'chip-comp', chipLabel:'Computer',
+   name:'Microphone Tester',
+   desc:'Test if your mic is picking up sound. See the live waveform and volume levels.',
+   s:'microphone tester mic test audio'},
+  {cat:'computer', href:'tools/dead-pixel.html', icon:'🖥️', chip:'chip-comp', chipLabel:'Computer',
+   name:'Dead Pixel Tester',
+   desc:'Fullscreen color test to find stuck or dead pixels on your monitor.',
+   s:'dead pixel tester monitor screen test'},
+  {cat:'computer', href:'tools/speaker-test.html', icon:'🔊', chip:'chip-comp', chipLabel:'Computer',
+   name:'Speaker Tester',
+   desc:'Test left and right audio channels. Make sure both speakers are working.',
+   s:'speaker audio test left right channel'},
+  {cat:'computer', href:'tools/browser-check.html', icon:'🌐', chip:'chip-pop', chipLabel:'Popular',
+   name:'What Browser Am I Using?',
+   desc:'Detects your browser name, version, and tells you if it\'s up to date.',
+   s:'what browser am i using version check update'},
+  {cat:'computer', href:'tools/ip-lookup.html', icon:'🔍', chip:'chip-net', chipLabel:'Internet',
+   name:'What\'s My IP Address?',
+   desc:'Shows your public IP address and approximate location instantly.',
+   s:'what is my ip address location lookup'},
+  {cat:'computer', href:'tools/screen-resolution.html', icon:'📐', chip:'chip-net', chipLabel:'Internet',
+   name:'Screen Resolution',
+   desc:'Quick readout of your exact screen resolution, pixel ratio, and color depth.',
+   s:'what is my screen resolution display size'},
+  {cat:'computer', href:'tools/password-checker.html', icon:'🔒', chip:'chip-pop', chipLabel:'Popular',
+   name:'Cryptographic Entropy & Breach Engine',
+   desc:'Real-time multi-GPU brute-force time estimates for any password you type. Calculates crack latency across attack vectors and generates a copyable vulnerability report. Nothing stored, nothing sent.',
+   s:'password strength checker cryptographic entropy breach exposure security test'},
+  {cat:'computer', href:'tools/fps-bottleneck.html', icon:'🖥️', chip:'chip-brk', chipLabel:'🔥 Power Tool', fps:true,
+   name:'PC Spec Assessment & FPS Bottleneck Auditor',
+   desc:'Running diagnostics on your system profile...',
+   s:'fps bottleneck pc lag fix optimizer gpu cpu ram performance boost debloat'},
+  {cat:'computer', href:'tools/word-counter.html', icon:'📝', chip:'chip-util', chipLabel:'Utility',
+   name:'Word & Character Counter',
+   desc:'Paste your text — get word count, character count, sentences, and reading time. That\'s it.',
+   s:'word counter character count text'},
+  {cat:'computer', href:'tools/color-picker.html', icon:'🎨', chip:'chip-util', chipLabel:'Utility',
+   name:'Color Picker',
+   desc:'Pick any color, grab the hex/RGB code, and build a matching palette around it.',
+   s:'color picker palette generator hex rgb'},
+  {cat:'computer', href:'tools/text-converter.html', icon:'🔤', chip:'chip-util', chipLabel:'Utility',
+   name:'Text Case Converter',
+   desc:'Convert text to UPPERCASE, lowercase, Title Case, or aLtErNaTiNg.',
+   s:'text case converter uppercase lowercase title'},
+  /* ── PHONE ── */
+  {cat:'phone', href:'tools/device-info.html', icon:'📱', chip:'chip-phone', chipLabel:'Phone',
+   name:'Device Scanner',
+   desc:'Tells you exactly what phone you have — model, screen size, OS, browser. The works.',
+   s:'device info phone scanner specs'},
+  {cat:'phone', href:'tools/touch-test.html', icon:'👆', chip:'chip-phone', chipLabel:'Phone',
+   name:'Touchscreen Tester',
+   desc:'Draw on screen to test for dead zones. Checks multi-touch support too.',
+   s:'touchscreen tester touch test phone tablet'},
+  {cat:'phone', href:'tools/gyroscope-test.html', icon:'🧭', chip:'chip-phone', chipLabel:'Phone',
+   name:'Gyroscope Tester',
+   desc:'Tilt your phone around and watch the sensor data move in real time. Oddly satisfying.',
+   s:'gyroscope accelerometer sensor test phone'},
+  {cat:'phone', href:'tools/vibration-test.html', icon:'📳', chip:'chip-phone', chipLabel:'Phone',
+   name:'Vibration Tester',
+   desc:'Test your phone\'s vibration motor with different patterns. Android only.',
+   s:'vibration motor test phone android'},
+  {cat:'phone', href:'tools/qr-generator.html', icon:'📱', chip:'chip-util', chipLabel:'Utility',
+   name:'QR Code Generator',
+   desc:'Paste any URL or text and get a QR code instantly. Download as PNG.',
+   s:'qr code generator create make'},
+  {cat:'phone', href:'tools/timer.html', icon:'⏱️', chip:'chip-util', chipLabel:'Utility',
+   name:'Timer & Stopwatch',
+   desc:'Clean countdown timer and stopwatch with lap tracking.',
+   s:'countdown timer stopwatch clock'},
+  /* ── GAMES & ROASTS ── */
+  {cat:'games', href:'tools/hacker-terminal.html', icon:'🖥️', chip:'chip-viral', chipLabel:'🔥 Viral',
+   name:'Hacker Terminal',
+   desc:'Type literally anything and look like you\'re hacking NASA. Full Matrix vibes.',
+   s:'hacker terminal simulator typing matrix'},
+  {cat:'games', href:'tools/typing-test.html', icon:'⚡', chip:'chip-viral', chipLabel:'🔥 Viral',
+   name:'Typing Speed Test',
+   desc:'Test your WPM then get brutally roasted based on how fast (or slow) you type.',
+   s:'typing speed test wpm roast fast slow'},
+  {cat:'games', href:'tools/wifi-names.html', icon:'📶', chip:'chip-fun', chipLabel:'Fun',
+   name:'WiFi Name Generator',
+   desc:'Get WiFi names that\'ll make your neighbors question everything. One-tap copy.',
+   s:'wifi name generator funny network ssid'},
+  {cat:'games', href:'tools/hacker-name.html', icon:'🥷', chip:'chip-fun', chipLabel:'Fun',
+   name:'Hacker Name Generator',
+   desc:'Enter your name and get your elite hacker alias. Share your cyber identity.',
+   s:'hacker name generator alias cyber identity'},
+  {cat:'games', href:'tools/internet-quiz.html', icon:'🧠', chip:'chip-fun', chipLabel:'Fun',
+   name:'What Internet User Are You?',
+   desc:'Take the quiz and find out your internet personality type. Scarily accurate.',
+   s:'what type of internet user quiz personality'},
+  {cat:'games', href:'tools/fake-error.html', icon:'⚠️', chip:'chip-prank', chipLabel:'Prank',
+   name:'Fake Error Generator',
+   desc:'Build a fake error popup that looks 100% real. Watch the panic unfold.',
+   s:'fake error message generator windows prank'},
+  {cat:'games', href:'tools/fake-bsod.html', icon:'💀', chip:'chip-prank', chipLabel:'Prank',
+   name:'Blue Screen of Death',
+   desc:'Fullscreen fake BSOD. Press F11 for maximum panic. ESC to escape.',
+   s:'fake blue screen of death bsod windows prank'},
+  {cat:'games', href:'tools/fake-update.html', icon:'🔄', chip:'chip-prank', chipLabel:'Prank',
+   name:'Fake Update Screen',
+   desc:'Fullscreen fake Windows update that never finishes. Classic prank.',
+   s:'fake windows update screen prank loading'},
+  {cat:'games', onclick:"launchGame('https://slither.io/')", icon:'🐍', chip:'chip-viral', chipLabel:'🔥 Arcade',
+   name:'Slither.io Arena',
+   desc:'Multiplayer snake survival — eat, grow, and outlast everyone. Opens in a new tab, zero installs needed.',
+   s:'slither io snake multiplayer arcade game online'},
+  {cat:'games', onclick:"launchGame('https://playsnake.org/')", icon:'🕹️', chip:'chip-fun', chipLabel:'Arcade',
+   name:'Retro Snake Multiplayer',
+   desc:'Classic snake reborn in competitive multiplayer mode. Pure reflex gaming, opens in new tab.',
+   s:'retro snake multiplayer game arcade classic'},
+  /* ── SAFE PC SOFTWARE ── */
+  {cat:'software', onclick:"window.open('https://obsproject.com/','_blank')", icon:'🎥', chip:'chip-comp', chipLabel:'Free · Open Source',
+   name:'OBS Studio',
+   desc:'The screen capture bible. Records your desktop, game feed, or webcam in broadcast quality — no watermarks, no subscriptions, no nonsense. What every streamer and content creator actually runs.',
+   s:'obs studio screen recorder streaming capture free open source'},
+  {cat:'software', onclick:"window.open('https://www.7-zip.org/','_blank')", icon:'📦', chip:'chip-util', chipLabel:'Free · Open Source',
+   name:'7-Zip',
+   desc:'The zero-nag archiver. Opens ZIP, RAR, 7z, TAR, ISO and a dozen more formats without pestering you to upgrade. Tiny installer, no bundled junk, just works every single time.',
+   s:'7zip file archiver extractor zip rar 7z tar iso free open source'},
+  {cat:'software', onclick:"window.open('https://www.bleachbit.org/','_blank')", icon:'🧹', chip:'chip-net', chipLabel:'Free · Open Source',
+   name:'BleachBit',
+   desc:'System shredder core. Wipes browser caches, temp files, log clutter, and privacy traces down to the bone. Goes places Windows Disk Cleanup won\'t even look at.',
+   s:'bleachbit system cleaner privacy junk files browser cache free open source'},
+  {cat:'software', onclick:"window.open('https://www.revouninstaller.com/','_blank')", icon:'🗑️', chip:'chip-prank', chipLabel:'Free',
+   name:'Revo Uninstaller',
+   desc:'Deep trace cleaner. Removes the program and hunts down every registry key, leftover folder, and hidden file it left behind. Standard Windows uninstall doesn\'t come close to this.',
+   s:'revo uninstaller remove programs registry leftover deep clean free'},
+  {cat:'software', onclick:"window.open('https://www.videolan.org/vlc/','_blank')", icon:'🎬', chip:'chip-comp', chipLabel:'Free · Open Source',
+   name:'VLC Media Player',
+   desc:'Universal codec player. If VLC can\'t open your video or audio file, the file is broken. Plays MKV, MP4, FLAC, ISO, streams, and formats that haven\'t been invented yet. No extra codecs ever needed.',
+   s:'vlc media player video audio codec free open source universal'},
+  {cat:'software', onclick:"window.open('https://handbrake.fr/','_blank')", icon:'🎞️', chip:'chip-util', chipLabel:'Free · Open Source',
+   name:'HandBrake',
+   desc:'Video compression warp. Converts and shrinks any video file for sharing, uploading, or archiving without torching the quality. The go-to for anyone who moves large video files regularly.',
+   s:'handbrake video converter compress transcode encode free open source'},
+  {cat:'software', onclick:"window.open('https://github.com/microsoft/PowerToys/releases','_blank')", icon:'⚡', chip:'chip-comp', chipLabel:'Free · Open Source',
+   name:'Microsoft PowerToys',
+   desc:'Advanced layout utilities straight from Microsoft. Snap windows into custom grid zones, remap any key on your keyboard, bulk-rename files, preview almost any file type in Explorer. Power user stuff the OS should\'ve shipped with.',
+   s:'microsoft powertoys windows utilities fancy zones keyboard layout power user'},
+  {cat:'software', onclick:"window.open('https://www.voidtools.com/','_blank')", icon:'🔍', chip:'chip-util', chipLabel:'Free',
+   name:'Voidtools Everything',
+   desc:'Instant search matrix for your entire drive. Finds any file or folder on your PC the moment you start typing — no indexing delays, no spinner. Windows Search feels broken after you\'ve used this once.',
+   s:'everything voidtools instant file search windows fast free'},
+  {cat:'software', onclick:"window.open('https://keepassxc.org/','_blank')", icon:'🔐', chip:'chip-net', chipLabel:'Free · Open Source',
+   name:'KeePassXC',
+   desc:'Local encrypted vault. Stores every password you have in an AES-256 encrypted database that never touches the cloud. Your passwords live on your machine — no subscription, no breach exposure, no company holding your keys.',
+   s:'keepassxc password manager encrypted local vault offline free open source'},
+  {cat:'software', onclick:"window.open('https://www.diskanalyzer.com/','_blank')", icon:'💾', chip:'chip-util', chipLabel:'Free',
+   name:'WizTree',
+   desc:'Visual space finder. Shows you exactly what\'s eating your hard drive as a color-coded treemap — giant files you forgot existed surface in seconds. Scans a 2TB drive faster than anything else out there.',
+   s:'wiztree disk space analyzer visual treemap drive usage free'},
+  {cat:'software', onclick:"window.open('https://rufus.ie/','_blank')", icon:'💿', chip:'chip-prank', chipLabel:'Free',
+   name:'Rufus',
+   desc:'Bootable ISO builder. Turns any Windows or Linux ISO file into a working bootable USB drive in a few clicks. Single .exe file, no installation required. The first tool you grab when setting up a new machine.',
+   s:'rufus bootable usb iso windows linux installer free'},
+  {cat:'software', onclick:"window.open('https://crystalmark.info/en/software/crystaldiskinfo/','_blank')", icon:'🩺', chip:'chip-comp', chipLabel:'Free · Open Source',
+   name:'CrystalDiskInfo',
+   desc:'Drive health scanner. Reads the S.M.A.R.T. data your SSD and HDD report internally and translates it into a plain health rating. Catch a failing drive before it takes your data with it.',
+   s:'crystaldiskinfo drive health ssd hdd monitor smart status free'}
+];
+
+/* ══ CARD BUILDER ══ */
+function buildCard(t, delay){
+  var isLink = t.href && !t.onclick;
+  var tag = isLink ? 'a' : 'div';
+  var el = document.createElement(tag);
+
+  if(isLink){
+    el.href = t.href;
+    el.style.textDecoration = 'none';
+    el.style.color = 'inherit';
+  }
+  if(t.onclick){
+    el.setAttribute('onclick', t.onclick);
+    el.style.cursor = 'pointer';
+  }
+
+  el.className = 'gc' + (t.featured ? ' gc-featured' : '');
+  el.dataset.s = t.s || '';
+  el.dataset.cat = t.cat;
+
+  /* FPS card gets special terminal HTML */
+  if(t.fps){
+    el.innerHTML = buildFpsCardHTML(t);
+  } else {
+    el.innerHTML =
+      '<div class="flex items-start justify-between mb-3">'
+      +'<span class="text-2xl">'+t.icon+'</span>'
+      +'<span class="chip '+t.chip+'">'+t.chipLabel+'</span>'
+      +'</div>'
+      +'<h3>'+t.name+'</h3>'
+      +'<p>'+t.desc+'</p>';
+  }
+
+  /* Stagger-reveal animation */
+  el.style.opacity = '0';
+  setTimeout(function(){
+    el.style.opacity = '';
+    el.classList.add('gc-revealed');
+    el.addEventListener('click', function(){ addXP(50); });
+  }, delay);
+
+  return el;
+}
+
+function buildFpsCardHTML(t){
+  return '<div class="flex items-start justify-between mb-3">'
+    +'<span class="text-2xl">'+t.icon+'</span>'
+    +'<span class="chip '+t.chip+'">'+t.chipLabel+'</span>'
+    +'</div>'
+    +'<h3>'+t.name+'</h3>'
+    +'<p id="fps-intro">'+t.desc+'</p>'
+    +'<div id="fps-terminal" style="display:none;font-family:monospace;font-size:11px;background:rgba(0,0,0,0.6);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:12px;margin-top:10px;line-height:1.8">'
+    +'<span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">SCANNING CPU THREAD DISPATCH...</span><br>'
+    +'<span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">MAPPING GPU RENDER PIPELINE...</span><br>'
+    +'<span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">AUDITING RAM CHANNEL SATURATION...</span><br>'
+    +'<span style="color:#ef4444">&gt;</span> <span style="color:#94a3b8">DETECTING BACKGROUND PROCESS DRAIN...</span><br>'
+    +'<span style="color:#f59e0b">&gt;</span> <span style="color:#fbbf24">BOTTLENECK VECTOR IDENTIFIED...</span>'
+    +'</div>'
+    +'<div id="fps-result" style="display:none;opacity:0;transition:opacity 0.6s ease;margin-top:12px">'
+    +'<div style="font-family:monospace;font-size:11px;background:rgba(0,0,0,0.7);border:1px solid rgba(239,68,68,0.5);border-radius:8px;padding:14px;line-height:2">'
+    +'<div style="color:#ef4444;font-size:13px;font-weight:700;letter-spacing:0.15em;margin-bottom:6px">⚠ SYSTEM EVALUATION: LAG FACTORY // POTATO CORE</div>'
+    +'<div style="color:#94a3b8">BOTTLENECK CLASS <span style="color:#f59e0b">►</span> <span style="color:#fbbf24">BACKGROUND PROCESS DRAIN + CLUTTER SATURATION</span></div>'
+    +'<div style="color:#94a3b8">FPS RECOVERY POTENTIAL <span style="color:#f59e0b">►</span> <span style="color:#4ade80">+15 TO +40 FPS RECOVERABLE</span></div>'
+    +'<div style="color:#94a3b8">PRIORITY ACTIONS <span style="color:#f59e0b">►</span> <span style="color:#f87171">3 CRITICAL INTERVENTIONS QUEUED</span></div>'
+    +'</div>'
+    +'<button onclick="toggleFpsDeck(this)" style="margin-top:12px;width:100%;font-family:monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;padding:8px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:#f87171;cursor:pointer;transition:all 0.2s">▼ Show Fix Plan</button>'
+    +'<div id="fps-deck" style="display:none;margin-top:4px;flex-direction:column;gap:10px">'
+    +'<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:12px">'
+    +'<div style="font-family:monospace;font-size:10px;color:#ef4444;letter-spacing:0.12em;margin-bottom:6px">ACTION 1 // POWER COMMAND</div>'
+    +'<div style="font-size:12px;color:#cbd5e1;margin-bottom:10px">Run the community-trusted Windows debloat script to strip background telemetry, disable resource hogs, and clean system clutter in one shot.</div>'
+    +'<button id="debloat-btn" onclick="copyDebloat(this)" style="font-family:monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;padding:9px 14px;border-radius:6px;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.15);color:#f87171;cursor:pointer;width:100%;text-align:center;transition:all 0.3s">[ 📋 Copy Master Clutter Debloat Script ]</button>'
+    +'</div>'
+    +'<div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:8px;padding:12px">'
+    +'<div style="font-family:monospace;font-size:10px;color:#a78bfa;letter-spacing:0.12em;margin-bottom:6px">ACTION 2 // DISPATCH LINK KIT</div>'
+    +'<div style="font-size:12px;color:#cbd5e1;margin-bottom:10px">Jump directly to your two most powerful junk-removal tools in the Safe PC Software vault.</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button onclick="goToSoftware(\'BleachBit\')" style="font-family:monospace;font-size:11px;padding:7px 12px;border-radius:6px;border:1px solid rgba(139,92,246,0.4);background:rgba(139,92,246,0.15);color:#a78bfa;cursor:pointer">🧹 BleachBit → Wipe Cache Layers</button>'
+    +'<button onclick="goToSoftware(\'Revo\')" style="font-family:monospace;font-size:11px;padding:7px 12px;border-radius:6px;border:1px solid rgba(139,92,246,0.4);background:rgba(139,92,246,0.15);color:#a78bfa;cursor:pointer">🗑️ Revo → Deep Registry Purge</button>'
+    +'</div>'
+    +'</div>'
+    +'<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:12px">'
+    +'<div style="font-family:monospace;font-size:10px;color:#34d399;letter-spacing:0.12em;margin-bottom:6px">ACTION 3 // TACTICAL OS TWEAKS</div>'
+    +'<div style="font-size:12px;color:#cbd5e1;margin-bottom:10px">Three native Windows toggles you can flip right now. No third-party software needed.</div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px">'
+    +'<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:#94a3b8" onclick="addXP(50)">'
+    +'<input type="checkbox" style="margin-top:2px;accent-color:#34d399;width:14px;height:14px;flex-shrink:0">'
+    +'<span><span style="color:#e2e8f0;font-weight:600">Enable Hardware-Accelerated GPU Scheduling</span><br>Settings → Display → Graphics → Default Graphics Settings → turn HAGS on. Cuts CPU overhead on GPU workloads.</span>'
+    +'</label>'
+    +'<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:#94a3b8" onclick="addXP(50)">'
+    +'<input type="checkbox" style="margin-top:2px;accent-color:#34d399;width:14px;height:14px;flex-shrink:0">'
+    +'<span><span style="color:#e2e8f0;font-weight:600">Disable Startup App Resource Hogs</span><br>Task Manager → Startup Apps tab → right-click anything you don\'t need at boot and Disable. Cuts cold-start RAM drain.</span>'
+    +'</label>'
+    +'<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:#94a3b8" onclick="addXP(50)">'
+    +'<input type="checkbox" style="margin-top:2px;accent-color:#34d399;width:14px;height:14px;flex-shrink:0">'
+    +'<span><span style="color:#e2e8f0;font-weight:600">Turn Off Background Telemetry Tracing</span><br>Settings → Privacy & Security → Diagnostics & Feedback → set to Basic. Stops Windows from quietly consuming CPU/disk in the background.</span>'
+    +'</label>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>';
+}
+
+function toggleFpsDeck(btn){
+  var deck = document.getElementById('fps-deck');
+  var open = deck.style.display === 'flex';
+  deck.style.display = open ? 'none' : 'flex';
+  btn.textContent = open ? '▼ Show Fix Plan' : '▲ Hide Fix Plan';
+  addXP(50);
+}
+
+function copyDebloat(btn){
+  navigator.clipboard.writeText('iwr -useb https://christitus.com/win | iex').then(function(){
+    btn.textContent = '✅ Command Copied! Press Win+X → Open PowerShell → Paste & Run';
+    btn.style.background = 'rgba(74,222,128,0.15)';
+    btn.style.borderColor = 'rgba(74,222,128,0.4)';
+    btn.style.color = '#4ade80';
+    setTimeout(function(){
+      btn.textContent = '[ 📋 Copy Master Clutter Debloat Script ]';
+      btn.style.background = 'rgba(239,68,68,0.15)';
+      btn.style.borderColor = 'rgba(239,68,68,0.4)';
+      btn.style.color = '#f87171';
+    }, 4000);
+  });
+  addXP(50);
+}
+
+function goToSoftware(highlight){
+  var pills = document.querySelectorAll('.pill');
+  var sw = Array.from(pills).find(function(p){ return p.textContent.includes('Safe PC Software'); });
+  if(sw){ fCat('software', sw); }
+  if(highlight){
+    setTimeout(function(){
+      var cards = document.querySelectorAll('#tools-display-grid .gc');
+      cards.forEach(function(c){ c.style.outline = 'none'; });
+      cards.forEach(function(c){
+        if(c.querySelector('h3') && c.querySelector('h3').textContent.includes(highlight)){
+          c.style.outline = '2px solid #a78bfa';
+          c.scrollIntoView({behavior:'smooth', block:'center'});
+        }
+      });
+    }, 400);
+  }
+  addXP(50);
+}
+
+/* ══ FPS TERMINAL OBSERVER — reattached after each inject ══ */
+var _fpsFired = false;
+function attachFpsObserver(){
+  if(_fpsFired) return;
+  var terminal = document.getElementById('fps-terminal');
+  var result   = document.getElementById('fps-result');
+  var intro    = document.getElementById('fps-intro');
+  if(!terminal || !result || !intro) return;
+  var obs = new IntersectionObserver(function(entries){
+    if(_fpsFired) return;
+    if(entries[0].isIntersecting){
+      _fpsFired = true;
+      obs.disconnect();
+      runFpsScan(terminal, result, intro);
+    }
+  }, {threshold: 0.3});
+  obs.observe(terminal.parentElement || terminal);
+}
+
+function runFpsScan(terminal, result, intro){
+  intro.textContent = 'Initializing bottleneck scan...';
+  terminal.style.display = 'block';
+  terminal.style.opacity = '0';
+  terminal.style.transition = 'opacity 0.4s';
+  setTimeout(function(){ terminal.style.opacity = '1'; }, 100);
+  setTimeout(function(){
+    terminal.style.transition = 'opacity 0.3s';
+    terminal.style.opacity = '0';
+    setTimeout(function(){
+      terminal.style.display = 'none';
+      intro.textContent = 'Scan complete — bottleneck identified.';
+      result.style.display = 'block';
+      setTimeout(function(){ result.style.opacity = '1'; }, 60);
+    }, 300);
+    addXP(50);
+  }, 2000);
+}
+
+/* ══ INJECT GRID ══ */
+var _currentCat = null;
+var _currentQuery = '';
+
+function injectGrid(tools){
+  var grid = document.getElementById('tools-display-grid');
+  /* Clear everything */
+  grid.innerHTML = '';
+
+  if(!tools || tools.length === 0){
+    var empty = document.createElement('div');
+    empty.style.cssText = 'grid-column:1/-1';
+    empty.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center">'
+      +'<div style="font-size:48px;margin-bottom:20px;opacity:.2">🔍</div>'
+      +'<div style="font-size:12px;font-weight:700;color:#334155;font-family:monospace;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px">// NO RESULTS</div>'
+      +'<div style="font-size:12px;color:#1e293b;max-width:300px;line-height:1.6">No tools match your search. Try another keyword or <a onclick="closeCmd();openReqModal()" style="color:#4facfe;cursor:pointer;text-decoration:underline">request a tool</a>.</div>'
+      +'</div>';
+    grid.appendChild(empty);
+    return;
+  }
+
+  /* Show mid-grid ad after every 9 cards if more than 9 cards */
+  var midAdInserted = false;
+  var midAd = document.getElementById('mid-ad-slot');
+
+  tools.forEach(function(t, i){
+    /* Insert mid-ad slot after 9th card */
+    if(!midAdInserted && i === 9 && tools.length > 9){
+      if(midAd){
+        midAd.style.display = 'flex';
+        grid.appendChild(midAd);
+        midAdInserted = true;
+      }
+    }
+    var card = buildCard(t, i * 32);
+    grid.appendChild(card);
+  });
+
+  /* If fewer than 9 cards, hide mid-ad */
+  if(!midAdInserted && midAd){
+    midAd.style.display = 'none';
+  }
+
+  /* Re-attach FPS observer if fps card was just injected */
+  setTimeout(attachFpsObserver, 100);
+}
+
+function showEmptyState(){
+  var grid = document.getElementById('tools-display-grid');
+  grid.innerHTML = '';
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'grid-column:1/-1';
+  wrap.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center">'
+    +'<div style="font-size:48px;margin-bottom:20px;opacity:.2">⚡</div>'
+    +'<div style="font-size:12px;font-weight:700;color:#334155;font-family:monospace;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px">// SELECT A CATEGORY</div>'
+    +'<div style="font-size:12px;color:#1e293b;max-width:300px;line-height:1.6">Pick a category above to load your toolkit — or search to find any tool instantly.</div>'
+    +'</div>';
+  grid.appendChild(wrap);
+}
+
+/* ══ CATEGORY FILTER ══ */
+function fCat(c, btn){
+  document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  _currentCat = c;
+  _currentQuery = '';
+
+  var filtered = c === 'all'
+    ? TOOLS
+    : TOOLS.filter(function(t){ return t.cat === c; });
+
+  injectGrid(filtered);
+  addXP(50);
+}
+
+/* ══ TRENDING FILTER ══ */
+function fTrending(){
+  document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('searchInput').value = '';
+  _currentCat = 'trending';
+  _currentQuery = '';
+  var trending = ['ai-image-detector','ai-text-detector','citation-generator','pdf-link-generator'];
+  var filtered = TOOLS.filter(function(t){
+    return t.href && trending.some(function(k){ return t.href.indexOf(k) !== -1; });
+  });
+  injectGrid(filtered);
+}
+
+/* ══ SEARCH FILTER ══ */
+function filterTools(){
+  var q = document.getElementById('searchInput').value.toLowerCase().trim();
+  _currentQuery = q;
+  if(!q){
+    /* Restore pill state */
+    var activePill = document.querySelector('.pill.active');
+    if(activePill){
+      var catMap = {'All Tools':'all','💻 Computer':'computer','📱 Phone':'phone','🎮 Games & Roasts':'games','💻 Safe PC Software':'software'};
+      fCat(catMap[activePill.textContent.trim()] || 'all', activePill);
+    } else {
+      showEmptyState();
+    }
+    return;
+  }
+  document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+  var filtered = TOOLS.filter(function(t){
+    return t.s.indexOf(q) !== -1 || t.name.toLowerCase().indexOf(q) !== -1 || t.desc.toLowerCase().indexOf(q) !== -1;
+  });
+  injectGrid(filtered);
+  addXP(50);
+}
+
+/* ══ SPLASH LOADER ══ */
 (function(){
   var sp=document.getElementById('splash-screen'),
       pct=document.getElementById('spPct'),
@@ -1446,7 +1105,6 @@ html{scroll-behavior:smooth}
       pb=document.getElementById('spBot'),
       s=null,d=1500,lc=lt.length,rc=0,
       animationFrameId=null;
-
   function t(ts){
     if(!s) s=ts;
     var e=ts-s,p=Math.min(e/d,1),v=Math.round(p*100);
@@ -1473,361 +1131,157 @@ html{scroll-behavior:smooth}
   animationFrameId=requestAnimationFrame(t);
 })();
 
-/* ═══════════════════════════════════════════════════════════════
-   CANVAS BACKGROUND ENGINE
-   — Nebula gradient breathing (all viewports)
-   — Stardust mouse trail with velocity friction (desktop ≥769px)
-   — Edge-drifting autonomous particles in outer 15% margins (xl)
-   — Tap/click ripple waves (all viewports)
-   ═══════════════════════════════════════════════════════════════ */
+/* ══ CANVAS BACKGROUND ENGINE ══ */
 (function(){
   var canvas=document.getElementById('bg-canvas');
   if(!canvas) return;
   var ctx=canvas.getContext('2d');
   var W,H,isMobile,isXL;
-
-  /* ── Resize handler ── */
   function resize(){
     W=canvas.width=window.innerWidth;
     H=canvas.height=window.innerHeight;
-    isMobile=W<=768;
-    isXL=W>=1280;
+    isMobile=W<=768;isXL=W>=1280;
   }
   resize();
   window.addEventListener('resize',resize,{passive:true});
 
-  /* ── Three nebula orbs (sine-wave breathing positions & opacity) ── */
   var orbs=[
-    {baseX:-0.1, baseY:-0.1, r:0.55, r2:0.65, color:'79,172,254', phase:0,    speed:0.000065, amp:0.07},
-    {baseX:1.1,  baseY:0.35, r:0.60, r2:0.70, color:'233,30,99',  phase:2.1,  speed:0.000050, amp:0.06},
-    {baseX:0.1,  baseY:1.05, r:0.50, r2:0.58, color:'34,197,94',  phase:4.2,  speed:0.000080, amp:0.05}
+    {baseX:-0.1,baseY:-0.1,r:0.55,r2:0.65,color:'79,172,254',phase:0,speed:0.000065,amp:0.07},
+    {baseX:1.1,baseY:0.35,r:0.60,r2:0.70,color:'233,30,99',phase:2.1,speed:0.000050,amp:0.06},
+    {baseX:0.1,baseY:1.05,r:0.50,r2:0.58,color:'34,197,94',phase:4.2,speed:0.000080,amp:0.05}
   ];
-
-  /* ── Centre stardust particles (25) — mouse-trail, desktop only ── */
-  var PARTICLE_COUNT=25;
-  var particles=[];
+  var PARTICLE_COUNT=25,particles=[];
   for(var i=0;i<PARTICLE_COUNT;i++){
-    particles.push({
-      x:Math.random()*window.innerWidth,
-      y:Math.random()*window.innerHeight,
-      vx:0,vy:0,
-      alpha:0,
-      size:1+Math.random()*1.5,
-      color:Math.random()>0.5?'79,172,254':'148,163,184'
-    });
+    particles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:0,vy:0,alpha:0,size:1+Math.random()*1.5,color:Math.random()>0.5?'79,172,254':'148,163,184'});
   }
-
-  /* ── Edge-drifting particles (8) — 4 left margin + 4 right margin ──
-     These roam autonomously within the outer 15% of the viewport width.
-     They appear even with no mouse movement, enriching the wing zone.   */
-  var EDGE_COLORS=['79,172,254','233,30,99','34,197,94','148,163,184'];
-  var edgeParticles=[];
+  var EDGE_COLORS=['79,172,254','233,30,99','34,197,94','148,163,184'],edgeParticles=[];
   for(var ei=0;ei<8;ei++){
     var side=ei<4?'left':'right';
-    var ex=side==='left'
-      ? Math.random()*0.14*window.innerWidth
-      : (0.86+Math.random()*0.14)*window.innerWidth;
-    edgeParticles.push({
-      x:ex,
-      y:Math.random()*window.innerHeight,
-      vx:(Math.random()-0.5)*0.28,          /* very slow horizontal drift */
-      vy:(side==='left'?1:-1)*(0.15+Math.random()*0.25), /* gentle vertical flow */
-      baseAlpha:0.18+Math.random()*0.28,
-      size:0.9+Math.random()*1.1,
-      color:EDGE_COLORS[ei%4],
-      side:side,
-      phase:Math.random()*Math.PI*2,        /* sine phase for alpha breathe */
-      speedT:0.000035+Math.random()*0.000025 /* very slow time scale */
-    });
+    var ex=side==='left'?Math.random()*0.14*window.innerWidth:(0.86+Math.random()*0.14)*window.innerWidth;
+    edgeParticles.push({x:ex,y:Math.random()*window.innerHeight,vx:(Math.random()-0.5)*0.28,vy:(side==='left'?1:-1)*(0.15+Math.random()*0.25),baseAlpha:0.18+Math.random()*0.28,size:0.9+Math.random()*1.1,color:EDGE_COLORS[ei%4],side:side,phase:Math.random()*Math.PI*2,speedT:0.000035+Math.random()*0.000025});
   }
+  var mouseX=-9999,mouseY=-9999,lastMouse=0,ripples=[],rafId=null;
 
-  var mouseX=-9999,mouseY=-9999;
-  var lastMouse=0;
-
-  /* ── Ripple pool ── */
-  var ripples=[];
-
-  /* ── Main rAF render loop ── */
-  var rafId=null;
   function render(now){
     rafId=requestAnimationFrame(render);
-
-    /* Clear to deep-space base */
-    ctx.fillStyle='#020205';
-    ctx.fillRect(0,0,W,H);
-
-    /* ── Nebula gradient orbs ── */
+    ctx.fillStyle='#020205';ctx.fillRect(0,0,W,H);
     for(var o=0;o<orbs.length;o++){
-      var ob=orbs[o];
-      var t=now*ob.speed+ob.phase;
-      var cx=(ob.baseX+Math.sin(t)*ob.amp)*W;
-      var cy=(ob.baseY+Math.cos(t*0.7)*ob.amp)*H;
-      var radius=ob.r*Math.min(W,H);
-      var breathe=1+0.08*Math.sin(t*1.3);
+      var ob=orbs[o],tt=now*ob.speed+ob.phase;
+      var cx=(ob.baseX+Math.sin(tt)*ob.amp)*W,cy=(ob.baseY+Math.cos(tt*0.7)*ob.amp)*H;
+      var radius=ob.r*Math.min(W,H),breathe=1+0.08*Math.sin(tt*1.3);
       var grad=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*breathe);
-      var alpha=0.12+0.06*Math.sin(t*0.9);
+      var alpha=0.12+0.06*Math.sin(tt*0.9);
       grad.addColorStop(0,'rgba('+ob.color+','+alpha.toFixed(3)+')');
       grad.addColorStop(0.5,'rgba('+ob.color+','+(alpha*0.4).toFixed(3)+')');
       grad.addColorStop(1,'rgba('+ob.color+',0)');
-      ctx.beginPath();
-      ctx.arc(cx,cy,radius*breathe*ob.r2,0,Math.PI*2);
-      ctx.fillStyle=grad;
-      ctx.fill();
+      ctx.beginPath();ctx.arc(cx,cy,radius*breathe*ob.r2,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
     }
-
-    /* ── Edge-drifting particles (xl desktop, outer margins) ── */
     if(isXL){
       for(var ei=0;ei<edgeParticles.length;ei++){
-        var ep=edgeParticles[ei];
-        var et=now*ep.speedT+ep.phase;
-        /* Gentle position drift */
-        ep.x+=ep.vx+Math.sin(et*1.1)*0.12;
-        ep.y+=ep.vy;
-        /* Bounce off top/bottom viewport edges */
-        if(ep.y<0){ep.y=0;ep.vy*=-1;}
-        if(ep.y>H){ep.y=H;ep.vy*=-1;}
-        /* Clamp X within side's outer 15% band and bounce inward */
-        var xMin=ep.side==='left'?0:W*0.86;
-        var xMax=ep.side==='left'?W*0.14:W;
-        if(ep.x<xMin){ep.x=xMin;ep.vx=Math.abs(ep.vx);}
-        if(ep.x>xMax){ep.x=xMax;ep.vx=-Math.abs(ep.vx);}
-        /* Breathe alpha on slow sine */
+        var ep=edgeParticles[ei],et=now*ep.speedT+ep.phase;
+        ep.x+=ep.vx+Math.sin(et*1.1)*0.12;ep.y+=ep.vy;
+        if(ep.y<0){ep.y=0;ep.vy*=-1;}if(ep.y>H){ep.y=H;ep.vy*=-1;}
+        var xMin=ep.side==='left'?0:W*0.86,xMax=ep.side==='left'?W*0.14:W;
+        if(ep.x<xMin){ep.x=xMin;ep.vx=Math.abs(ep.vx);}if(ep.x>xMax){ep.x=xMax;ep.vx=-Math.abs(ep.vx);}
         var drawAlpha=ep.baseAlpha*(0.55+0.45*Math.sin(et*2.1));
         if(drawAlpha<0.04) continue;
-        ctx.save();
-        ctx.globalAlpha=drawAlpha;
-        ctx.beginPath();
-        ctx.arc(ep.x,ep.y,ep.size,0,Math.PI*2);
-        ctx.fillStyle='rgba('+ep.color+',1)';
-        ctx.shadowBlur=10+4*Math.sin(et);
-        ctx.shadowColor='rgba('+ep.color+',0.5)';
-        ctx.fill();
-        ctx.restore();
+        ctx.save();ctx.globalAlpha=drawAlpha;ctx.beginPath();ctx.arc(ep.x,ep.y,ep.size,0,Math.PI*2);
+        ctx.fillStyle='rgba('+ep.color+',1)';ctx.shadowBlur=10+4*Math.sin(et);ctx.shadowColor='rgba('+ep.color+',0.5)';ctx.fill();ctx.restore();
       }
     }
-
-    /* ── Centre stardust mouse-trail (desktop ≥769px only) ── */
     if(!isMobile){
       for(var p=0;p<particles.length;p++){
-        var pt=particles[p];
-        /* Gravitate toward mouse with inverse-distance pull */
-        var dx=mouseX-pt.x;
-        var dy=mouseY-pt.y;
-        var dist=Math.sqrt(dx*dx+dy*dy)||1;
+        var pt=particles[p],dx=mouseX-pt.x,dy=mouseY-pt.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
         var pull=Math.min(80/dist,3.5);
-        pt.vx+=(dx/dist)*pull*0.08;
-        pt.vy+=(dy/dist)*pull*0.08;
-        pt.vx*=0.88;  /* friction damping */
-        pt.vy*=0.88;
-        pt.x+=pt.vx;
-        pt.y+=pt.vy;
-        /* Fade based on velocity magnitude */
-        var speed=Math.sqrt(pt.vx*pt.vx+pt.vy*pt.vy);
-        pt.alpha=Math.min(speed*0.18,0.85);
+        pt.vx+=(dx/dist)*pull*0.08;pt.vy+=(dy/dist)*pull*0.08;
+        pt.vx*=0.88;pt.vy*=0.88;pt.x+=pt.vx;pt.y+=pt.vy;
+        var speed=Math.sqrt(pt.vx*pt.vx+pt.vy*pt.vy);pt.alpha=Math.min(speed*0.18,0.85);
         if(pt.alpha<0.01) continue;
-        /* Draw glowing dot */
-        ctx.save();
-        ctx.globalAlpha=pt.alpha;
-        ctx.beginPath();
-        ctx.arc(pt.x,pt.y,pt.size+speed*0.3,0,Math.PI*2);
-        ctx.fillStyle='rgba('+pt.color+',1)';
-        ctx.shadowBlur=8+speed*2;
-        ctx.shadowColor='rgba('+pt.color+',0.6)';
-        ctx.fill();
-        ctx.restore();
+        ctx.save();ctx.globalAlpha=pt.alpha;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.size+speed*0.3,0,Math.PI*2);
+        ctx.fillStyle='rgba('+pt.color+',1)';ctx.shadowBlur=8+speed*2;ctx.shadowColor='rgba('+pt.color+',0.6)';ctx.fill();ctx.restore();
       }
     }
-
-    /* ── Click / tap ripple rings ── */
     for(var r=ripples.length-1;r>=0;r--){
-      var rp=ripples[r];
-      var age=(now-rp.born)/600;  /* 0 → 1 over 600ms */
+      var rp=ripples[r],age=(now-rp.born)/600;
       if(age>=1){ripples.splice(r,1);continue;}
-      var eased=1-Math.pow(1-age,3);  /* ease-out cubic */
-      var radius2=rp.maxR*eased;
-      var opacity=1-age;
-      ctx.save();
-      ctx.globalAlpha=opacity*0.65;
-      ctx.beginPath();
-      ctx.arc(rp.x,rp.y,radius2,0,Math.PI*2);
-      ctx.strokeStyle='rgba('+rp.color+',1)';
-      ctx.lineWidth=1.5*(1-age*0.6);
-      ctx.shadowBlur=12*opacity;
-      ctx.shadowColor='rgba('+rp.color+',0.5)';
-      ctx.stroke();
-      /* Second inner ring, slightly delayed */
-      if(age>0.1){
-        var age2=(age-0.1)/0.9;
-        var r2=rp.maxR*0.6*(1-Math.pow(1-age2,3));
-        ctx.globalAlpha=(1-age2)*0.35;
-        ctx.beginPath();
-        ctx.arc(rp.x,rp.y,r2,0,Math.PI*2);
-        ctx.lineWidth=1*(1-age2);
-        ctx.stroke();
-      }
+      var eased=1-Math.pow(1-age,3),radius2=rp.maxR*eased,opacity=1-age;
+      ctx.save();ctx.globalAlpha=opacity*0.65;ctx.beginPath();ctx.arc(rp.x,rp.y,radius2,0,Math.PI*2);
+      ctx.strokeStyle='rgba('+rp.color+',1)';ctx.lineWidth=1.5*(1-age*0.6);ctx.shadowBlur=12*opacity;ctx.shadowColor='rgba('+rp.color+',0.5)';ctx.stroke();
+      if(age>0.1){var age2=(age-0.1)/0.9,r2=rp.maxR*0.6*(1-Math.pow(1-age2,3));ctx.globalAlpha=(1-age2)*0.35;ctx.beginPath();ctx.arc(rp.x,rp.y,r2,0,Math.PI*2);ctx.lineWidth=1*(1-age2);ctx.stroke();}
       ctx.restore();
     }
   }
   rafId=requestAnimationFrame(render);
-
-  /* ── Mouse position tracking (desktop) ── */
   window.addEventListener('mousemove',function(e){
-    if(isMobile) return;
-    var now=Date.now();
-    if(now-lastMouse<16) return;
-    lastMouse=now;
-    mouseX=e.clientX;
-    mouseY=e.clientY;
+    if(isMobile) return;var now=Date.now();if(now-lastMouse<16) return;lastMouse=now;mouseX=e.clientX;mouseY=e.clientY;
   },{passive:true});
-
-  /* ── Ripple spawner ── */
-  var RIPPLE_COLORS=['79,172,254','233,30,99','34,197,94'];
-  var rippleColorIndex=0;
-  function spawnRipple(x,y,ts){
-    ripples.push({
-      x:x,y:y,
-      born:ts||performance.now(),
-      maxR:60+Math.random()*40,
-      color:RIPPLE_COLORS[rippleColorIndex%3]
-    });
-    rippleColorIndex++;
-  }
-
-  window.addEventListener('mousedown',function(e){
-    spawnRipple(e.clientX,e.clientY);
-  },{passive:true});
-
-  window.addEventListener('touchstart',function(e){
-    for(var i=0;i<e.touches.length;i++){
-      spawnRipple(e.touches[i].clientX,e.touches[i].clientY);
-    }
-  },{passive:true});
-
-  /* ── Kill rAF on page unload to free GPU ── */
-  window.addEventListener('pagehide',function(){
-    if(rafId) cancelAnimationFrame(rafId);
-  });
+  var RIPPLE_COLORS=['79,172,254','233,30,99','34,197,94'],rippleColorIndex=0;
+  function spawnRipple(x,y,ts){ripples.push({x:x,y:y,born:ts||performance.now(),maxR:60+Math.random()*40,color:RIPPLE_COLORS[rippleColorIndex++%3]});}
+  window.addEventListener('mousedown',function(e){spawnRipple(e.clientX,e.clientY);},{passive:true});
+  window.addEventListener('touchstart',function(e){for(var i=0;i<e.touches.length;i++){spawnRipple(e.touches[i].clientX,e.touches[i].clientY);}},{passive:true});
+  window.addEventListener('pagehide',function(){if(rafId) cancelAnimationFrame(rafId);});
 })();
 
-/* ═══ TRENDING FILTER ═══ */
-function fTrending(){
-  document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active')});
-  document.getElementById('searchInput').value='';
-  var trending=['ai-image-detector','ai-text-detector','citation-generator','pdf-link-generator'];
-  var delay=0;
-  document.querySelectorAll('.gc').forEach(function(g){
-    if(g.dataset.cat==='all') return; /* skip ad card */
-    var href=g.getAttribute('href')||'';
-    var match=trending.some(function(t){return href.indexOf(t)!==-1});
-    if(match){
-      (function(el,d){
-        setTimeout(function(){
-          el.classList.remove('gc-boot-hidden');
-          el.style.display='';
-          el.classList.remove('gc-revealed');
-          void el.offsetWidth;
-          el.classList.add('gc-revealed');
-        },d);
-      })(g,delay);
-      delay+=35;
-    } else {
-      g.classList.add('gc-boot-hidden');
-      g.style.display='none';
-      g.classList.remove('gc-revealed');
-    }
-  });
-  document.getElementById('grid-empty-state').style.display='none';
-}
+/* ══ MOBILE MENU HIDE CLASS ══ */
+(function(){
+  var style = document.createElement('style');
+  style.textContent = '.hide-menu{display:none!important}';
+  document.head.appendChild(style);
+})();
 
-/* ═══ CATEGORY FILTER ═══ */
-function fCat(c,b){
-  document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active')});
-  if(b) b.classList.add('active');
-  document.getElementById('searchInput').value='';
-  var delay=0;
-  document.querySelectorAll('.gc').forEach(function(g){
-    if(g.dataset.cat==='all') return; /* always keep ad card visible */
-    var show=(c==='all'||g.dataset.cat===c);
-    if(show){
-      (function(el,d){
-        setTimeout(function(){
-          el.classList.remove('gc-boot-hidden');
-          el.style.display='';
-          el.classList.remove('gc-revealed');
-          void el.offsetWidth;
-          el.classList.add('gc-revealed');
-        },d);
-      })(g,delay);
-      delay+=30;
-    } else {
-      g.classList.add('gc-boot-hidden');
-      g.style.display='none';
-      g.classList.remove('gc-revealed');
-    }
-  });
-  document.getElementById('grid-empty-state').style.display='none';
+/* ══ ARCADE / GAME LAUNCH ══ */
+function launchGame(url){
   addXP(50);
+  navigator.__havocAllow = true;
+  window.open(url, '_blank', 'noopener');
+  setTimeout(function(){ navigator.__havocAllow = false; }, 500);
+}
+function closeArcade(){
+  document.getElementById('arcadeOverlay').classList.remove('open');
+  document.getElementById('arcadeFrame').src='';
+  document.body.style.overflow='';
 }
 
-/* ═══ SEARCH FILTER ═══ */
-function filterTools(){
-  var q=document.getElementById('searchInput').value.toLowerCase().trim();
-  var emptyState=document.getElementById('grid-empty-state');
-  if(!q){
-    /* If search cleared, restore pill state */
-    var activePill=document.querySelector('.pill.active');
-    if(activePill){
-      var cat=activePill.textContent.trim();
-      /* Re-apply current pill */
-      var catMap={'All Tools':'all','💻 Computer':'computer','📱 Phone':'phone','🎮 Games & Roasts':'games','💻 Safe PC Software':'software'};
-      var catKey=catMap[cat]||'all';
-      fCat(catKey,activePill);
-    } else {
-      /* No active pill — hide everything, show empty state */
-      document.querySelectorAll('.gc').forEach(function(g){
-        if(g.dataset.cat==='all') return;
-        g.classList.add('gc-boot-hidden');
-        g.style.display='none';
-        g.classList.remove('gc-revealed');
-      });
-      emptyState.style.display='flex';
+/* ══ SESSION XP ENGINE ══ */
+var _xp=0,_xpLeveled=false,_xpChipTimer=null;
+function addXP(amount){
+  if(_xpLeveled) return;
+  _xp=Math.min(_xp+(amount||50),1000);
+  var el=document.getElementById('xp-counter');
+  if(el) el.textContent=_xp;
+  if(_xp>=1000&&!_xpLeveled){_xpLeveled=true;triggerLevelUp();}
+}
+function triggerLevelUp(){
+  var chip=document.getElementById('xp-levelup');
+  if(chip){chip.style.display='block';if(_xpChipTimer) clearTimeout(_xpChipTimer);_xpChipTimer=setTimeout(function(){chip.style.display='none';},3200);}
+  fireMatrixRain(1200);
+}
+function fireMatrixRain(duration){
+  var canvas=document.getElementById('bg-canvas');if(!canvas) return;
+  var ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  var cols=Math.floor(W/14),drops=[];
+  for(var i=0;i<cols;i++) drops[i]=Math.random()*-H/14|0;
+  var chars='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン01';
+  var start=performance.now();
+  function matFrame(now){
+    if(now-start>duration) return;
+    requestAnimationFrame(matFrame);
+    ctx.fillStyle='rgba(2,2,5,0.07)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(0,255,65,0.55)';ctx.font='13px monospace';
+    for(var c=0;c<cols;c++){
+      var ch=chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillText(ch,c*14,drops[c]*14);
+      if(drops[c]*14>H&&Math.random()>0.975) drops[c]=0;
+      drops[c]++;
     }
-    return;
   }
-  /* While searching: deactivate pills, show ALL matches from every category */
-  document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('active')});
-  emptyState.style.display='none';
-  var delay=0;
-  document.querySelectorAll('.gc').forEach(function(g){
-    if(g.dataset.cat==='all') return;
-    var s=g.dataset.s||'';
-    var t=g.querySelector('h3')?g.querySelector('h3').textContent.toLowerCase():'';
-    var match=s.indexOf(q)!==-1||t.indexOf(q)!==-1;
-    if(match){
-      (function(el,d){
-        setTimeout(function(){
-          el.classList.remove('gc-boot-hidden');
-          el.style.display='';
-          el.classList.remove('gc-revealed');
-          void el.offsetWidth;
-          el.classList.add('gc-revealed');
-        },d);
-      })(g,delay);
-      delay+=25;
-    } else {
-      g.classList.add('gc-boot-hidden');
-      g.style.display='none';
-      g.classList.remove('gc-revealed');
-    }
-  });
-  addXP(50);
+  requestAnimationFrame(matFrame);
 }
 
-/* ═══ REQUEST MODAL ═══ */
+/* ══ REQUEST MODAL ══ */
 function openReqModal(){
   var m=document.getElementById('request-modal');
-  m.classList.add('open');
-  document.body.style.overflow='hidden';
+  m.classList.add('open');document.body.style.overflow='hidden';
   setTimeout(function(){document.getElementById('rf-name').focus()},320);
 }
 function closeReqModal(){
@@ -1835,8 +1289,71 @@ function closeReqModal(){
   document.body.style.overflow='';
 }
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape') closeReqModal();
+  if(e.key==='Escape'){
+    if(document.getElementById('arcadeOverlay').classList.contains('open')){closeArcade();return;}
+    if(document.getElementById('cmdOverlay').classList.contains('open')){closeCmd();return;}
+    closeReqModal();
+  }
+  var tag=document.activeElement&&document.activeElement.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA') return;
+  if(e.key==='/'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();openCmd();}
 });
+
+/* ══ SMOOTH SCROLL ══ */
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    var target=document.querySelector(this.getAttribute('href'));
+    if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+});
+
+/* ══ COMMAND SEARCH MATRIX ══ */
+var cmdSelIdx=-1;
+
+function openCmd(){
+  addXP(50);
+  var ov=document.getElementById('cmdOverlay');
+  ov.classList.add('open');document.body.style.overflow='hidden';cmdSelIdx=-1;
+  renderCmdResults('');
+  setTimeout(function(){var inp=document.getElementById('cmdSearch');inp.value='';inp.focus();},60);
+}
+function closeCmd(){
+  document.getElementById('cmdOverlay').classList.remove('open');
+  document.body.style.overflow='';cmdSelIdx=-1;
+}
+function renderCmdResults(q){
+  var list=document.getElementById('cmdResults');
+  var noRes=document.getElementById('cmdNoResult');
+  var hint=document.getElementById('cmdHint');
+  q=q.toLowerCase().trim();
+  var filtered=q?TOOLS.filter(function(t){
+    return t.name.toLowerCase().indexOf(q)!==-1||t.s.indexOf(q)!==-1||t.desc.toLowerCase().indexOf(q)!==-1;
+  }):TOOLS;
+  if(filtered.length===0){list.innerHTML='';noRes.style.display='block';hint.style.display='none';return;}
+  noRes.style.display='none';hint.style.display='block';
+  list.innerHTML=filtered.map(function(t,i){
+    var href=t.href||(t.onclick?'javascript:void(0)':'#');
+    return '<a href="'+href+'" class="cmd-item'+(i===cmdSelIdx?' cmd-sel':'')+'" data-idx="'+i+'" onclick="closeCmd()'+(t.onclick?';'+t.onclick.replace(/"/g,"'"):'')+'"><span class="cmd-item-icon">'+t.icon+'</span><span style="flex:1;min-width:0"><div class="cmd-item-name">'+t.name+'</div><div class="cmd-item-desc">'+t.desc.substring(0,80)+(t.desc.length>80?'…':'')+'</div></span><span class="cmd-item-chip">'+t.chipLabel+'</span></a>';
+  }).join('');
+}
+function cmdFilter(val){cmdSelIdx=-1;renderCmdResults(val);}
+function cmdKey(e){
+  var items=document.querySelectorAll('#cmdResults .cmd-item');
+  if(e.key==='ArrowDown'){e.preventDefault();cmdSelIdx=Math.min(cmdSelIdx+1,items.length-1);updateCmdSel(items);}
+  else if(e.key==='ArrowUp'){e.preventDefault();cmdSelIdx=Math.max(cmdSelIdx-1,0);updateCmdSel(items);}
+  else if(e.key==='Enter'){
+    e.preventDefault();
+    if(cmdSelIdx>=0&&items[cmdSelIdx]){items[cmdSelIdx].click();}
+    else if(items.length>0){items[0].click();}
+  }else if(e.key==='Escape'){closeCmd();}
+}
+function updateCmdSel(items){
+  items.forEach(function(el,i){
+    if(i===cmdSelIdx){el.classList.add('cmd-sel');el.scrollIntoView({block:'nearest'});}
+    else{el.classList.remove('cmd-sel');}
+  });
+}
+
 function submitReq(e){
   e.preventDefault();
   var name=document.getElementById('rf-name').value.trim();
@@ -1845,322 +1362,9 @@ function submitReq(e){
   var body=encodeURIComponent('Tool Name: '+name+'\n\nDescription:\n'+desc+'\n\n— Submitted via ToolHavoc.com');
   window.location.href='mailto:nathanielwade2x@gmail.com?subject='+subject+'&body='+body;
   setTimeout(function(){
-    document.getElementById('reqForm').innerHTML=
-      '<div style="text-align:center;padding:24px 0">'
-      +'<div style="font-size:36px;margin-bottom:12px">✅</div>'
-      +'<div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div>'
-      +'<div style="color:#64748b;font-size:13px">We\'ll look into building <strong style="color:#94a3b8">'+name.replace(/</g,'&lt;')+'</strong> soon.</div>'
-      +'<button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button>'
-      +'</div>';
+    document.getElementById('reqForm').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:36px;margin-bottom:12px">✅</div><div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div><div style="color:#64748b;font-size:13px">We\'ll look into building <strong style="color:#94a3b8">'+name.replace(/</g,'&lt;')+'</strong> soon.</div><button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button></div>';
   },800);
 }
-
-/* ═══ SMOOTH SCROLL ═══ */
-document.querySelectorAll('a[href^="#"]').forEach(function(a){
-  a.addEventListener('click',function(e){
-    var target=document.querySelector(this.getAttribute('href'));
-    if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'})}
-  });
-});
-
-/* ═══ COMMAND SEARCH MATRIX ═══ */
-var CMD_TOOLS=(function(){
-  /* Build tool list from actual grid cards at runtime */
-  var items=[];
-  document.querySelectorAll('#toolGrid a.gc').forEach(function(card){
-    var href=card.getAttribute('href')||'';
-    var icon=card.querySelector('.text-2xl');
-    var name=card.querySelector('h3');
-    var desc=card.querySelector('p');
-    var chip=card.querySelector('[class*="chip-"]');
-    if(!href||!name) return;
-    items.push({
-      href:href,
-      icon:icon?icon.textContent.trim():'🔧',
-      name:name.textContent.trim(),
-      desc:desc?desc.textContent.trim():'',
-      cat:chip?chip.textContent.trim():'',
-      s:(card.dataset.s||'').toLowerCase()
-    });
-  });
-  return items;
-})();
-
-var cmdSelIdx=-1;
-
-function openCmd(){
-  var ov=document.getElementById('cmdOverlay');
-  ov.classList.add('open');
-  document.body.style.overflow='hidden';
-  cmdSelIdx=-1;
-  renderCmdResults('');
-  setTimeout(function(){
-    var inp=document.getElementById('cmdSearch');
-    inp.value='';
-    inp.focus();
-  },60);
-}
-
-function closeCmd(){
-  document.getElementById('cmdOverlay').classList.remove('open');
-  document.body.style.overflow='';
-  cmdSelIdx=-1;
-}
-
-function renderCmdResults(q){
-  var list=document.getElementById('cmdResults');
-  var noRes=document.getElementById('cmdNoResult');
-  var hint=document.getElementById('cmdHint');
-  q=q.toLowerCase().trim();
-  var filtered=q?CMD_TOOLS.filter(function(t){
-    return t.name.toLowerCase().indexOf(q)!==-1||
-           t.s.indexOf(q)!==-1||
-           t.desc.toLowerCase().indexOf(q)!==-1;
-  }):CMD_TOOLS;
-
-  if(filtered.length===0){
-    list.innerHTML='';
-    noRes.style.display='block';
-    hint.style.display='none';
-    return;
-  }
-  noRes.style.display='none';
-  hint.style.display='block';
-
-  list.innerHTML=filtered.map(function(t,i){
-    return '<a href="'+t.href+'" class="cmd-item'+(i===cmdSelIdx?' cmd-sel':'')+'" data-idx="'+i+'" onclick="closeCmd()">'
-      +'<span class="cmd-item-icon">'+t.icon+'</span>'
-      +'<span style="flex:1;min-width:0">'
-      +'<div class="cmd-item-name">'+t.name+'</div>'
-      +'<div class="cmd-item-desc">'+t.desc+'</div>'
-      +'</span>'
-      +(t.cat?'<span class="cmd-item-chip">'+t.cat+'</span>':'')
-      +'</a>';
-  }).join('');
-}
-
-function cmdFilter(val){
-  cmdSelIdx=-1;
-  renderCmdResults(val);
-}
-
-function cmdKey(e){
-  var items=document.querySelectorAll('#cmdResults .cmd-item');
-  if(e.key==='ArrowDown'){
-    e.preventDefault();
-    cmdSelIdx=Math.min(cmdSelIdx+1,items.length-1);
-    updateCmdSel(items);
-  }else if(e.key==='ArrowUp'){
-    e.preventDefault();
-    cmdSelIdx=Math.max(cmdSelIdx-1,0);
-    updateCmdSel(items);
-  }else if(e.key==='Enter'){
-    e.preventDefault();
-    if(cmdSelIdx>=0&&items[cmdSelIdx]){
-      window.location.href=items[cmdSelIdx].getAttribute('href');
-      closeCmd();
-    }else if(items.length>0){
-      window.location.href=items[0].getAttribute('href');
-      closeCmd();
-    }
-  }else if(e.key==='Escape'){
-    closeCmd();
-  }
-}
-
-function updateCmdSel(items){
-  items.forEach(function(el,i){
-    if(i===cmdSelIdx){
-      el.classList.add('cmd-sel');
-      el.scrollIntoView({block:'nearest'});
-    }else{
-      el.classList.remove('cmd-sel');
-    }
-  });
-}
-
-/* Global keyboard shortcut: / opens command search (desktop) */
-document.addEventListener('keydown',function(e){
-  /* Skip if inside an input/textarea */
-  var tag=document.activeElement&&document.activeElement.tagName;
-  if(tag==='INPUT'||tag==='TEXTAREA') return;
-  if(e.key==='/'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
-    e.preventDefault();
-    openCmd();
-  }
-  if(e.key==='Escape'){
-    if(document.getElementById('arcadeOverlay').classList.contains('open')){
-      closeArcade(); return;
-    }
-    if(document.getElementById('cmdOverlay').classList.contains('open')){
-      closeCmd();
-    }
-  }
-});
-
-/* ═══ ARCADE / GAME LAUNCH ═══ */
-function launchGame(url){
-  addXP(50);
-  navigator.__havocAllow = true;
-  window.open(url, '_blank', 'noopener');
-  setTimeout(function(){ navigator.__havocAllow = false; }, 500);
-}
-function openArcade(url, title){
-  /* fallback — now just opens in new tab */
-  launchGame(url);
-}
-function openArcade_modal(url, title){
-  addXP(50);
-  var ov=document.getElementById('arcadeOverlay');
-  var fr=document.getElementById('arcadeFrame');
-  var ti=document.getElementById('arcadeTitle');
-  ti.textContent=title||'🎮 ARCADE MODE';
-  fr.src=url;
-  ov.classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closeArcade(){
-  var ov=document.getElementById('arcadeOverlay');
-  var fr=document.getElementById('arcadeFrame');
-  ov.classList.remove('open');
-  fr.src='';
-  document.body.style.overflow='';
-}
-
-/* ═══ SESSION XP ENGINE ═══ */
-var _xp=0;
-var _xpLeveled=false;
-var _xpChipTimer=null;
-function addXP(amount){
-  if(_xpLeveled) return;
-  _xp=Math.min(_xp+(amount||50),1000);
-  var el=document.getElementById('xp-counter');
-  if(el) el.textContent=_xp;
-  if(_xp>=1000&&!_xpLeveled){
-    _xpLeveled=true;
-    triggerLevelUp();
-  }
-}
-function triggerLevelUp(){
-  /* Show chip */
-  var chip=document.getElementById('xp-levelup');
-  if(chip){
-    chip.style.display='block';
-    if(_xpChipTimer) clearTimeout(_xpChipTimer);
-    _xpChipTimer=setTimeout(function(){chip.style.display='none';},3200);
-  }
-  /* Matrix rain on canvas for 1200ms */
-  fireMatrixRain(1200);
-}
-function fireMatrixRain(duration){
-  var canvas=document.getElementById('bg-canvas');
-  if(!canvas) return;
-  var ctx=canvas.getContext('2d');
-  var W=canvas.width,H=canvas.height;
-  var cols=Math.floor(W/14);
-  var drops=[];
-  for(var i=0;i<cols;i++) drops[i]=Math.random()*-H/14|0;
-  var chars='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン01';
-  var start=performance.now();
-  var matId;
-  function matFrame(now){
-    var elapsed=now-start;
-    if(elapsed>duration){ return; }
-    matId=requestAnimationFrame(matFrame);
-    ctx.fillStyle='rgba(2,2,5,0.07)';
-    ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='rgba(0,255,65,0.55)';
-    ctx.font='13px monospace';
-    for(var c=0;c<cols;c++){
-      var ch=chars[Math.floor(Math.random()*chars.length)];
-      ctx.fillText(ch, c*14, drops[c]*14);
-      if(drops[c]*14>H&&Math.random()>0.975) drops[c]=0;
-      drops[c]++;
-    }
-  }
-  matId=requestAnimationFrame(matFrame);
-}
-
-/* ═══ FPS BOTTLENECK AUDITOR — terminal animation ═══ */
-(function(){
-  var terminal = document.getElementById('fps-terminal');
-  var result   = document.getElementById('fps-result');
-  var intro    = document.getElementById('fps-intro');
-  if(!terminal || !result || !intro) return;
-
-  /* Trigger on first scroll-into-view */
-  var fired = false;
-  var obs = new IntersectionObserver(function(entries){
-    if(fired) return;
-    if(entries[0].isIntersecting){
-      fired = true;
-      obs.disconnect();
-      runFpsScan();
-    }
-  }, {threshold: 0.3});
-  obs.observe(terminal.parentElement);
-
-  function runFpsScan(){
-    intro.textContent = 'Initializing bottleneck scan...';
-    terminal.style.display = 'block';
-
-    /* Animate each log line in with staggered delay */
-    var lines = terminal.querySelectorAll('br');
-    var allNodes = Array.from(terminal.childNodes).filter(function(n){
-      return n.nodeType === Node.TEXT_NODE || n.nodeType === Node.ELEMENT_NODE;
-    });
-
-    /* Just fade the whole terminal in line by line via opacity steps */
-    terminal.style.opacity = '0';
-    terminal.style.transition = 'opacity 0.4s';
-    setTimeout(function(){ terminal.style.opacity = '1'; }, 100);
-
-    /* After 2s, collapse terminal and fade in result panel */
-    setTimeout(function(){
-      terminal.style.transition = 'opacity 0.3s';
-      terminal.style.opacity = '0';
-      setTimeout(function(){
-        terminal.style.display = 'none';
-        intro.textContent = 'Scan complete — bottleneck identified.';
-        result.style.display = 'block';
-        setTimeout(function(){ result.style.opacity = '1'; }, 60);
-      }, 300);
-      addXP(50);
-    }, 2000);
-  }
-})();
-
-/* ═══ BOOT: show empty state, ensure all tool cards hidden ═══ */
-(function(){
-  /* Show the empty state prompt */
-  var es=document.getElementById('grid-empty-state');
-  if(es) es.style.display='flex';
-  /* Ensure all gc cards with gc-boot-hidden start as display:none
-     (CSS handles this but let's be explicit for JS-driven state) */
-  document.querySelectorAll('.gc.gc-boot-hidden').forEach(function(g){
-    g.style.display='none';
-  });
-})();
-
-/* Hook XP onto existing interactive actions */
-(function(){
-  /* Pills call fCat() which calls addXP() — no duplicate needed */
-  /* filterTools() calls addXP() — no duplicate needed */
-  /* Tool cards */
-  /* Tool cards */
-  document.querySelectorAll('#toolGrid .gc').forEach(function(c){
-    c.addEventListener('click',function(){ addXP(50); });
-  });
-  /* Request modal submit */
-  var rf=document.getElementById('reqForm');
-  if(rf) rf.addEventListener('submit',function(){ addXP(50); });
-  /* Command search open */
-  var origOpenCmd=window.openCmd;
-  window.openCmd=function(){
-    addXP(50);
-    if(origOpenCmd) origOpenCmd();
-  };
-})();
 
 </script>
 </body>
