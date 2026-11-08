@@ -171,10 +171,6 @@ html{scroll-behavior:smooth}
       </div>
     </div>
     <div class="glass-panel p-6 md:p-8 mb-6">
-<div class="container">
-  <h1>Typing <span>Speed Test</span></h1>
-  <p class="subtitle">Type the text below. Get your WPM. Get roasted.</p>
-
   <div class="time-select">
     <button class="time-btn" onclick="setTime(15)">15s</button>
     <button class="time-btn active" onclick="setTime(30)">30s</button>
@@ -304,13 +300,6 @@ function submitReq(e){
     document.getElementById('reqForm').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:36px;margin-bottom:12px">&#x2705;</div><div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div><div style="color:#64748b;font-size:13px">We'll look into building <strong style="color:#94a3b8">'+name.replace(/</g,"&lt;")+'</strong> soon.</div><button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button></div>';
   },800);
 }
-atOptions = {
-    'key' : '4eb8d16a9cbab1deebe011d440079990',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
 const words = [
   "the","be","to","of","and","a","in","that","have","i","it","for","not","on","with","he","as","you",
   "do","at","this","but","his","by","from","they","we","say","her","she","or","an","will","my","one",
