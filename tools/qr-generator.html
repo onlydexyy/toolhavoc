@@ -305,7 +305,7 @@ function submitReq(e){
   var body=encodeURIComponent('Tool Name: '+name+'\n\nDescription:\n'+desc+'\n\n— Submitted via ToolHavoc.com');
   window.location.href='mailto:nathanielwade2x@gmail.com?subject='+subject+'&body='+body;
   setTimeout(function(){
-    document.getElementById('reqForm').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:36px;margin-bottom:12px">&#x2705;</div><div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div><div style="color:#64748b;font-size:13px">We'll look into building <strong style="color:#94a3b8">'+name.replace(/</g,"&lt;")+'</strong> soon.</div><button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button></div>';
+    document.getElementById('reqForm').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:36px;margin-bottom:12px">&#x2705;</div><div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div><div style="color:#64748b;font-size:13px">We&#39;ll look into building <strong style="color:#94a3b8">'+name.replace(/</g,"&lt;")+'</strong> soon.</div><button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button></div>';
   },800);
 }
 let currentType = 'url';
