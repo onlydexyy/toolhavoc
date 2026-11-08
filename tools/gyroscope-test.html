@@ -2,6 +2,41 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>
+/* ── Safari ad-redirect guard ── */
+(function(){
+  /* Block iframes from navigating the top frame */
+  var _open = window.open;
+  window.open = function(url, target, features){
+    /* Only allow opens triggered by real user gesture */
+    if(!navigator.__havocAllow){ return null; }
+    return _open.call(window, url, target, features);
+  };
+  /* Track genuine user clicks */
+  document.addEventListener('click', function(){ navigator.__havocAllow = true; setTimeout(function(){ navigator.__havocAllow = false; }, 500); }, true);
+  document.addEventListener('touchend', function(){ navigator.__havocAllow = true; setTimeout(function(){ navigator.__havocAllow = false; }, 500); }, true);
+  /* Block top-frame navigation from iframes */
+  window.addEventListener('beforeunload', function(e){
+    if(document.activeElement && document.activeElement.tagName === 'IFRAME'){
+      e.preventDefault(); e.returnValue = ''; return '';
+    }
+  });
+  /* Sandbox all ad iframes after they load */
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(function(){
+      var iframes = document.querySelectorAll('iframe');
+      iframes.forEach(function(f){
+        try{
+          if(!f.hasAttribute('sandbox')){
+            f.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups-to-escape-sandbox');
+          }
+        }catch(e){}
+      });
+    }, 2000);
+  });
+})();
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gyroscope Tester — ToolHavoc</title>
 <meta name="description" content="Tilt your phone and watch live sensor data move in real time.">
