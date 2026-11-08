@@ -746,14 +746,18 @@ html{scroll-behavior:smooth}
        ═══════════════════════════════════════ -->
   <div class="pt-20 pb-2">
     <div class="max-w-7xl mx-auto px-4 my-6">
-      <div class="af af-top mx-auto ad-sandbox-wrap" style="max-width:728px">
-        <span class="ad-sandbox-label">Community Partner</span>
-        <iframe
-          srcdoc='<html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden}</style></head><body><script>var atOptions={"key":"76f41da819582075b2e5619851f50a31","format":"iframe","height":90,"width":728,"params":{}}<\/script><script src="//bauval.org/22/76f41da819582075b2e5619851f50a31"><\/script></body></html>'
-          sandbox="allow-scripts allow-same-origin allow-popups"
-          scrolling="no" frameborder="0"
-          style="width:100%;height:90px;border:0;overflow:hidden;display:block">
-        </iframe>
+      <div class="af af-top mx-auto" style="max-width:728px;position:relative">
+        <span style="position:absolute;top:3px;left:12px;font-size:9px;color:rgba(100,116,139,.4);letter-spacing:.12em;font-family:monospace;text-transform:uppercase;pointer-events:none">Community Partner</span>
+        <script>
+          atOptions = {
+            'key' : '76f41da819582075b2e5619851f50a31',
+            'format' : 'iframe',
+            'height' : 90,
+            'width' : 728,
+            'params' : {}
+          };
+        </script>
+        <script src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
       </div>
     </div>
   </div>
@@ -1008,16 +1012,16 @@ html{scroll-behavior:smooth}
         </a>
 
         <!-- ── ARCADE .IO GAMES ── -->
-        <div class="gc" data-cat="games" data-s="slither io snake multiplayer arcade game online" onclick="openArcade('https://slither.io/','🐍 Slither.io Arena')" style="cursor:pointer">
+        <div class="gc" data-cat="games" data-s="slither io snake multiplayer arcade game online" onclick="launchGame('https://slither.io/')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🐍</span><span class="chip chip-viral">🔥 Arcade</span></div>
           <h3>Slither.io Arena</h3>
-          <p>Multiplayer snake survival — eat, grow, and outlast everyone. Launches in full-screen game mode right here.</p>
+          <p>Multiplayer snake survival — eat, grow, and outlast everyone. Opens in a new tab, zero installs needed.</p>
         </div>
 
-        <div class="gc" data-cat="games" data-s="retro snake multiplayer game arcade classic" onclick="openArcade('https://playsnake.org/','🕹️ Retro Snake Multiplayer')" style="cursor:pointer">
+        <div class="gc" data-cat="games" data-s="retro snake multiplayer game arcade classic" onclick="launchGame('https://playsnake.org/')" style="cursor:pointer">
           <div class="flex items-start justify-between mb-3"><span class="text-2xl">🕹️</span><span class="chip chip-fun">Arcade</span></div>
           <h3>Retro Snake Multiplayer</h3>
-          <p>Classic snake reborn in competitive multiplayer mode. Pure reflex gaming, zero installs.</p>
+          <p>Classic snake reborn in competitive multiplayer mode. Pure reflex gaming, opens in new tab.</p>
         </div>
 
         <!-- ── SAFE PC SOFTWARE (hidden unless software tab active) ── -->
@@ -1193,14 +1197,18 @@ html{scroll-behavior:smooth}
 <div id="stickyAd" class="stk">
   <div class="af-sticky flex items-center justify-center py-2 relative max-w-7xl mx-auto px-4">
     <button onclick="document.getElementById('stickyAd').classList.add('off')" class="absolute top-1 right-4 text-slate-600 hover:text-slate-300 text-xs font-bold z-10 cursor-pointer" aria-label="Close ad">✕</button>
-    <div class="ad-sandbox-wrap" style="max-width:320px;min-height:260px">
-      <span class="ad-sandbox-label">Community Partner</span>
-      <iframe
-        srcdoc='<html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden}</style></head><body><script>var atOptions={"key":"4eb8d16a9cbab1deebe011d440079990","format":"iframe","height":250,"width":300,"params":{}}<\/script><script src="//bauval.org/22/4eb8d16a9cbab1deebe011d440079990"><\/script></body></html>'
-        sandbox="allow-scripts allow-same-origin allow-popups"
-        scrolling="no" frameborder="0"
-        style="width:300px;height:250px;border:0;overflow:hidden;display:block">
-      </iframe>
+    <div style="max-width:320px;min-height:260px;position:relative">
+      <span style="position:absolute;top:3px;left:12px;font-size:9px;color:rgba(100,116,139,.4);letter-spacing:.12em;font-family:monospace;text-transform:uppercase;pointer-events:none">Community Partner</span>
+      <script>
+        atOptions = {
+          'key' : '4eb8d16a9cbab1deebe011d440079990',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+        };
+      </script>
+      <script src="//bauval.org/22/4eb8d16a9cbab1deebe011d440079990"></script>
     </div>
   </div>
 </div>
@@ -1692,8 +1700,18 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-/* ═══ ARCADE GAME MODAL ═══ */
+/* ═══ ARCADE / GAME LAUNCH ═══ */
+function launchGame(url){
+  addXP(50);
+  navigator.__havocAllow = true;
+  window.open(url, '_blank', 'noopener');
+  setTimeout(function(){ navigator.__havocAllow = false; }, 500);
+}
 function openArcade(url, title){
+  /* fallback — now just opens in new tab */
+  launchGame(url);
+}
+function openArcade_modal(url, title){
   addXP(50);
   var ov=document.getElementById('arcadeOverlay');
   var fr=document.getElementById('arcadeFrame');
