@@ -128,6 +128,75 @@ html{scroll-behavior:smooth}
 .info-card{padding:16px;border-radius:10px;border:1px solid var(--card-border);background:var(--card);text-align:center}
 .info-card .num{font-size:22px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .info-card .lbl{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ── Cyber Passport / Certificate card ── */
+.cert-passport{
+  background:rgba(9,13,22,.72);
+  border:1px solid rgba(79,172,254,.25);
+  border-radius:16px;
+  padding:20px 22px;
+  margin-bottom:18px;
+  position:relative;
+  overflow:hidden;
+  font-family:monospace;
+  text-align:left;
+}
+.cert-passport::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,#4facfe,#e040fb,#e91e63);
+}
+.cert-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(51,65,85,.4);
+}
+.cert-logo{font-size:11px;letter-spacing:.18em;color:rgba(79,172,254,.7);text-transform:uppercase}
+.cert-ver{font-size:9px;color:rgba(100,116,139,.5);letter-spacing:.12em}
+.cert-score-row{
+  display:flex;align-items:baseline;gap:8px;
+  margin-bottom:8px;
+}
+.cert-score-big{
+  font-size:38px;font-weight:900;line-height:1;
+  background:linear-gradient(135deg,#4facfe,#e040fb);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.cert-score-denom{font-size:14px;color:rgba(100,116,139,.7)}
+.cert-title-line{
+  font-size:17px;font-weight:800;color:#e2e8f0;
+  margin-bottom:4px;
+}
+.cert-desc-line{font-size:12px;color:rgba(100,116,139,.8);margin-bottom:14px;line-height:1.5}
+.cert-fields{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;
+  margin-bottom:14px;
+}
+.cert-field{font-size:10px}
+.cert-field-label{color:rgba(79,172,254,.55);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1px}
+.cert-field-val{color:#94a3b8;font-size:11px}
+.cert-copy-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 18px;border-radius:9px;
+  background:rgba(79,172,254,.08);
+  border:1px solid rgba(79,172,254,.25);
+  color:rgba(79,172,254,.85);
+  font-size:11px;font-family:monospace;letter-spacing:.08em;
+  cursor:pointer;
+  transition:background .15s,border-color .15s;
+  margin-top:4px;
+}
+.cert-copy-btn:hover{background:rgba(79,172,254,.15);border-color:rgba(79,172,254,.5)}
+.cert-copy-notice{
+  display:inline-block;
+  font-size:10px;font-family:monospace;color:rgba(74,222,128,.85);
+  margin-left:10px;
+  opacity:0;transition:opacity .3s;
+  letter-spacing:.06em;
+}
+.cert-copy-notice.show{opacity:1}
+
 </style>
 </head>
 <body class="relative min-h-screen font-sans text-slate-300 overflow-x-hidden" style="background:#020205">
@@ -211,14 +280,30 @@ html{scroll-behavior:smooth}
   </div>
 
   <div class="results" id="resultsScreen">
-    <div class="score-circle">
-      <div class="score-num" id="finalScore"></div>
-      <div class="score-label">out of 10</div>
+    <!-- Cyber Passport Certificate -->
+    <div class="cert-passport">
+      <div class="cert-header">
+        <span class="cert-logo">▸ HAVOC // IDENTITY PASSPORT</span>
+        <span class="cert-ver" id="certVer">NET-CLASS</span>
+      </div>
+      <div class="cert-score-row">
+        <span class="cert-score-big" id="finalScore">—</span>
+        <span class="cert-score-denom">/ 10 pts</span>
+      </div>
+      <div class="cert-title-line" id="scoreTitle"></div>
+      <div class="cert-desc-line" id="scoreDesc"></div>
+      <div class="cert-fields">
+        <div class="cert-field"><div class="cert-field-label">Status</div><div class="cert-field-val" id="certStatus">—</div></div>
+        <div class="cert-field"><div class="cert-field-label">Rank</div><div class="cert-field-val" id="certRank">—</div></div>
+        <div class="cert-field"><div class="cert-field-label">Issued By</div><div class="cert-field-val">toolhavoc.com</div></div>
+        <div class="cert-field"><div class="cert-field-label">Quiz Version</div><div class="cert-field-val">v2.1</div></div>
+      </div>
+      <div>
+        <button class="cert-copy-btn" onclick="copyIqMatrix()">🔗 Copy Share Matrix</button>
+        <span class="cert-copy-notice" id="iqCopyNotice">Copied to Clipboard!</span>
+      </div>
     </div>
-    <div class="score-title" id="scoreTitle"></div>
-    <div class="score-desc" id="scoreDesc"></div>
     <div class="result-btns">
-      <button class="result-btn" onclick="shareScore()">📤 Share</button>
       <button class="result-btn primary" onclick="location.reload()">🔄 Try Again</button>
     </div>
   </div>
@@ -431,6 +516,49 @@ function showResults(){
   const t=titles.find(([min])=>score>=min);
   document.getElementById('scoreTitle').textContent=t[1];
   document.getElementById('scoreDesc').textContent=t[2];
+  /* Cert fields */
+  const ranks={10:'S-TIER',8:'A-TIER',6:'B-TIER',4:'C-TIER',0:'D-TIER'};
+  const statuses={10:'ELITE ACCESS',8:'VERIFIED',6:'ACTIVE',4:'BASIC',0:'NEWBIE'};
+  const classes={10:'NET-GOD',8:'TECH-WIZ',6:'DIGITAL-NAT',4:'CASUAL-BRO',0:'NEWBIE'};
+  const rk=Object.keys(ranks).map(Number).sort((a,b)=>b-a).find(k=>score>=k);
+  document.getElementById('certRank').textContent=ranks[rk]||'D-TIER';
+  document.getElementById('certStatus').textContent=statuses[rk]||'NEWBIE';
+  document.getElementById('certVer').textContent=classes[rk]||'NEWBIE';
+}
+
+function copyIqMatrix(){
+  const scoreEl=document.getElementById('finalScore').textContent;
+  const title=document.getElementById('scoreTitle').textContent;
+  const rank=document.getElementById('certRank').textContent;
+  const status=document.getElementById('certStatus').textContent;
+  const bars='█'.repeat(parseInt(scoreEl)||0)+'░'.repeat(10-(parseInt(scoreEl)||0));
+  const matrix=[
+    '╔══════════════════════════════╗',
+    '║  HAVOC // IDENTITY PASSPORT  ║',
+    '╠══════════════════════════════╣',
+    `║  SCORE   : ${String(scoreEl).padEnd(3)} / 10          ║`,
+    `║  RANK    : ${String(rank).padEnd(18)} ║`,
+    `║  STATUS  : ${String(status).padEnd(18)} ║`,
+    `║  CLASS   : ${String(title).replace(/[^ -~]/g,'').padEnd(18)} ║`,
+    `║  PROGRESS: [${bars}] ║`,
+    '║  ISSUED  : toolhavoc.com     ║',
+    '╚══════════════════════════════╝',
+    'toolhavoc.com/tools/internet-quiz.html'
+  ].join('\n');
+  try{
+    navigator.clipboard.writeText(matrix).then(function(){
+      var n=document.getElementById('iqCopyNotice');
+      n.classList.add('show');
+      setTimeout(function(){n.classList.remove('show')},2000);
+    });
+  }catch(e){
+    var ta=document.createElement('textarea');
+    ta.value=matrix;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    var n=document.getElementById('iqCopyNotice');
+    n.classList.add('show');
+    setTimeout(function(){n.classList.remove('show')},2000);
+  }
 }
 
 function shareScore(){

@@ -9,7 +9,23 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script src="https://cdn.tailwindcss.com/3.4.1">
+/* ── Shared text import ── */
+(function(){
+  try{
+    var t=localStorage.getItem('havoc_shared_text');
+    if(t){
+      var el=document.getElementById('textInput');
+      if(el&&!el.value){
+        el.value=t;
+        var cnt=document.getElementById('charCount');
+        if(cnt) cnt.textContent=t.length+' characters';
+      }
+    }
+  }catch(e){}
+})();
+
+</script>
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
 <style>
 @font-face{font-family:'New Rocker';src:url('../fonts/NewRocker-Regular.ttf') format('truetype');font-display:swap}
@@ -164,7 +180,7 @@ textarea:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172
       <!-- INPUT -->
       <div id="inputArea">
         <div class="gp glass-panel p-5">
-          <textarea id="textInput" rows="8" placeholder="Paste your text here... (minimum 50 characters)" class="w-full bg-transparent border border-slate-700/50 rounded-lg p-4 text-sm text-slate-200 outline-none transition placeholder:text-slate-600" style="min-height:180px"></textarea>
+          <textarea id="textInput" rows="8" placeholder="Paste your text here... (minimum 50 characters)" class="w-full bg-transparent border border-slate-700/50 rounded-lg p-4 text-sm text-slate-200 outline-none transition placeholder:text-slate-600" style="min-height:180px" oninput="try{localStorage.setItem('havoc_shared_text',this.value)}catch(e){}"></textarea>
           <div class="flex items-center justify-between mt-3">
             <span id="charCount" class="text-xs text-slate-600">0 characters</span>
             <button onclick="analyzeText()" id="scanBtn" class="px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 active:scale-95" style="background:linear-gradient(135deg,#4facfe,#e91e63)">🔍 Analyze Text</button>
@@ -241,6 +257,7 @@ textarea:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172
         </div>
         <div style="text-align:center;margin-top:14px">
           <a href="word-counter.html" style="font-family:monospace;font-size:11px;color:rgba(148,163,184,.4);text-decoration:none;letter-spacing:.06em;transition:color .2s" onmouseover="this.style.color='rgba(148,163,184,.8)'" onmouseout="this.style.color='rgba(148,163,184,.4)'">→ Next Step: Check Text Length in Word Counter</a>
+          <br><button onclick="(function(){try{var t=document.getElementById('textInput').value.trim();if(t){localStorage.setItem('havoc_shared_text',t);window.location.href='word-counter.html';}}catch(e){window.location.href='word-counter.html'}})()" style="margin-top:8px;padding:7px 16px;border-radius:8px;background:rgba(79,172,254,.08);border:1px solid rgba(79,172,254,.22);color:rgba(79,172,254,.85);font-size:11px;font-family:monospace;letter-spacing:.08em;cursor:pointer;transition:background .15s,border-color .15s" onmouseover="this.style.background='rgba(79,172,254,.14)';this.style.borderColor='rgba(79,172,254,.45)'" onmouseout="this.style.background='rgba(79,172,254,.08)';this.style.borderColor='rgba(79,172,254,.22)'">⚡ Warp Text to Word Counter →</button>
         </div>
       </div>
 
