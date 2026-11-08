@@ -524,32 +524,12 @@ function convertImage(){
   img.src=url;
 }
 
-/* AUDIO/VIDEO: FFmpeg.wasm single-thread ESM build — no SharedArrayBuffer needed */
-/* Uses toBlobURL trick to bypass CORS/Worker restrictions on static hosting */
+/* AUDIO/VIDEO: FFmpeg.wasm v0.10 API + @ffmpeg/core-st (single-thread, no Worker, no SharedArrayBuffer)
+   This is the ONLY build that works on static hosting without COOP/COEP headers. */
 
-var _ffmpegScriptsLoaded = false;
+var _ffmpegScriptLoaded = false;
 
-async function toBlobURL(url, mimeType) {
-  /* Fetch the remote script/wasm and serve it as a local blob URL —
-     this is what lets FFmpeg.wasm work on static hosts without COOP/COEP */
-  var resp = await fetch(url);
-  if(!resp.ok) throw new Error('Failed to fetch '+url+' ('+resp.status+')');
-  var buf = await resp.arrayBuffer();
-  var blob = new Blob([buf], {type: mimeType});
-  return URL.createObjectURL(blob);
-}
-
-async function loadFFmpegScripts() {
-  if(_ffmpegScriptsLoaded) return;
-  /* Load the UMD build of @ffmpeg/ffmpeg 0.12.x */
-  await new Promise(function(resolve, reject){
-    var s = document.createElement('script');
-    s.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js';
-    s.onload = resolve; s.onerror = reject;
-    document.head.appendChild(s);
-  });
-  _ffmpegScriptsLoaded = true;
-}
+function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
 
 async function loadFFmpeg(){
   if(_ffmpegLoading||_ffmpegReady) return;
@@ -558,27 +538,35 @@ async function loadFFmpeg(){
   document.getElementById('ffmpeg-pct').textContent = '0%';
   log('Loading audio/video engine...','log-info');
   try {
-    await loadFFmpegScripts();
-    var FFmpegLib = window.FFmpegWASM && window.FFmpegWASM.FFmpeg
-      ? window.FFmpegWASM.FFmpeg
-      : (window.FFmpeg && window.FFmpeg.FFmpeg ? window.FFmpeg.FFmpeg : null);
-    if(!FFmpegLib) throw new Error('FFmpeg class not found after script load');
+    /* Step 1: load ffmpeg.wasm v0.10.1 — uses old createFFmpeg API, no Worker spawning */
+    if(!_ffmpegScriptLoaded){
+      await new Promise(function(resolve, reject){
+        var s = document.createElement('script');
+        s.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js';
+        s.onload = function(){ _ffmpegScriptLoaded=true; resolve(); };
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+    document.getElementById('ffmpeg-pct').textContent = '20%';
+    log('Fetching single-thread FFmpeg core (~15 MB, one-time)...','log-info');
 
-    log('Fetching FFmpeg core (~30 MB, one-time load)...','log-info');
-    document.getElementById('ffmpeg-pct').textContent = '10%';
+    /* Step 2: createFFmpeg with the -st (single thread) core — no SharedArrayBuffer needed */
+    var { createFFmpeg } = FFmpeg;
+    _ffmpeg = createFFmpeg({
+      corePath: 'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
+      log: false,
+      progress: function(p){
+        if(typeof p.ratio === 'number'){
+          var pct = Math.round(p.ratio * 85) + 10;
+          setProgress(pct, 'Converting... ' + Math.round(p.ratio*100) + '%');
+          document.getElementById('ffmpeg-pct').textContent = pct + '%';
+        }
+      }
+    });
 
-    /* Use ESM single-thread core — works on static hosting, no SharedArrayBuffer */
-    var coreBase = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm/';
-    var coreURL  = await toBlobURL(coreBase+'ffmpeg-core.js',   'text/javascript');
-    document.getElementById('ffmpeg-pct').textContent = '50%';
-    var wasmURL  = await toBlobURL(coreBase+'ffmpeg-core.wasm', 'application/wasm');
-    document.getElementById('ffmpeg-pct').textContent = '90%';
-
-    _ffmpeg = new FFmpegLib();
-    _ffmpeg.on('log', function(e){ if(e&&e.message&&!e.message.startsWith('Aborted')) log(e.message,'log-info'); });
-    _ffmpeg.on('progress', function(e){ if(e&&typeof e.progress==='number'){ var p=Math.round(e.progress*85)+10; setProgress(p,'Converting... '+Math.round(e.progress*100)+'%'); document.getElementById('ffmpeg-pct').textContent=p+'%'; } });
-
-    await _ffmpeg.load({ coreURL: coreURL, wasmURL: wasmURL });
+    document.getElementById('ffmpeg-pct').textContent = '30%';
+    await _ffmpeg.load();
     _ffmpegReady = true; _ffmpegLoading = false;
     document.getElementById('ffmpeg-notice').style.display = 'none';
     log('Audio/video engine ready!','log-ok');
@@ -589,8 +577,6 @@ async function loadFFmpeg(){
     document.getElementById('convert-btn').disabled = false;
   }
 }
-
-function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
 
 async function convertAV(){
   if(!_ffmpegReady){
@@ -613,15 +599,15 @@ async function convertAV(){
   var outName = 'output.' + ext;
 
   try {
-    log('Reading file into engine...','log-info');
+    log('Reading file...','log-info');
     setProgress(5,'Reading file...');
 
-    /* Write file into FFmpeg virtual FS */
-    var arrBuf = await _file.arrayBuffer();
-    await _ffmpeg.writeFile(inName, new Uint8Array(arrBuf));
+    /* v0.10 API: fetchFile from File object */
+    var { fetchFile } = FFmpeg;
+    _ffmpeg.FS('writeFile', inName, await fetchFile(_file));
     setProgress(10,'Starting conversion...');
 
-    /* Build FFmpeg args by output format */
+    /* FFmpeg args by output format */
     var args = ['-i', inName];
     if(fmt==='MP3 (audio)'){ args=args.concat(['-vn','-ar','44100','-ac','2','-b:a','192k','-f','mp3']); }
     else if(fmt==='MP3'){    args=args.concat(['-vn','-ar','44100','-ac','2','-b:a','192k','-f','mp3']); }
@@ -631,20 +617,18 @@ async function convertAV(){
     else if(fmt==='MP4'){    args=args.concat(['-c:v','mpeg4','-q:v','5','-c:a','aac']); }
     args.push(outName);
 
-    log('Running FFmpeg: '+args.join(' '),'log-info');
-    await _ffmpeg.exec(args);
+    await _ffmpeg.run(...args);
 
     setProgress(96,'Reading output...');
-    var data = await _ffmpeg.readFile(outName);
+    var data = _ffmpeg.FS('readFile', outName);
     var blob = new Blob([data.buffer], {type: mime});
 
     setProgress(100,'Done!');
     log('Done! Output: '+fmtSize(blob.size),'log-ok');
     showResult(blob, _file.name.replace(/\.[^.]+$/,'') + '.' + ext, mime);
 
-    /* Clean up virtual FS */
-    try{ await _ffmpeg.deleteFile(inName); } catch(e){}
-    try{ await _ffmpeg.deleteFile(outName); } catch(e){}
+    try{ _ffmpeg.FS('unlink', inName); } catch(e){}
+    try{ _ffmpeg.FS('unlink', outName); } catch(e){}
 
   } catch(e) {
     log('Conversion failed: '+e.message,'log-err');
