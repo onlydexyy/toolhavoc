@@ -42,29 +42,58 @@ html{scroll-behavior:smooth}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:#020205}
 ::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+
 .glass-panel{background:rgba(9,13,22,.30)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important;border:1px solid rgba(51,65,85,.6);border-radius:16px}
 .nav-bar{position:fixed;top:0;left:0;right:0;z-index:50;height:56px;display:flex;align-items:center;background:rgba(2,2,5,.7);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid rgba(51,65,85,.4)}
 .wing{display:none;position:fixed;top:0;bottom:0;width:5vw;min-width:48px;max-width:80px;pointer-events:none;z-index:5;flex-direction:column;align-items:center;overflow:hidden}
 @media(min-width:1280px){.wing{display:flex}}
 .wing-line{position:absolute;top:0;bottom:0;width:1px;background:repeating-linear-gradient(to bottom,rgba(51,65,85,.18) 0px,rgba(51,65,85,.18) 4px,transparent 4px,transparent 10px)}
 .wing-left .wing-line{right:0}.wing-right .wing-line{left:0}
-.ad-slot{min-height:95px;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:8px;position:relative;overflow:hidden}
-.ad-label{position:absolute;top:6px;left:10px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(71,85,105,.5)}
+.xhair{position:absolute;width:12px;height:12px;opacity:.35}
+.xhair-top{top:56px}.xhair-bot{bottom:16px}
+.wing-coord{position:absolute;font-family:monospace;font-size:7px;letter-spacing:.08em;color:rgba(100,116,139,.28);text-transform:uppercase;white-space:nowrap;line-height:1}
+.wing-left .wing-coord{right:6px;top:50%;writing-mode:vertical-rl;transform:rotate(180deg) translateY(50%)}
+.wing-right .wing-coord{left:6px;top:50%;writing-mode:vertical-rl;transform:rotate(0deg) translateY(-50%)}
+.ticker-tunnel{position:absolute;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;overflow:hidden;width:28px}
+.wing-left .ticker-tunnel{left:4px}.wing-right .ticker-tunnel{right:4px}
+.ticker-track{display:flex;flex-direction:column;gap:20px;animation-timing-function:linear;animation-iteration-count:infinite;will-change:transform}
+.ticker-track-down{animation:tickDown 30s linear infinite}
+.ticker-track-up{animation:tickUp 34s linear infinite}
+@keyframes tickDown{0%{transform:translateY(-50%)}100%{transform:translateY(0%)}}
+@keyframes tickUp{0%{transform:translateY(0%)}100%{transform:translateY(-50%)}}
+.tick-item{font-family:monospace;font-size:7.5px;font-weight:400;letter-spacing:.12em;color:rgba(71,85,105,.38);text-transform:uppercase;white-space:nowrap;writing-mode:vertical-rl;line-height:1;user-select:none;-webkit-user-select:none}
+.tick-item.hi{color:rgba(79,172,254,.28)}.tick-item.mg{color:rgba(233,30,99,.22)}.tick-item.gr{color:rgba(34,197,94,.25)}
+
+/* ── REQUEST MODAL ── */
+#request-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,2,5,.75);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .3s ease}
+#request-modal.open{opacity:1;pointer-events:all}
+.rmodal-box{width:100%;max-width:460px;background:rgba(9,13,22,.72);border:1px solid rgba(79,172,254,.22);border-radius:16px;padding:32px 28px;box-shadow:0 0 60px rgba(79,172,254,.08),inset 0 0 0 1px rgba(255,255,255,.04);transform:translateY(16px) scale(.97);transition:transform .35s cubic-bezier(.22,1,.36,1);position:relative}
+#request-modal.open .rmodal-box{transform:translateY(0) scale(1)}
+.rmodal-box h2{font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:4px}
+.rmodal-box p{font-size:13px;color:#64748b;margin-bottom:22px}
+.rf-label{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#475569;margin-bottom:5px}
+.rf-input{width:100%;background:rgba(2,2,5,.55);border:1px solid rgba(51,65,85,.55);border-radius:8px;color:#e2e8f0;font-size:13px;padding:10px 13px;outline:none;transition:border-color .25s,box-shadow .25s;font-family:inherit;resize:none}
+.rf-input:focus{border-color:rgba(79,172,254,.5);box-shadow:0 0 0 3px rgba(79,172,254,.08)}
+.rf-input::placeholder{color:#334155}
+.rf-row{margin-bottom:15px}
+.rmodal-submit{width:100%;margin-top:6px;padding:11px;border-radius:9px;border:none;cursor:pointer;font-weight:700;font-size:13px;letter-spacing:.04em;color:#fff;background:linear-gradient(135deg,#4facfe,#e91e63);box-shadow:0 0 20px rgba(79,172,254,.18);transition:opacity .2s,transform .15s}
+.rmodal-submit:hover{opacity:.88}
+.rmodal-submit:active{transform:scale(.96)}
+.rmodal-close{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:#475569;font-size:18px;line-height:1;transition:color .2s}
+.rmodal-close:hover{color:#94a3b8}
+
+/* ── AD SLOTS ── */
 @media(max-width:767px){.havoc-ad-desktop{display:none!important}.havoc-ad-mobile{display:flex!important}}
 @media(min-width:768px){.havoc-ad-mobile{display:none!important}.havoc-ad-desktop{display:flex!important}}
 
-/* ── DROP ZONE ── */
+/* ── CONVERTER UI ── */
 #drop-zone{
   border:2px dashed rgba(79,172,254,.25);border-radius:16px;
-  background:rgba(9,13,22,.4);
-  padding:48px 24px;text-align:center;
-  transition:border-color .25s,background .25s;
-  cursor:pointer;position:relative;
+  background:rgba(9,13,22,.4);padding:48px 24px;text-align:center;
+  transition:border-color .25s,background .25s;cursor:pointer;position:relative;
 }
 #drop-zone.drag-over{border-color:rgba(79,172,254,.7);background:rgba(79,172,254,.06)}
-#drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 
-/* ── FORMAT PILLS ── */
 .fmt-pill{
   padding:6px 14px;border-radius:999px;border:1px solid rgba(51,65,85,.6);
   background:rgba(9,13,22,.4);color:#94a3b8;font-size:12px;font-weight:600;
@@ -73,24 +102,20 @@ html{scroll-behavior:smooth}
 .fmt-pill:hover{border-color:rgba(79,172,254,.5);color:#4facfe}
 .fmt-pill.active{border-color:#4facfe;background:rgba(79,172,254,.12);color:#4facfe;box-shadow:0 0 12px rgba(79,172,254,.15)}
 
-/* ── PROGRESS ── */
 .prog-bar{height:4px;background:#0f172a;border-radius:4px;overflow:hidden;margin:12px 0}
 .prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#4facfe,#a78bfa);transition:width .3s ease;border-radius:4px}
 
-/* ── CONVERT BTN ── */
 .convert-btn{
   padding:14px 32px;border-radius:12px;border:none;cursor:pointer;
   font-weight:700;font-size:15px;letter-spacing:.03em;color:#fff;
   background:linear-gradient(135deg,#4facfe,#e91e63);
   box-shadow:0 0 24px rgba(79,172,254,.2);
-  transition:opacity .2s,transform .15s,box-shadow .2s;
-  width:100%;
+  transition:opacity .2s,transform .15s,box-shadow .2s;width:100%;
 }
 .convert-btn:hover:not(:disabled){opacity:.88;box-shadow:0 0 32px rgba(79,172,254,.35)}
 .convert-btn:active:not(:disabled){transform:scale(.97)}
 .convert-btn:disabled{opacity:.4;cursor:not-allowed}
 
-/* ── CATEGORY TABS ── */
 .cat-tab{
   padding:8px 20px;border-radius:8px;border:1px solid rgba(51,65,85,.5);
   background:transparent;color:#64748b;font-size:13px;font-weight:600;
@@ -99,18 +124,13 @@ html{scroll-behavior:smooth}
 .cat-tab.active{background:rgba(79,172,254,.1);border-color:rgba(79,172,254,.4);color:#4facfe}
 .cat-tab:hover:not(.active){border-color:rgba(79,172,254,.25);color:#94a3b8}
 
-/* ── FILE CARD ── */
 .file-card{background:rgba(9,13,22,.5);border:1px solid rgba(51,65,85,.5);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px}
-.file-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 
-/* ── LOG ── */
 #conv-log{font-family:monospace;font-size:12px;line-height:1.8;color:#64748b;padding:16px;background:rgba(2,2,5,.5);border-radius:10px;border:1px solid rgba(51,65,85,.3);max-height:120px;overflow-y:auto;display:none}
 #conv-log .log-ok{color:#22c55e}
 #conv-log .log-info{color:#4facfe}
-#conv-log .log-warn{color:#fbbf24}
 #conv-log .log-err{color:#f87171}
 
-/* ── RESULT ── */
 #result-zone{display:none}
 .dl-btn{
   display:flex;align-items:center;justify-content:center;gap:8px;
@@ -128,182 +148,226 @@ html{scroll-behavior:smooth}
 <!-- Wings -->
 <div class="wing wing-left" style="left:1.5vw" aria-hidden="true">
   <div class="wing-line"></div>
-</div>
-<div class="wing wing-right" style="right:1.5vw" aria-hidden="true">
-  <div class="wing-line"></div>
+  <div class="xhair xhair-top" style="right:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="0" x2="6" y2="4" stroke="rgba(79,172,254,.4)" stroke-width="1"/><line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.4)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.5)"/></svg></div>
+  <div class="xhair xhair-bot" style="right:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="12" x2="6" y2="8" stroke="rgba(79,172,254,.25)" stroke-width="1"/><line x1="8" y1="6" x2="12" y2="6" stroke="rgba(79,172,254,.25)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(79,172,254,.3)"/></svg></div>
+  <span class="wing-coord">X:0.00 · Y:0.00</span>
+  <div class="ticker-tunnel"><div class="ticker-track ticker-track-down">
+    <span class="tick-item hi">[SYSTEM_OK]</span><span class="tick-item">——————</span><span class="tick-item gr">[SCANNER_CORE]</span><span class="tick-item">0x4F AC FE</span><span class="tick-item hi">[LATENCY: 11ms]</span><span class="tick-item">——————</span><span class="tick-item">[ENGINE_ON]</span><span class="tick-item">PWR: 100%</span><span class="tick-item mg">[HAVOC_v2.6]</span><span class="tick-item">——————</span><span class="tick-item">[TOOLS: 36]</span><span class="tick-item gr">[UPTIME: OK]</span><span class="tick-item">SYS_CLK: RUN</span><span class="tick-item hi">[NET_OK]</span><span class="tick-item">——————</span><span class="tick-item">[RENDER: 60fps]</span><span class="tick-item mg">[MEM: CLEAN]</span><span class="tick-item">0x00 00 05</span><span class="tick-item">[BOOT_SEQ: OK]</span><span class="tick-item gr">——————</span>
+    <span class="tick-item hi">[SYSTEM_OK]</span><span class="tick-item">——————</span><span class="tick-item gr">[SCANNER_CORE]</span><span class="tick-item">0x4F AC FE</span><span class="tick-item hi">[LATENCY: 11ms]</span><span class="tick-item">——————</span><span class="tick-item">[ENGINE_ON]</span><span class="tick-item">PWR: 100%</span><span class="tick-item mg">[HAVOC_v2.6]</span><span class="tick-item">——————</span><span class="tick-item">[TOOLS: 36]</span><span class="tick-item gr">[UPTIME: OK]</span><span class="tick-item">SYS_CLK: RUN</span><span class="tick-item hi">[NET_OK]</span><span class="tick-item">——————</span><span class="tick-item">[RENDER: 60fps]</span><span class="tick-item mg">[MEM: CLEAN]</span><span class="tick-item">0x00 00 05</span><span class="tick-item">[BOOT_SEQ: OK]</span><span class="tick-item gr">——————</span>
+  </div></div>
 </div>
 
-<!-- Nav -->
-<nav class="nav-bar px-4 md:px-8">
-  <div class="w-full max-w-6xl mx-auto flex items-center justify-between">
-    <a href="../index.html" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
-      <span>←</span> <span class="hidden sm:inline">Back to Arsenal</span>
-    </a>
-    <a href="../index.html" class="font-bold text-xl tracking-widest" style="font-family:'New Rocker','Inter',sans-serif;color:#fff;text-shadow:0 0 20px rgba(79,172,254,.4)">HAVOC</a>
-    <div class="text-xs font-mono text-slate-600 tracking-widest uppercase hidden sm:block">File Converter</div>
+<div class="wing wing-right" style="right:1.5vw" aria-hidden="true">
+  <div class="wing-line"></div>
+  <div class="xhair xhair-top" style="left:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="0" x2="6" y2="4" stroke="rgba(233,30,99,.35)" stroke-width="1"/><line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.35)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.4)"/></svg></div>
+  <div class="xhair xhair-bot" style="left:-1px"><svg viewBox="0 0 12 12" fill="none" width="12" height="12"><line x1="6" y1="12" x2="6" y2="8" stroke="rgba(233,30,99,.2)" stroke-width="1"/><line x1="0" y1="6" x2="4" y2="6" stroke="rgba(233,30,99,.2)" stroke-width="1"/><circle cx="6" cy="6" r="1" fill="rgba(233,30,99,.25)"/></svg></div>
+  <span class="wing-coord">W:100% · H:∞</span>
+  <div class="ticker-tunnel"><div class="ticker-track ticker-track-up">
+    <span class="tick-item hi">[HAVOC_MATRIX]</span><span class="tick-item">——————</span><span class="tick-item mg">[BLOB_GEN: RDY]</span><span class="tick-item">FPS: 60.0</span><span class="tick-item gr">[SESSION_LIVE]</span><span class="tick-item">——————</span><span class="tick-item">[CANVAS: ON]</span><span class="tick-item hi">[ORBS: 3]</span><span class="tick-item">[PARTICLES: 25]</span><span class="tick-item">——————</span><span class="tick-item mg">[RIPPLE: ARMED]</span><span class="tick-item gr">0xE9 1E 63</span><span class="tick-item">[TOOLS: LIVE]</span><span class="tick-item hi">——————</span><span class="tick-item">[AD_SLOT: 2]</span><span class="tick-item mg">[REV: ACTIVE]</span><span class="tick-item">SRC: ADSTERRA</span><span class="tick-item gr">[DEXYY_BUILD]</span><span class="tick-item">——————</span>
+    <span class="tick-item hi">[HAVOC_MATRIX]</span><span class="tick-item">——————</span><span class="tick-item mg">[BLOB_GEN: RDY]</span><span class="tick-item">FPS: 60.0</span><span class="tick-item gr">[SESSION_LIVE]</span><span class="tick-item">——————</span><span class="tick-item">[CANVAS: ON]</span><span class="tick-item hi">[ORBS: 3]</span><span class="tick-item">[PARTICLES: 25]</span><span class="tick-item">——————</span><span class="tick-item mg">[RIPPLE: ARMED]</span><span class="tick-item gr">0xE9 1E 63</span><span class="tick-item">[TOOLS: LIVE]</span><span class="tick-item hi">——————</span><span class="tick-item">[AD_SLOT: 2]</span><span class="tick-item mg">[REV: ACTIVE]</span><span class="tick-item">SRC: ADSTERRA</span><span class="tick-item gr">[DEXYY_BUILD]</span><span class="tick-item">——————</span>
+  </div></div>
+</div>
+
+<!-- Nav — exact match to other tool pages -->
+<nav class="nav-bar">
+  <div class="max-w-4xl w-full mx-auto px-4 flex items-center justify-between">
+    <a href="../index.html#tools" class="text-slate-500 hover:text-slate-200 transition font-mono text-xs tracking-wide" style="text-decoration:none">&larr; Dashboard</a>
+    <a href="../index.html" class="absolute left-1/2 -translate-x-1/2 text-white text-2xl md:text-3xl font-extrabold tracking-widest" style="text-decoration:none;font-family:'New Rocker','Inter',sans-serif;text-shadow:0 1px 0 #cbd5e1,0 2px 0 #94a3b8,0 3px 0 #475569,0 4px 10px rgba(6,182,212,0.5)">HAVOC</a>
+    <button onclick="openReqModal()" class="px-3 py-1 rounded-lg text-[12px] font-semibold tracking-wide transition" style="cursor:pointer;color:#4facfe;border:1px solid rgba(79,172,254,.22);background:transparent" onmouseover="this.style.borderColor='rgba(79,172,254,.5)';this.style.background='rgba(79,172,254,.06)'" onmouseout="this.style.borderColor='rgba(79,172,254,.22)';this.style.background='transparent'">+ Request Tool</button>
   </div>
 </nav>
 
-<!-- Ad top -->
-<div class="w-full max-w-2xl mx-auto px-4 pt-20 pb-2">
-  <div class="ad-slot havoc-ad-desktop" style="min-height:90px">
-    <span class="ad-label">Partner</span>
-    <script async="async" data-cfasync="false">
-      var atOptions={'key':'76f41da8102a7c4d2de5a7cf0da20e45','format':'iframe','height':90,'width':728,'params':{}};
-    </script>
-    <script async="async" data-cfasync="false" src="//bauval.org/22/76f41da8102a7c4d2de5a7cf0da20e45"></script>
-  </div>
-  <div class="ad-slot havoc-ad-mobile" style="min-height:60px">
-    <span class="ad-label">Partner</span>
-    <script async="async" data-cfasync="false">
-      var atOptions={'key':'76f41da8102a7c4d2de5a7cf0da20e45','format':'iframe','height':60,'width':300,'params':{}};
-    </script>
-    <script async="async" data-cfasync="false" src="//bauval.org/22/76f41da8102a7c4d2de5a7cf0da20e45"></script>
+<div class="relative z-10 pt-20 pb-16">
+  <div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+
+    <!-- Tool header -->
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="text-3xl">🔄</span>
+        <div>
+          <h1 class="text-2xl font-black text-white tracking-tight">Universal File Converter</h1>
+          <p class="text-sm text-slate-500">Convert images, audio, video & documents — 100% private, runs in your browser, nothing uploaded.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 mt-3 font-mono text-[10px] tracking-widest uppercase">
+        <span class="text-emerald-400">● Private</span>
+        <span class="text-cyan-400">● Free</span>
+        <span class="text-purple-400">● No Signup</span>
+      </div>
+    </div>
+
+    <!-- TOP AD SLOT -->
+    <div class="mb-6 flex flex-col items-center">
+      <span class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2 block">Community Partner</span>
+      <div class="havoc-ad-desktop" style="display:flex;align-items:center;justify-content:center;overflow:hidden;height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
+        <script type="text/javascript">
+          atOptions = {'key':'76f41da819582075b2e5619851f50a31','format':'iframe','height':90,'width':728,'params':{}};
+        </script>
+        <script type="text/javascript" src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      </div>
+      <div class="havoc-ad-mobile" style="display:none;align-items:center;justify-content:center;overflow:hidden;height:260px;max-width:320px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
+        <script type="text/javascript">
+          atOptions = {'key':'76f41da819582075b2e5619851f50a31','format':'iframe','height':250,'width':300,'params':{}};
+        </script>
+        <script type="text/javascript" src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      </div>
+    </div>
+
+    <!-- Main converter card -->
+    <div class="glass-panel p-6 md:p-8 mb-6">
+
+      <!-- Category tabs -->
+      <div class="flex items-center gap-2 flex-wrap mb-5">
+        <button class="cat-tab active" onclick="switchCat('image',this)">🖼️ Image</button>
+        <button class="cat-tab" onclick="switchCat('audio',this)">🎵 Audio</button>
+        <button class="cat-tab" onclick="switchCat('video',this)">🎬 Video</button>
+        <button class="cat-tab" onclick="switchCat('document',this)">📄 Document</button>
+      </div>
+
+      <!-- Supported formats -->
+      <div class="mb-4">
+        <div class="text-xs font-mono text-slate-600 tracking-wide" id="fmt-info-text">PNG · JPG · JPEG · WebP · BMP · GIF · ICO · SVG · TIFF</div>
+      </div>
+
+      <!-- Drop zone -->
+      <div id="drop-zone" class="mb-5" onclick="document.getElementById('file-input').click()">
+        <input type="file" id="file-input" accept="image/*" onchange="onFileSelect(event)" style="display:none" onclick="event.stopPropagation()">
+        <div class="text-5xl mb-4" id="drop-icon">🖼️</div>
+        <div class="text-white font-bold text-lg mb-1">Drop your file here</div>
+        <div class="text-slate-500 text-sm mb-4">or click to browse</div>
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-700 text-slate-400 text-sm">
+          <span>Max 500 MB</span><span class="text-slate-600">·</span><span>Client-side only</span>
+        </div>
+      </div>
+
+      <!-- File loaded card -->
+      <div id="file-card" class="file-card mb-5" style="display:none">
+        <div style="width:44px;height:44px;border-radius:10px;background:rgba(79,172,254,.1);border:1px solid rgba(79,172,254,.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0" id="fc-icon">📁</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-white font-semibold text-sm truncate" id="fc-name">filename.png</div>
+          <div class="text-slate-500 text-xs mt-0.5" id="fc-meta">0 KB</div>
+        </div>
+        <button onclick="clearFile()" class="text-slate-600 hover:text-red-400 transition-colors text-lg flex-shrink-0">✕</button>
+      </div>
+
+      <!-- Convert to -->
+      <div id="convert-section" style="display:none" class="mb-5">
+        <div class="text-xs font-bold tracking-widest uppercase text-slate-500 mb-3 font-mono">// Convert To:</div>
+        <div class="flex flex-wrap gap-2" id="format-pills"></div>
+      </div>
+
+      <!-- Quality slider (images) -->
+      <div id="quality-section" style="display:none" class="mb-5 p-4 rounded-xl" style="background:rgba(9,13,22,.4);border:1px solid rgba(51,65,85,.4)">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-sm font-semibold text-slate-300">Quality</div>
+          <div class="text-sm font-bold text-cyan-400 font-mono" id="quality-label">92%</div>
+        </div>
+        <input type="range" id="quality-slider" min="10" max="100" value="92" oninput="document.getElementById('quality-label').textContent=this.value+'%'" class="w-full accent-cyan-400">
+        <div class="flex justify-between text-xs text-slate-600 mt-1 font-mono">
+          <span>Smaller file</span><span>Best quality</span>
+        </div>
+      </div>
+
+      <!-- Convert button -->
+      <button class="convert-btn mb-4" id="convert-btn" onclick="startConvert()" disabled>Select a file to convert</button>
+
+      <!-- Progress -->
+      <div id="prog-wrap" style="display:none">
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+        <div class="text-xs font-mono text-slate-500 text-center mt-1" id="prog-label">Processing...</div>
+      </div>
+
+      <!-- Log -->
+      <div id="conv-log"></div>
+
+      <!-- Result -->
+      <div id="result-zone" class="mt-5">
+        <div class="p-5 text-center rounded-xl" style="background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.2)">
+          <div class="text-3xl mb-3">✅</div>
+          <div class="text-white font-bold text-lg mb-1">Conversion Complete</div>
+          <div class="text-slate-400 text-sm mb-5" id="res-meta"></div>
+          <a id="dl-link" class="dl-btn" download>⬇ Download Converted File</a>
+          <button onclick="clearFile()" class="mt-3 w-full text-slate-500 text-sm hover:text-slate-300 transition-colors py-2">Convert Another File</button>
+        </div>
+      </div>
+
+    </div><!-- end glass-panel -->
+
+    <!-- Feature strip -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+      <div class="glass-panel p-4 text-center">
+        <div class="text-2xl mb-2">🔒</div>
+        <div class="text-sm font-bold text-white mb-1">100% Private</div>
+        <div class="text-xs text-slate-500">Your file never leaves your device. All conversion happens in the browser.</div>
+      </div>
+      <div class="glass-panel p-4 text-center">
+        <div class="text-2xl mb-2">⚡</div>
+        <div class="text-sm font-bold text-white mb-1">Instant</div>
+        <div class="text-xs text-slate-500">No wait times, no queues. Convert in seconds using your device's own power.</div>
+      </div>
+      <div class="glass-panel p-4 text-center">
+        <div class="text-2xl mb-2">♾️</div>
+        <div class="text-sm font-bold text-white mb-1">Unlimited</div>
+        <div class="text-xs text-slate-500">No daily limits, no file count caps. Convert as many files as you want.</div>
+      </div>
+    </div>
+
+    <!-- Format support table -->
+    <div class="glass-panel p-5 mb-6">
+      <div class="text-sm font-bold text-white mb-4 font-mono tracking-wide">// Supported Formats</div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <div class="text-xs font-bold text-cyan-400 font-mono tracking-widest uppercase mb-2">🖼️ Images</div>
+          <div class="text-xs text-slate-400 leading-relaxed">PNG, JPG/JPEG, WebP, BMP, GIF, ICO, SVG, TIFF → PNG, JPG, WebP, BMP</div>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-purple-400 font-mono tracking-widest uppercase mb-2">🎵 Audio</div>
+          <div class="text-xs text-slate-400 leading-relaxed">MP3, WAV, OGG, FLAC, AAC, M4A → MP3, WAV, OGG</div>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-pink-400 font-mono tracking-widest uppercase mb-2">🎬 Video</div>
+          <div class="text-xs text-slate-400 leading-relaxed">MP4, WebM, MOV, AVI, MKV → MP3 (audio extract), WebM, MP4</div>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-emerald-400 font-mono tracking-widest uppercase mb-2">📄 Documents</div>
+          <div class="text-xs text-slate-400 leading-relaxed">CSV ↔ JSON, TXT → Markdown, MD → TXT, JSON → CSV</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM AD SLOT -->
+    <div class="mt-6 flex flex-col items-center">
+      <span class="text-[10px] text-slate-500 tracking-widest font-mono uppercase mb-2 block">Community Partner</span>
+      <div class="havoc-ad-desktop" style="display:flex;align-items:center;justify-content:center;overflow:hidden;height:95px;max-width:728px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
+        <script type="text/javascript">
+          atOptions = {'key':'76f41da819582075b2e5619851f50a31','format':'iframe','height':90,'width':728,'params':{}};
+        </script>
+        <script type="text/javascript" src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      </div>
+      <div class="havoc-ad-mobile" style="display:none;align-items:center;justify-content:center;overflow:hidden;height:260px;max-width:320px;width:100%;background:rgba(2,2,5,.4);border:1px solid rgba(51,65,85,.4);border-radius:12px">
+        <script type="text/javascript">
+          atOptions = {'key':'76f41da819582075b2e5619851f50a31','format':'iframe','height':250,'width':300,'params':{}};
+        </script>
+        <script type="text/javascript" src="//bauval.org/22/76f41da819582075b2e5619851f50a31"></script>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- Main content -->
-<main class="relative z-10 w-full max-w-2xl mx-auto px-4 py-6 pb-24">
-
-  <!-- Header -->
-  <div class="text-center mb-8">
-    <div class="text-4xl mb-3">🔄</div>
-    <h1 class="text-2xl md:text-3xl font-black text-white mb-2">Universal File Converter</h1>
-    <p class="text-slate-400 text-sm">Convert images, audio, video & documents — 100% in your browser. Nothing uploaded to any server.</p>
-    <div class="flex items-center justify-center gap-4 mt-3 font-mono text-[10px] tracking-widest uppercase">
-      <span class="text-emerald-400">● Private</span>
-      <span class="text-cyan-400">● Free</span>
-      <span class="text-purple-400">● No Signup</span>
-    </div>
+<!-- Request Modal -->
+<div id="request-modal" role="dialog" aria-modal="true" onclick="if(event.target===this)closeReqModal()">
+  <div class="rmodal-box">
+    <button class="rmodal-close" onclick="closeReqModal()">&#x2715;</button>
+    <h2>🛠️ Request a Tool</h2>
+    <p>Got an idea? Drop it below and we'll build it.</p>
+    <form id="reqForm" onsubmit="submitReq(event)">
+      <div class="rf-row"><label class="rf-label" for="rf-name">Tool Name</label><input id="rf-name" class="rf-input" type="text" placeholder="e.g. Battery Health Scanner" required maxlength="80"></div>
+      <div class="rf-row"><label class="rf-label" for="rf-desc">What should it do?</label><textarea id="rf-desc" class="rf-input" rows="4" placeholder="Describe what this tool should check, test, or generate..." required maxlength="500"></textarea></div>
+      <button type="submit" class="rmodal-submit">Send Request →</button>
+    </form>
   </div>
-
-  <!-- Category tabs -->
-  <div class="flex items-center gap-2 flex-wrap justify-center mb-6" id="cat-tabs">
-    <button class="cat-tab active" data-cat="image" onclick="switchCat('image',this)">🖼️ Image</button>
-    <button class="cat-tab" data-cat="audio" onclick="switchCat('audio',this)">🎵 Audio</button>
-    <button class="cat-tab" data-cat="video" onclick="switchCat('video',this)">🎬 Video</button>
-    <button class="cat-tab" data-cat="document" onclick="switchCat('document',this)">📄 Document</button>
-  </div>
-
-  <!-- Supported formats info -->
-  <div id="fmt-info" class="text-center mb-5">
-    <div class="text-xs text-slate-500 font-mono tracking-wide" id="fmt-info-text">PNG · JPG · JPEG · WebP · BMP · GIF · ICO · SVG · TIFF</div>
-  </div>
-
-  <!-- Drop zone -->
-  <div id="drop-zone" class="mb-5" onclick="document.getElementById('file-input').click()">
-    <input type="file" id="file-input" accept="image/*" onchange="onFileSelect(event)" style="display:none" onclick="event.stopPropagation()">
-    <div id="drop-content">
-      <div class="text-5xl mb-4" id="drop-icon">📁</div>
-      <div class="text-white font-bold text-lg mb-1">Drop your file here</div>
-      <div class="text-slate-500 text-sm mb-4">or click to browse</div>
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-700 text-slate-400 text-sm">
-        <span>Max 500 MB</span> <span class="text-slate-600">·</span> <span>Client-side only</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- File loaded card -->
-  <div id="file-card" class="file-card mb-5" style="display:none">
-    <div class="file-icon bg-slate-800" id="fc-icon">📁</div>
-    <div class="flex-1 min-w-0">
-      <div class="text-white font-semibold text-sm truncate" id="fc-name">filename.png</div>
-      <div class="text-slate-500 text-xs mt-0.5" id="fc-meta">0 KB · image/png</div>
-    </div>
-    <button onclick="clearFile()" class="text-slate-600 hover:text-red-400 transition-colors text-lg flex-shrink-0">✕</button>
-  </div>
-
-  <!-- Convert to section -->
-  <div id="convert-section" style="display:none" class="mb-5">
-    <div class="text-xs font-bold tracking-widest uppercase text-slate-500 mb-3 font-mono">Convert To:</div>
-    <div class="flex flex-wrap gap-2" id="format-pills"></div>
-  </div>
-
-  <!-- Quality slider (images) -->
-  <div id="quality-section" style="display:none" class="mb-5 glass-panel p-4">
-    <div class="flex items-center justify-between mb-2">
-      <div class="text-sm font-semibold text-slate-300">Quality</div>
-      <div class="text-sm font-bold text-cyan-400 font-mono" id="quality-label">92%</div>
-    </div>
-    <input type="range" id="quality-slider" min="10" max="100" value="92" oninput="document.getElementById('quality-label').textContent=this.value+'%'" class="w-full accent-cyan-400">
-    <div class="flex justify-between text-xs text-slate-600 mt-1 font-mono">
-      <span>Smaller file</span><span>Best quality</span>
-    </div>
-  </div>
-
-  <!-- Convert button -->
-  <button class="convert-btn mb-4" id="convert-btn" onclick="startConvert()" disabled>Select a file to convert</button>
-
-  <!-- Progress -->
-  <div id="prog-wrap" style="display:none">
-    <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
-    <div class="text-xs font-mono text-slate-500 text-center" id="prog-label">Processing...</div>
-  </div>
-
-  <!-- Log -->
-  <div id="conv-log"></div>
-
-  <!-- Result -->
-  <div id="result-zone" class="mt-5">
-    <div class="glass-panel p-5 text-center">
-      <div class="text-3xl mb-3" id="res-icon">✅</div>
-      <div class="text-white font-bold text-lg mb-1" id="res-title">Conversion Complete</div>
-      <div class="text-slate-400 text-sm mb-5" id="res-meta"></div>
-      <a id="dl-link" class="dl-btn" download>⬇ Download Converted File</a>
-      <button onclick="clearFile()" class="mt-3 w-full text-slate-500 text-sm hover:text-slate-300 transition-colors py-2">Convert Another File</button>
-    </div>
-  </div>
-
-  <!-- Feature grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-10 mb-8">
-    <div class="glass-panel p-4 text-center">
-      <div class="text-2xl mb-2">🔒</div>
-      <div class="text-sm font-bold text-white mb-1">100% Private</div>
-      <div class="text-xs text-slate-500">Your file never leaves your device. All conversion happens in the browser.</div>
-    </div>
-    <div class="glass-panel p-4 text-center">
-      <div class="text-2xl mb-2">⚡</div>
-      <div class="text-sm font-bold text-white mb-1">Instant</div>
-      <div class="text-xs text-slate-500">No wait times, no queues. Convert in seconds using your device's own power.</div>
-    </div>
-    <div class="glass-panel p-4 text-center">
-      <div class="text-2xl mb-2">♾️</div>
-      <div class="text-sm font-bold text-white mb-1">Unlimited</div>
-      <div class="text-xs text-slate-500">No daily limits, no file count caps. Convert as many files as you want.</div>
-    </div>
-  </div>
-
-  <!-- Ad mid -->
-  <div class="ad-slot mb-6" style="min-height:250px">
-    <span class="ad-label">Partner</span>
-    <script async="async" data-cfasync="false" src="https://bauval.org/21/d0f677b4d72b913f07ead837adf17f31"></script>
-    <div id="container-d0f677b4d72b913f07ead837adf17f31"></div>
-  </div>
-
-  <!-- Format support table -->
-  <div class="glass-panel p-5 mb-6">
-    <div class="text-sm font-bold text-white mb-4">Supported Formats</div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div>
-        <div class="text-xs font-bold text-cyan-400 font-mono tracking-widest uppercase mb-2">🖼️ Images</div>
-        <div class="text-xs text-slate-400 leading-relaxed">PNG, JPG/JPEG, WebP, BMP, GIF, ICO, SVG → PNG, JPG, WebP, BMP</div>
-      </div>
-      <div>
-        <div class="text-xs font-bold text-purple-400 font-mono tracking-widest uppercase mb-2">🎵 Audio</div>
-        <div class="text-xs text-slate-400 leading-relaxed">MP3, WAV, OGG, FLAC, AAC, M4A → MP3, WAV, OGG</div>
-      </div>
-      <div>
-        <div class="text-xs font-bold text-pink-400 font-mono tracking-widest uppercase mb-2">🎬 Video</div>
-        <div class="text-xs text-slate-400 leading-relaxed">MP4, WebM, MOV, AVI, MKV → MP3 (audio extract), WebM, MP4</div>
-      </div>
-      <div>
-        <div class="text-xs font-bold text-emerald-400 font-mono tracking-widest uppercase mb-2">📄 Documents</div>
-        <div class="text-xs text-slate-400 leading-relaxed">CSV ↔ JSON, TXT → MD, JSON → CSV, Markdown cleanup</div>
-      </div>
-    </div>
-  </div>
-
-</main>
+</div>
 
 <!-- FFmpeg load notice -->
 <div id="ffmpeg-notice" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:100;background:rgba(9,13,22,.95);border:1px solid rgba(79,172,254,.3);border-radius:10px;padding:12px 20px;font-size:12px;font-family:monospace;color:#4facfe;white-space:nowrap;box-shadow:0 0 30px rgba(79,172,254,.15)">
@@ -322,50 +386,15 @@ var _ffmpegLoading = false;
 var _ffmpegReady = false;
 var _blobUrl = null;
 
-/* ═══════════════════════════════════════
-   FORMAT MAPS
-═══════════════════════════════════════ */
 var CATS = {
-  image: {
-    accept: 'image/*',
-    icon: '🖼️',
-    info: 'PNG · JPG · JPEG · WebP · BMP · GIF · ICO · SVG · TIFF',
-    formats: ['PNG','JPG','WebP','BMP'],
-    mimeOut: {PNG:'image/png', JPG:'image/jpeg', WebP:'image/webp', BMP:'image/bmp'},
-    extOut:  {PNG:'png', JPG:'jpg', WebP:'webp', BMP:'bmp'},
-  },
-  audio: {
-    accept: 'audio/*,video/*,.mp4,.mov,.avi,.mkv,.flac,.m4a,.ogg,.wav,.mp3,.aac',
-    icon: '🎵',
-    info: 'MP3 · WAV · OGG · FLAC · AAC · M4A · MP4 · MOV',
-    formats: ['MP3','WAV','OGG'],
-    mimeOut: {MP3:'audio/mpeg', WAV:'audio/wav', OGG:'audio/ogg'},
-    extOut:  {MP3:'mp3', WAV:'wav', OGG:'ogg'},
-  },
-  video: {
-    accept: 'video/*,.mp4,.mov,.avi,.mkv,.webm',
-    icon: '🎬',
-    info: 'MP4 · WebM · MOV · AVI · MKV',
-    formats: ['MP3 (audio)','WebM','MP4'],
-    mimeOut: {'MP3 (audio)':'audio/mpeg', WebM:'video/webm', MP4:'video/mp4'},
-    extOut:  {'MP3 (audio)':'mp3', WebM:'webm', MP4:'mp4'},
-  },
-  document: {
-    accept: '.csv,.json,.txt,.md,.markdown',
-    icon: '📄',
-    info: 'CSV · JSON · TXT · Markdown (.md)',
-    formats: ['JSON','CSV','TXT','Markdown'],
-    mimeOut: {JSON:'application/json', CSV:'text/csv', TXT:'text/plain', Markdown:'text/markdown'},
-    extOut:  {JSON:'json', CSV:'csv', TXT:'txt', Markdown:'md'},
-  }
+  image:    { accept:'image/*', icon:'🖼️', info:'PNG · JPG · JPEG · WebP · BMP · GIF · ICO · SVG · TIFF', formats:['PNG','JPG','WebP','BMP'], mimeOut:{PNG:'image/png',JPG:'image/jpeg',WebP:'image/webp',BMP:'image/bmp'}, extOut:{PNG:'png',JPG:'jpg',WebP:'webp',BMP:'bmp'} },
+  audio:    { accept:'audio/*,video/*,.mp4,.mov,.avi,.mkv,.flac,.m4a,.ogg,.wav,.mp3,.aac', icon:'🎵', info:'MP3 · WAV · OGG · FLAC · AAC · M4A · MP4 · MOV', formats:['MP3','WAV','OGG'], mimeOut:{MP3:'audio/mpeg',WAV:'audio/wav',OGG:'audio/ogg'}, extOut:{MP3:'mp3',WAV:'wav',OGG:'ogg'} },
+  video:    { accept:'video/*,.mp4,.mov,.avi,.mkv,.webm', icon:'🎬', info:'MP4 · WebM · MOV · AVI · MKV', formats:['MP3 (audio)','WebM','MP4'], mimeOut:{'MP3 (audio)':'audio/mpeg',WebM:'video/webm',MP4:'video/mp4'}, extOut:{'MP3 (audio)':'mp3',WebM:'webm',MP4:'mp4'} },
+  document: { accept:'.csv,.json,.txt,.md,.markdown', icon:'📄', info:'CSV · JSON · TXT · Markdown (.md)', formats:['JSON','CSV','TXT','Markdown'], mimeOut:{JSON:'application/json',CSV:'text/csv',TXT:'text/plain',Markdown:'text/markdown'}, extOut:{JSON:'json',CSV:'csv',TXT:'txt',Markdown:'md'} }
 };
 
-/* ═══════════════════════════════════════
-   CATEGORY SWITCH
-═══════════════════════════════════════ */
 function switchCat(cat, btn) {
-  _cat = cat;
-  _targetFmt = null;
+  _cat = cat; _targetFmt = null;
   document.querySelectorAll('.cat-tab').forEach(function(t){ t.classList.remove('active'); });
   btn.classList.add('active');
   var c = CATS[cat];
@@ -373,36 +402,25 @@ function switchCat(cat, btn) {
   document.getElementById('drop-icon').textContent = c.icon;
   document.getElementById('file-input').accept = c.accept;
   clearFile(true);
-  // preload ffmpeg for audio/video
   if((cat==='audio'||cat==='video') && !_ffmpegReady && !_ffmpegLoading) loadFFmpeg();
 }
 
-/* ═══════════════════════════════════════
-   DRAG & DROP
-═══════════════════════════════════════ */
+/* Drag & drop */
 var dz = document.getElementById('drop-zone');
 dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('drag-over'); });
 dz.addEventListener('dragleave', function(){ dz.classList.remove('drag-over'); });
-dz.addEventListener('drop', function(e){
-  e.preventDefault(); dz.classList.remove('drag-over');
-  var f = e.dataTransfer.files[0];
-  if(f) loadFile(f);
-});
-
+dz.addEventListener('drop', function(e){ e.preventDefault(); dz.classList.remove('drag-over'); var f=e.dataTransfer.files[0]; if(f) loadFile(f); });
 function onFileSelect(e){ if(e.target.files[0]) loadFile(e.target.files[0]); }
 
 function loadFile(f) {
-  _file = f;
-  _blobUrl = null;
-  // Show file card
+  _file = f; _blobUrl = null;
   var ext = (f.name.split('.').pop()||'').toUpperCase();
   var iconMap = {PNG:'🖼️',JPG:'📷',JPEG:'📷',WEBP:'🖼️',GIF:'🎞️',BMP:'🖼️',SVG:'🎨',ICO:'⚡',TIFF:'🖼️',MP3:'🎵',WAV:'🎵',OGG:'🎵',FLAC:'🎵',AAC:'🎵',M4A:'🎵',MP4:'🎬',WEBM:'🎬',MOV:'🎬',AVI:'🎬',MKV:'🎬',CSV:'📊',JSON:'📋',TXT:'📝',MD:'📝',MARKDOWN:'📝'};
-  document.getElementById('fc-icon').textContent = iconMap[ext] || '📁';
+  document.getElementById('fc-icon').textContent = iconMap[ext]||'📁';
   document.getElementById('fc-name').textContent = f.name;
-  document.getElementById('fc-meta').textContent = fmtSize(f.size) + ' · ' + (f.type || 'unknown type');
+  document.getElementById('fc-meta').textContent = fmtSize(f.size)+' · '+(f.type||'unknown type');
   document.getElementById('drop-zone').style.display = 'none';
   document.getElementById('file-card').style.display = 'flex';
-  // Show format pills
   buildFormatPills(ext);
   document.getElementById('convert-section').style.display = 'block';
   document.getElementById('result-zone').style.display = 'none';
@@ -412,22 +430,18 @@ function loadFile(f) {
 }
 
 function buildFormatPills(inputExt) {
-  var c = CATS[_cat];
   var wrap = document.getElementById('format-pills');
-  wrap.innerHTML = '';
-  _targetFmt = null;
-  c.formats.forEach(function(fmt){
-    if(fmt.replace(' (audio)','').toUpperCase() === inputExt) return; // skip same format
+  wrap.innerHTML = ''; _targetFmt = null;
+  CATS[_cat].formats.forEach(function(fmt){
+    if(fmt.replace(' (audio)','').toUpperCase()===inputExt) return;
     var p = document.createElement('button');
     p.className = 'fmt-pill';
     p.textContent = fmt;
     p.onclick = function(){
       document.querySelectorAll('.fmt-pill').forEach(function(x){ x.classList.remove('active'); });
-      p.classList.add('active');
-      _targetFmt = fmt;
-      // show quality only for image → JPG/WebP
-      var showQ = _cat==='image' && (fmt==='JPG'||fmt==='WebP');
-      document.getElementById('quality-section').style.display = showQ ? 'block' : 'none';
+      p.classList.add('active'); _targetFmt = fmt;
+      var showQ = _cat==='image'&&(fmt==='JPG'||fmt==='WebP');
+      document.getElementById('quality-section').style.display = showQ?'block':'none';
       updateBtn();
     };
     wrap.appendChild(p);
@@ -435,17 +449,17 @@ function buildFormatPills(inputExt) {
 }
 
 function clearFile(keepCat) {
-  _file = null; _targetFmt = null;
+  _file=null; _targetFmt=null;
   if(_blobUrl){ URL.revokeObjectURL(_blobUrl); _blobUrl=null; }
-  document.getElementById('file-card').style.display = 'none';
-  document.getElementById('drop-zone').style.display = '';
-  document.getElementById('convert-section').style.display = 'none';
-  document.getElementById('quality-section').style.display = 'none';
-  document.getElementById('result-zone').style.display = 'none';
-  document.getElementById('conv-log').style.display = 'none';
-  document.getElementById('conv-log').innerHTML = '';
-  document.getElementById('prog-wrap').style.display = 'none';
-  document.getElementById('file-input').value = '';
+  document.getElementById('file-card').style.display='none';
+  document.getElementById('drop-zone').style.display='';
+  document.getElementById('convert-section').style.display='none';
+  document.getElementById('quality-section').style.display='none';
+  document.getElementById('result-zone').style.display='none';
+  document.getElementById('conv-log').style.display='none';
+  document.getElementById('conv-log').innerHTML='';
+  document.getElementById('prog-wrap').style.display='none';
+  document.getElementById('file-input').value='';
   updateBtn();
 }
 
@@ -453,153 +467,107 @@ function updateBtn() {
   var btn = document.getElementById('convert-btn');
   if(!_file){ btn.disabled=true; btn.textContent='Select a file to convert'; return; }
   if(!_targetFmt){ btn.disabled=true; btn.textContent='Choose output format ↑'; return; }
-  btn.disabled = false;
-  btn.textContent = 'Convert to ' + _targetFmt + ' →';
+  btn.disabled=false; btn.textContent='Convert to '+_targetFmt+' →';
 }
 
-function fmtSize(b){
-  if(b<1024) return b+'B';
-  if(b<1048576) return (b/1024).toFixed(1)+'KB';
-  return (b/1048576).toFixed(1)+'MB';
-}
+function fmtSize(b){ if(b<1024)return b+'B'; if(b<1048576)return (b/1024).toFixed(1)+'KB'; return (b/1048576).toFixed(1)+'MB'; }
 
-/* ═══════════════════════════════════════
-   LOGGING
-═══════════════════════════════════════ */
-function log(msg, cls){
-  var el = document.getElementById('conv-log');
-  el.style.display = 'block';
-  var line = document.createElement('div');
-  line.className = cls||'';
-  line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
-  el.appendChild(line);
-  el.scrollTop = el.scrollHeight;
-}
+function log(msg,cls){ var el=document.getElementById('conv-log'); el.style.display='block'; var line=document.createElement('div'); line.className=cls||''; line.textContent='['+new Date().toLocaleTimeString()+'] '+msg; el.appendChild(line); el.scrollTop=el.scrollHeight; }
+function setProgress(pct,label){ document.getElementById('prog-wrap').style.display='block'; document.getElementById('prog-fill').style.width=pct+'%'; document.getElementById('prog-label').textContent=label||'Processing...'; }
 
-function setProgress(pct, label){
-  document.getElementById('prog-wrap').style.display = 'block';
-  document.getElementById('prog-fill').style.width = pct+'%';
-  document.getElementById('prog-label').textContent = label||'Processing...';
-}
-
-/* ═══════════════════════════════════════
-   CONVERT DISPATCHER
-═══════════════════════════════════════ */
 function startConvert(){
   if(!_file||!_targetFmt) return;
   document.getElementById('result-zone').style.display='none';
   document.getElementById('conv-log').innerHTML='';
   document.getElementById('convert-btn').disabled=true;
-  log('Starting conversion: '+_file.name+' → '+_targetFmt,'log-info');
+  log('Starting: '+_file.name+' → '+_targetFmt,'log-info');
   setProgress(5,'Reading file...');
   if(_cat==='image') convertImage();
   else if(_cat==='audio'||_cat==='video') convertAV();
   else convertDocument();
 }
 
-/* ═══════════════════════════════════════
-   IMAGE CONVERSION (Canvas API)
-═══════════════════════════════════════ */
+/* IMAGE: Canvas API */
 function convertImage(){
-  var mime = CATS.image.mimeOut[_targetFmt];
-  var ext  = CATS.image.extOut[_targetFmt];
-  var quality = parseInt(document.getElementById('quality-slider').value)/100;
-  var url = URL.createObjectURL(_file);
-  var img = new Image();
-  img.onload = function(){
+  var mime=CATS.image.mimeOut[_targetFmt], ext=CATS.image.extOut[_targetFmt];
+  var quality=parseInt(document.getElementById('quality-slider').value)/100;
+  var url=URL.createObjectURL(_file);
+  var img=new Image();
+  img.onload=function(){
     setProgress(40,'Rendering...');
     log('Image loaded: '+img.width+'×'+img.height+'px','log-ok');
-    var canvas = document.createElement('canvas');
-    canvas.width = img.width; canvas.height = img.height;
-    var ctx = canvas.getContext('2d');
-    // white background for JPG (no alpha)
+    var canvas=document.createElement('canvas');
+    canvas.width=img.width; canvas.height=img.height;
+    var ctx=canvas.getContext('2d');
     if(_targetFmt==='JPG'||_targetFmt==='BMP'){ ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height); }
     ctx.drawImage(img,0,0);
     URL.revokeObjectURL(url);
     setProgress(80,'Encoding...');
-    log('Encoding as '+mime,'log-info');
     canvas.toBlob(function(blob){
       if(!blob){ log('Encoding failed — format may not be supported by this browser','log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; return; }
       setProgress(100,'Done!');
       log('Done! Output: '+fmtSize(blob.size),'log-ok');
-      var outName = _file.name.replace(/\.[^.]+$/,'')+'.'+ext;
-      showResult(blob, outName, mime);
-    }, mime, (_targetFmt==='JPG'||_targetFmt==='WebP') ? quality : undefined);
+      showResult(blob, _file.name.replace(/\.[^.]+$/,'')+'.'+ext, mime);
+    }, mime, (_targetFmt==='JPG'||_targetFmt==='WebP')?quality:undefined);
   };
-  img.onerror = function(){ log('Could not load image file','log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; };
-  img.src = url;
+  img.onerror=function(){ log('Could not load image','log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; };
+  img.src=url;
 }
 
-/* ═══════════════════════════════════════
-   AUDIO / VIDEO (FFmpeg.wasm)
-═══════════════════════════════════════ */
+/* AUDIO/VIDEO: FFmpeg.wasm */
 function loadFFmpeg(){
   if(_ffmpegLoading||_ffmpegReady) return;
-  _ffmpegLoading = true;
+  _ffmpegLoading=true;
   document.getElementById('ffmpeg-notice').style.display='block';
   log('Loading audio/video engine (FFmpeg.wasm)...','log-info');
-  // Dynamically import FFmpeg from CDN
-  var s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js';
-  s.onload = function(){
-    var s2 = document.createElement('script');
-    s2.src = 'https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js';
-    s2.onload = function(){
-      initFFmpeg();
-    };
-    s2.onerror = function(){ log('Failed to load FFmpeg utilities','log-err'); _ffmpegLoading=false; };
+  var s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js';
+  s.onload=function(){
+    var s2=document.createElement('script');
+    s2.src='https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js';
+    s2.onload=function(){ initFFmpeg(); };
+    s2.onerror=function(){ log('Failed to load FFmpeg utilities','log-err'); _ffmpegLoading=false; };
     document.head.appendChild(s2);
   };
-  s.onerror = function(){ log('Failed to load FFmpeg. Check internet connection.','log-err'); _ffmpegLoading=false; document.getElementById('ffmpeg-notice').style.display='none'; };
+  s.onerror=function(){ log('Failed to load FFmpeg. Check internet connection.','log-err'); _ffmpegLoading=false; document.getElementById('ffmpeg-notice').style.display='none'; };
   document.head.appendChild(s);
 }
 
 async function initFFmpeg(){
-  try {
-    var FFmpeg = window.FFmpegWASM ? window.FFmpegWASM.FFmpeg : (window.FFmpeg && window.FFmpeg.FFmpeg);
-    if(!FFmpeg && window.FFmpegWASM) FFmpeg = window.FFmpegWASM.FFmpeg;
-    if(!FFmpeg){ log('FFmpeg not found after loading','log-err'); _ffmpegLoading=false; return; }
-    _ffmpeg = new FFmpeg();
-    _ffmpeg.on('log', function(e){ if(e && e.message) log(e.message,'log-info'); });
-    _ffmpeg.on('progress', function(e){ if(e && typeof e.progress==='number') setProgress(Math.round(e.progress*90)+5,'Converting... '+Math.round(e.progress*100)+'%'); });
-    log('Loading FFmpeg core (may take 10–30s on first visit)...','log-info');
-    await _ffmpeg.load({
-      coreURL: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',
-    });
-    _ffmpegReady = true;
-    _ffmpegLoading = false;
+  try{
+    var FFmpegClass=window.FFmpegWASM&&window.FFmpegWASM.FFmpeg?window.FFmpegWASM.FFmpeg:(window.FFmpeg&&window.FFmpeg.FFmpeg?window.FFmpeg.FFmpeg:null);
+    if(!FFmpegClass){ log('FFmpeg not found after loading','log-err'); _ffmpegLoading=false; return; }
+    _ffmpeg=new FFmpegClass();
+    _ffmpeg.on('log',function(e){ if(e&&e.message) log(e.message,'log-info'); });
+    _ffmpeg.on('progress',function(e){ if(e&&typeof e.progress==='number') setProgress(Math.round(e.progress*90)+5,'Converting... '+Math.round(e.progress*100)+'%'); });
+    log('Loading FFmpeg core...','log-info');
+    await _ffmpeg.load({ coreURL:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js' });
+    _ffmpegReady=true; _ffmpegLoading=false;
     document.getElementById('ffmpeg-notice').style.display='none';
     log('Audio/video engine ready!','log-ok');
-  } catch(e) {
-    log('FFmpeg load error: '+e.message,'log-err');
-    _ffmpegLoading=false;
-    document.getElementById('ffmpeg-notice').style.display='none';
-  }
+  }catch(e){ log('FFmpeg load error: '+e.message,'log-err'); _ffmpegLoading=false; document.getElementById('ffmpeg-notice').style.display='none'; }
 }
+
+function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
 
 async function convertAV(){
   if(!_ffmpegReady){
-    log('Loading audio/video engine first...','log-info');
+    log('Loading audio/video engine...','log-info');
     if(!_ffmpegLoading) loadFFmpeg();
-    // Poll until ready
-    var tries=0;
-    while(!_ffmpegReady && tries<60){ await sleep(1000); tries++; }
+    var tries=0; while(!_ffmpegReady&&tries<60){ await sleep(1000); tries++; }
     if(!_ffmpegReady){ log('Audio/video engine failed to load. Try refreshing.','log-err'); document.getElementById('convert-btn').disabled=false; return; }
   }
-  try {
-    var fetchFile = window.FFmpegUtil ? window.FFmpegUtil.fetchFile : null;
+  try{
+    var fetchFile=window.FFmpegUtil?window.FFmpegUtil.fetchFile:null;
     if(!fetchFile){ log('FFmpeg utilities not ready','log-err'); return; }
-    var inName = 'input.'+(_file.name.split('.').pop()||'mp4');
-    var fmt = _targetFmt;
-    var ext = CATS[_cat].extOut[fmt];
-    var mime = CATS[_cat].mimeOut[fmt];
-    var outName = 'output.'+ext;
-    log('Writing input file to FFmpeg memory...','log-info');
+    var inName='input.'+(_file.name.split('.').pop()||'mp4');
+    var fmt=_targetFmt, ext=CATS[_cat].extOut[fmt], mime=CATS[_cat].mimeOut[fmt];
+    var outName='output.'+ext;
+    log('Writing file to FFmpeg...','log-info');
     setProgress(10,'Loading file...');
     await _ffmpeg.writeFile(inName, await fetchFile(_file));
     setProgress(20,'Converting...');
-    log('Running conversion to '+fmt+'...','log-info');
-    var args = ['-i', inName];
+    var args=['-i',inName];
     if(fmt==='MP3'||fmt==='MP3 (audio)'){ args=args.concat(['-vn','-ar','44100','-ac','2','-b:a','192k']); }
     else if(fmt==='WAV'){ args=args.concat(['-vn','-ar','44100','-ac','2']); }
     else if(fmt==='OGG'){ args=args.concat(['-vn','-c:a','libvorbis','-q:a','5']); }
@@ -608,159 +576,130 @@ async function convertAV(){
     args.push(outName);
     await _ffmpeg.exec(args);
     setProgress(90,'Reading output...');
-    log('Reading output file...','log-info');
-    var data = await _ffmpeg.readFile(outName);
-    var blob = new Blob([data.buffer], {type:mime});
+    var data=await _ffmpeg.readFile(outName);
+    var blob=new Blob([data.buffer],{type:mime});
     setProgress(100,'Done!');
     log('Done! Output: '+fmtSize(blob.size),'log-ok');
-    var dlName = _file.name.replace(/\.[^.]+$/,'')+'.'+ext;
-    showResult(blob, dlName, mime);
-    // cleanup
+    showResult(blob, _file.name.replace(/\.[^.]+$/,'')+'.'+ext, mime);
     try{ await _ffmpeg.deleteFile(inName); await _ffmpeg.deleteFile(outName); }catch(e){}
-  } catch(e) {
-    log('Conversion error: '+e.message,'log-err');
-    setProgress(0,'Failed');
-    document.getElementById('convert-btn').disabled=false;
-  }
+  }catch(e){ log('Conversion error: '+e.message,'log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; }
 }
 
-function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
-
-/* ═══════════════════════════════════════
-   DOCUMENT CONVERSION (pure JS)
-═══════════════════════════════════════ */
+/* DOCUMENT: pure JS */
 function convertDocument(){
-  var reader = new FileReader();
-  reader.onload = function(e){
-    var text = e.target.result;
-    var inExt = (_file.name.split('.').pop()||'').toLowerCase();
-    var fmt = _targetFmt;
-    var mime = CATS.document.mimeOut[fmt];
-    var ext  = CATS.document.extOut[fmt];
-    var outName = _file.name.replace(/\.[^.]+$/,'')+'.'+ext;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var text=e.target.result;
+    var inExt=(_file.name.split('.').pop()||'').toLowerCase();
+    var fmt=_targetFmt, mime=CATS.document.mimeOut[fmt], ext=CATS.document.extOut[fmt];
     setProgress(50,'Converting...');
-    try {
+    try{
       var out;
-      if(inExt==='csv' && fmt==='JSON'){
-        out = csvToJson(text);
-        log('CSV → JSON: '+out.length+' rows converted','log-ok');
-      } else if(inExt==='json' && fmt==='CSV'){
-        var parsed = JSON.parse(text);
-        out = jsonToCsv(Array.isArray(parsed)?parsed:[parsed]);
-        log('JSON → CSV: converted','log-ok');
-      } else if((inExt==='txt'||inExt==='md'||inExt==='markdown') && fmt==='Markdown'){
-        out = txtToMarkdown(text);
-        log('TXT → Markdown: converted','log-ok');
-      } else if(inExt==='md' && fmt==='TXT'){
-        out = mdToTxt(text);
-        log('MD → TXT: stripped markdown','log-ok');
-      } else if(fmt==='TXT'){
-        out = text; log('Copied as plain text','log-ok');
-      } else if(fmt==='JSON'){
-        // Try wrap in JSON
-        var lines = text.trim().split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
-        out = JSON.stringify(lines, null, 2);
-        log('TXT → JSON: '+lines.length+' lines as array','log-ok');
-      } else {
-        out = text; log('Copied as-is','log-ok');
-      }
+      if(inExt==='csv'&&fmt==='JSON'){ out=JSON.stringify(csvToJson(text),null,2); log('CSV → JSON: converted','log-ok'); }
+      else if(inExt==='json'&&fmt==='CSV'){ var p=JSON.parse(text); out=jsonToCsv(Array.isArray(p)?p:[p]); log('JSON → CSV: converted','log-ok'); }
+      else if((inExt==='txt'||inExt==='md'||inExt==='markdown')&&fmt==='Markdown'){ out=txtToMarkdown(text); log('→ Markdown: converted','log-ok'); }
+      else if(inExt==='md'&&fmt==='TXT'){ out=mdToTxt(text); log('MD → TXT: stripped','log-ok'); }
+      else if(fmt==='JSON'){ out=JSON.stringify(text.trim().split('\n').map(function(l){return l.trim();}),null,2); log('→ JSON array: converted','log-ok'); }
+      else{ out=text; log('Copied as-is','log-ok'); }
       setProgress(100,'Done!');
-      var blob = new Blob([typeof out==='string'?out:JSON.stringify(out,null,2)], {type:mime});
-      showResult(blob, outName, mime);
-    } catch(err) {
-      log('Parse error: '+err.message,'log-err');
-      setProgress(0,'Failed');
-      document.getElementById('convert-btn').disabled=false;
-    }
+      var blob=new Blob([out],{type:mime});
+      showResult(blob, _file.name.replace(/\.[^.]+$/,'')+'.'+ext, mime);
+    }catch(err){ log('Parse error: '+err.message,'log-err'); setProgress(0,'Failed'); document.getElementById('convert-btn').disabled=false; }
   };
   reader.readAsText(_file);
 }
 
-function csvToJson(csv){
-  var lines = csv.trim().split('\n');
-  var headers = parseCsvLine(lines[0]);
-  return lines.slice(1).filter(function(l){return l.trim();}).map(function(line){
-    var vals = parseCsvLine(line);
-    var obj={};
-    headers.forEach(function(h,i){ obj[h.trim()]=vals[i]!==undefined?vals[i].trim():''; });
-    return obj;
-  });
-}
+function csvToJson(csv){ var lines=csv.trim().split('\n'); var headers=parseCsvLine(lines[0]); return lines.slice(1).filter(function(l){return l.trim();}).map(function(line){ var vals=parseCsvLine(line); var obj={}; headers.forEach(function(h,i){obj[h.trim()]=vals[i]!==undefined?vals[i].trim():''}); return obj; }); }
+function parseCsvLine(line){ var result=[],cur='',inQ=false; for(var i=0;i<line.length;i++){ var c=line[i]; if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){result.push(cur);cur='';}else{cur+=c;} } result.push(cur); return result; }
+function jsonToCsv(arr){ if(!arr.length)return ''; var keys=Object.keys(arr[0]); var rows=[keys.join(',')]; arr.forEach(function(row){rows.push(keys.map(function(k){var v=row[k]===undefined?'':String(row[k]);return v.includes(',')?'"'+v+'"':v;}).join(','));}); return rows.join('\n'); }
+function txtToMarkdown(txt){ var lines=txt.split('\n'); return lines.map(function(l,i){if(i===0&&l.trim())return '# '+l.trim();return l;}).join('\n'); }
+function mdToTxt(md){ return md.replace(/#{1,6}\s+/g,'').replace(/\*\*(.+?)\*\*/g,'$1').replace(/\*(.+?)\*/g,'$1').replace(/`(.+?)`/g,'$1').replace(/\[(.+?)\]\(.+?\)/g,'$1').replace(/^[-*+]\s+/gm,'• '); }
 
-function parseCsvLine(line){
-  var result=[]; var cur=''; var inQ=false;
-  for(var i=0;i<line.length;i++){
-    var c=line[i];
-    if(c==='"'){inQ=!inQ;}
-    else if(c===','&&!inQ){result.push(cur);cur='';}
-    else{cur+=c;}
-  }
-  result.push(cur); return result;
-}
-
-function jsonToCsv(arr){
-  if(!arr.length) return '';
-  var keys=Object.keys(arr[0]);
-  var rows=[keys.join(',')];
-  arr.forEach(function(row){ rows.push(keys.map(function(k){ var v=row[k]===undefined?'':String(row[k]); return v.includes(',')?'"'+v+'"':v; }).join(',')); });
-  return rows.join('\n');
-}
-
-function txtToMarkdown(txt){
-  var lines=txt.split('\n');
-  return lines.map(function(l,i){ if(i===0&&l.trim()) return '# '+l.trim(); return l; }).join('\n');
-}
-
-function mdToTxt(md){
-  return md
-    .replace(/#{1,6}\s+/g,'')
-    .replace(/\*\*(.+?)\*\*/g,'$1')
-    .replace(/\*(.+?)\*/g,'$1')
-    .replace(/`(.+?)`/g,'$1')
-    .replace(/\[(.+?)\]\(.+?\)/g,'$1')
-    .replace(/^[-*+]\s+/gm,'• ');
-}
-
-/* ═══════════════════════════════════════
-   SHOW RESULT
-═══════════════════════════════════════ */
-function showResult(blob, name, mime){
+function showResult(blob,name,mime){
   if(_blobUrl) URL.revokeObjectURL(_blobUrl);
-  _blobUrl = URL.createObjectURL(blob);
-  document.getElementById('res-meta').textContent = name + ' · ' + fmtSize(blob.size);
-  var dl = document.getElementById('dl-link');
-  dl.href = _blobUrl;
-  dl.download = name;
+  _blobUrl=URL.createObjectURL(blob);
+  document.getElementById('res-meta').textContent=name+' · '+fmtSize(blob.size);
+  var dl=document.getElementById('dl-link'); dl.href=_blobUrl; dl.download=name;
   document.getElementById('result-zone').style.display='block';
   document.getElementById('convert-btn').disabled=false;
   document.getElementById('convert-btn').textContent='Convert Another →';
-  // scroll to result
-  setTimeout(function(){ document.getElementById('result-zone').scrollIntoView({behavior:'smooth',block:'nearest'}); }, 100);
+  setTimeout(function(){document.getElementById('result-zone').scrollIntoView({behavior:'smooth',block:'nearest'});},100);
 }
 
 /* ═══════════════════════════════════════
-   BG CANVAS (subtle particle field)
+   BACKGROUND — exact same canvas engine as other pages
 ═══════════════════════════════════════ */
 (function(){
-  var c=document.getElementById('bg-canvas');
-  var ctx=c.getContext('2d');
-  var pts=[];
-  function resize(){ c.width=innerWidth; c.height=innerHeight; }
-  resize(); addEventListener('resize',resize);
-  for(var i=0;i<40;i++) pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*1.5+.5,a:Math.random()});
-  function draw(){
-    ctx.clearRect(0,0,c.width,c.height);
-    pts.forEach(function(p){
-      p.x+=p.vx; p.y+=p.vy;
-      if(p.x<0)p.x=c.width; if(p.x>c.width)p.x=0;
-      if(p.y<0)p.y=c.height; if(p.y>c.height)p.y=0;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(79,172,254,'+p.a*.15+')'; ctx.fill();
-    });
-    requestAnimationFrame(draw);
+  var canvas=document.getElementById('bg-canvas');
+  if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var W,H,isMobile;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;isMobile=W<=768;}
+  resize(); window.addEventListener('resize',resize,{passive:true});
+  var orbs=[
+    {baseX:-.1,baseY:-.1,r:.55,r2:.65,color:'79,172,254',phase:0,speed:.000065,amp:.07},
+    {baseX:1.1,baseY:.35,r:.60,r2:.70,color:'233,30,99',phase:2.1,speed:.000050,amp:.06},
+    {baseX:.1,baseY:1.05,r:.50,r2:.58,color:'34,197,94',phase:4.2,speed:.000080,amp:.05}
+  ];
+  var particles=[];
+  for(var i=0;i<25;i++) particles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:0,vy:0,alpha:0,size:1+Math.random()*1.5,color:Math.random()>.5?'79,172,254':'148,163,184'});
+  var mouseX=-9999,mouseY=-9999,lastMouse=0,ripples=[],rippleIdx=0;
+  var RC=['79,172,254','233,30,99','34,197,94'];
+  function spawnRipple(x,y){ ripples.push({x:x,y:y,born:performance.now(),maxR:60+Math.random()*40,color:RC[rippleIdx++%3]}); }
+  window.addEventListener('mousemove',function(e){if(isMobile)return;var n=Date.now();if(n-lastMouse<16)return;lastMouse=n;mouseX=e.clientX;mouseY=e.clientY;},{passive:true});
+  window.addEventListener('mousedown',function(e){spawnRipple(e.clientX,e.clientY);},{passive:true});
+  window.addEventListener('touchstart',function(e){for(var i=0;i<e.touches.length;i++)spawnRipple(e.touches[i].clientX,e.touches[i].clientY);},{passive:true});
+  var rafId=null;
+  function render(now){
+    rafId=requestAnimationFrame(render);
+    ctx.fillStyle='#020205'; ctx.fillRect(0,0,W,H);
+    for(var o=0;o<orbs.length;o++){
+      var ob=orbs[o],t=now*ob.speed+ob.phase;
+      var cx=(ob.baseX+Math.sin(t)*ob.amp)*W,cy=(ob.baseY+Math.cos(t*.7)*ob.amp)*H;
+      var radius=ob.r*Math.min(W,H),breathe=1+.08*Math.sin(t*1.3),alpha=.12+.06*Math.sin(t*.9);
+      var grad=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*breathe);
+      grad.addColorStop(0,'rgba('+ob.color+','+alpha.toFixed(3)+')');
+      grad.addColorStop(.5,'rgba('+ob.color+','+(alpha*.4).toFixed(3)+')');
+      grad.addColorStop(1,'rgba('+ob.color+',0)');
+      ctx.beginPath();ctx.arc(cx,cy,radius*breathe*ob.r2,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
+    }
+    if(!isMobile){
+      for(var p=0;p<particles.length;p++){
+        var pt=particles[p],dx=mouseX-pt.x,dy=mouseY-pt.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
+        var pull=Math.min(80/dist,3.5);
+        pt.vx+=(dx/dist)*pull*.08;pt.vy+=(dy/dist)*pull*.08;pt.vx*=.88;pt.vy*=.88;
+        pt.x+=pt.vx;pt.y+=pt.vy;
+        var speed=Math.sqrt(pt.vx*pt.vx+pt.vy*pt.vy);pt.alpha=Math.min(speed*.18,.85);
+        if(pt.alpha<.01)continue;
+        ctx.save();ctx.globalAlpha=pt.alpha;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.size+speed*.3,0,Math.PI*2);
+        ctx.fillStyle='rgba('+pt.color+',1)';ctx.shadowBlur=8+speed*2;ctx.shadowColor='rgba('+pt.color+',.6)';ctx.fill();ctx.restore();
+      }
+    }
+    for(var r=ripples.length-1;r>=0;r--){
+      var rp=ripples[r],age=(now-rp.born)/600;
+      if(age>=1){ripples.splice(r,1);continue;}
+      var eased=1-Math.pow(1-age,3);
+      ctx.save();ctx.globalAlpha=(1-age)*.65;ctx.beginPath();ctx.arc(rp.x,rp.y,rp.maxR*eased,0,Math.PI*2);
+      ctx.strokeStyle='rgba('+rp.color+',1)';ctx.lineWidth=1.5*(1-age*.6);ctx.shadowBlur=12*(1-age);ctx.shadowColor='rgba('+rp.color+',.5)';ctx.stroke();ctx.restore();
+    }
   }
-  draw();
+  rafId=requestAnimationFrame(render);
+  window.addEventListener('pagehide',function(){if(rafId)cancelAnimationFrame(rafId);});
 })();
+
+/* Request modal */
+function openReqModal(){var m=document.getElementById('request-modal');m.classList.add('open');document.body.style.overflow='hidden';setTimeout(function(){document.getElementById('rf-name').focus();},320);}
+function closeReqModal(){document.getElementById('request-modal').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeReqModal();});
+function submitReq(e){
+  e.preventDefault();
+  var name=document.getElementById('rf-name').value.trim();
+  var desc=document.getElementById('rf-desc').value.trim();
+  var subject=encodeURIComponent('ToolHavoc Tool Request: '+name);
+  var body=encodeURIComponent('Tool Name: '+name+'\n\nDescription:\n'+desc+'\n\n— Submitted via ToolHavoc.com');
+  window.location.href='mailto:nathanielwade2x@gmail.com?subject='+subject+'&body='+body;
+  setTimeout(function(){document.getElementById('reqForm').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:36px;margin-bottom:12px">✅</div><div style="color:#4ade80;font-weight:700;font-size:16px;margin-bottom:6px">Request Sent!</div><div style="color:#64748b;font-size:13px">We\'ll look into building <strong style="color:#94a3b8">'+name.replace(/</g,'&lt;')+'</strong> soon.</div><button onclick="closeReqModal()" style="margin-top:20px;padding:9px 24px;border-radius:8px;border:none;cursor:pointer;background:rgba(51,65,85,.5);color:#94a3b8;font-size:13px;font-weight:600">Close</button></div>';},800);
+}
 </script>
 </body>
 </html>
