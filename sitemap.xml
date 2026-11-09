@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Homepage -->
+  <url>
+    <loc>https://toolhavoc.com/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Computer Tools -->
+  <url><loc>https://toolhavoc.com/tools/file-converter.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/ai-image-detector.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/ai-text-detector.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/citation-generator.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/pdf-link-generator.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/pc-age.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/keyboard-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/webcam-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/mic-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/dead-pixel.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/speaker-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/browser-check.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/ip-lookup.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/screen-resolution.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/password-checker.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/fps-bottleneck.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/word-counter.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/color-picker.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/text-converter.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/password-generator.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/base64.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/lorem-ipsum.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/aspect-ratio.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/pomodoro.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/image-compressor.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/currency-converter.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/dns-lookup.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/ping-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/url-shortener.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/screenshot-ocr.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/bg-remover.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/resume-builder.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- Phone Tools -->
+  <url><loc>https://toolhavoc.com/tools/device-info.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/touch-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/gyroscope-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/vibration-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/qr-generator.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/timer.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- Games & Fun Tools -->
+  <url><loc>https://toolhavoc.com/tools/click-speed.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/reaction-time.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/aim-trainer.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/robot-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/hacker-terminal.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/typing-test.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/wifi-names.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/hacker-name.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/internet-quiz.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/fake-error.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/fake-bsod.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://toolhavoc.com/tools/fake-update.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+</urlset>
